@@ -2,13 +2,13 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Input } from "@/components/ui/input"
-import { CopyButton } from "@/components/ui/copy-button"
-import { formatTime } from "@/lib/date-utils"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import { formatTime } from "@/lib/date-utils"
+import { LogOut, Send, Bot, User } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface Message {
   id: string
@@ -243,10 +243,40 @@ export function DoctorChatInterface() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] max-h-[calc(100vh-64px)] bg-white rounded-lg border shadow-sm overflow-hidden">
-      <div className="border-b p-4 bg-white flex justify-between items-center">
+    <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100vh-80px)] bg-white rounded-lg border shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="border-b p-4 bg-white flex justify-between items-center shadow-sm">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-blue-50 rounded-lg">
+            <Bot className="w-6 h-6 text-blue-600" />
+          </div>
+          <div>
+            <h2 className="font-semibold text-gray-800">AI Medical Assistant</h2>
+            <p className="text-xs text-gray-500">Always available</p>
+          </div>
+        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={handleLogout}
+                className="text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+              >
+                <LogOut className="h-5 w-5" />
+                <span className="sr-only">Logout</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Logout</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
-      <div className="flex-1 overflow-hidden">
+
+      {/* Messages */}
+      <div className="flex-1 overflow-hidden bg-gray-50">
         <ScrollArea 
           ref={scrollAreaRef}
           className="h-full w-full p-4"
@@ -256,16 +286,22 @@ export function DoctorChatInterface() {
               <div
                 key={message.id}
                 className={cn(
-                  "flex",
-                  message.sender === "doctor" ? "justify-end" : "justify-start"
+                  "flex items-start gap-3",
+                  message.sender === "doctor" ? "flex-row-reverse" : "flex-row"
                 )}
               >
+                <Avatar className="h-8 w-8 mt-1">
+                  <AvatarImage src={message.sender === "doctor" ? "/doctor-avatar.png" : "/ai-avatar.png"} />
+                  <AvatarFallback className="bg-blue-100 text-blue-600">
+                    {message.sender === "doctor" ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+                  </AvatarFallback>
+                </Avatar>
                 <div
                   className={cn(
-                    "max-w-[80%] rounded-lg px-4 py-2",
+                    "max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm",
                     message.sender === "doctor"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100 text-gray-800"
+                      ? "bg-blue-600 text-white rounded-tr-none"
+                      : "bg-white text-gray-800 rounded-tl-none border border-gray-200"
                   )}
                 >
                   <div 
@@ -274,25 +310,38 @@ export function DoctorChatInterface() {
                       __html: formatMessageContent(message.content) 
                     }} 
                   />
-                  <div className="text-xs opacity-70 mt-1">
+                  <div className={cn(
+                    "text-xs mt-1.5 flex items-center justify-end",
+                    message.sender === "doctor" ? "text-blue-100" : "text-gray-400"
+                  )}>
                     {formatTime(message.timestamp)}
                   </div>
                 </div>
               </div>
             ))}
+            
             {isStreaming && (
-              <div className="flex justify-start">
-                <div className="max-w-[80%] rounded-lg bg-gray-100 px-4 py-2">
+              <div className="flex items-start gap-3">
+                <Avatar className="h-8 w-8 mt-1">
+                  <AvatarImage src="/ai-avatar.png" />
+                  <AvatarFallback className="bg-blue-100 text-blue-600">
+                    <Bot className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="max-w-[75%] rounded-2xl rounded-tl-none bg-white px-4 py-2.5 shadow-sm border border-gray-200">
                   <div 
                     className="prose prose-sm max-w-none"
                     dangerouslySetInnerHTML={{ 
                       __html: formatMessageContent(streamingContent) 
                     }} 
                   />
-                  <div className="flex space-x-1 mt-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  <div className="flex items-center gap-1.5 mt-1.5 justify-end">
+                    <span className="text-xs text-gray-400">typing</span>
+                    <div className="flex space-x-1">
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -301,39 +350,55 @@ export function DoctorChatInterface() {
           </div>
         </ScrollArea>
       </div>
+
+      {/* Input Area */}
       <div className="p-4 border-t bg-white">
         <form
           onSubmit={async (e) => {
             e.preventDefault()
             await handleSendMessage()
           }}
-          className="flex items-end gap-2"
+          className="relative"
         >
-          <div className="flex-1">
-            <Textarea
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Type your message..."
-              className="min-h-[60px] max-h-[200px] resize-none"
-              onKeyDown={async (e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault()
-                  await handleSendMessage()
-                }
-              }}
-              disabled={isLoading}
-            />
-          </div>
-          <Button type="submit" disabled={!inputMessage.trim() || isLoading}>
+          <Textarea
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            placeholder="Type your message..."
+            className="min-h-[56px] max-h-[200px] pr-12 resize-none"
+            onKeyDown={async (e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault()
+                await handleSendMessage()
+              }
+            }}
+            disabled={isLoading}
+          />
+          <Button 
+            type="submit" 
+            size="icon"
+            disabled={!inputMessage.trim() || isLoading}
+            className="absolute right-2 bottom-2 h-9 w-9 rounded-full"
+          >
             {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Sending</span>
-              </div>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
-              <span>Send</span>
+              <Send className="h-4 w-4" />
             )}
+            <span className="sr-only">Send message</span>
           </Button>
+          
+          {isLoading && (
+            <div className="absolute -top-6 left-0 right-0 flex justify-center">
+              <div className="inline-flex items-center gap-1.5 bg-white px-3 py-1 rounded-full text-xs text-gray-500 shadow-sm border border-gray-200">
+                <span>AI is thinking</span>
+                <div className="flex space-x-0.5">
+                  <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
+              </div>
+            </div>
+          )}
         </form>
       </div>
     </div>
