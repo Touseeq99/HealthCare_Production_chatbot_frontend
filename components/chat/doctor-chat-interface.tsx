@@ -243,105 +243,122 @@ export function DoctorChatInterface() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100vh-80px)] bg-white rounded-lg border shadow-sm overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100vh-80px)] bg-gradient-to-br from-blue-50 to-white rounded-lg border border-blue-100 shadow-lg overflow-hidden">
       {/* Header */}
-      <div className="border-b p-4 bg-white flex justify-between items-center shadow-sm">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 flex justify-between items-center shadow-md">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-blue-50 rounded-lg">
-            <Bot className="w-6 h-6 text-blue-600" />
+          <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
           </div>
           <div>
-            <h2 className="font-semibold text-gray-800">AI Medical Assistant</h2>
-            <p className="text-xs text-gray-500">Always available</p>
+            <h2 className="font-bold text-white text-lg">CardioCare AI Assistant</h2>
+            <p className="text-blue-100 text-sm flex items-center">
+              <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
+              Online - 24/7 Cardiac Support
+            </p>
           </div>
         </div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={handleLogout}
-                className="text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-              >
-                <LogOut className="h-5 w-5" />
-                <span className="sr-only">Logout</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Logout</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex items-center space-x-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={handleLogout}
+                  className="text-white/90 hover:bg-white/20 hover:text-white transition-colors"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span className="sr-only">Logout</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Logout</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-hidden bg-gray-50">
-        <ScrollArea 
-          ref={scrollAreaRef}
-          className="h-full w-full p-4"
-        >
-          <div className="space-y-4">
+      <div className="flex-1 overflow-hidden bg-gradient-to-b from-blue-50 to-white">
+        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-center opacity-5"></div>
+        <ScrollArea ref={scrollAreaRef} className="h-full w-full p-4 relative z-10">
+          <div className="space-y-6">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={cn(
-                  "flex items-start gap-3",
+                  "flex items-start gap-3 group",
                   message.sender === "doctor" ? "flex-row-reverse" : "flex-row"
                 )}
               >
-                <Avatar className="h-8 w-8 mt-1">
-                  <AvatarImage src={message.sender === "doctor" ? "/doctor-avatar.png" : "/ai-avatar.png"} />
-                  <AvatarFallback className="bg-blue-100 text-blue-600">
-                    {message.sender === "doctor" ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
-                  </AvatarFallback>
-                </Avatar>
+                <div className={cn(
+                  "h-9 w-9 rounded-full flex items-center justify-center mt-1 flex-shrink-0",
+                  message.sender === "doctor" 
+                    ? "bg-blue-600 text-white" 
+                    : "bg-white text-blue-600 border-2 border-blue-100"
+                )}>
+                  {message.sender === "doctor" ? (
+                    <User className="h-4 w-4" />
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  )}
+                </div>
                 <div
                   className={cn(
-                    "max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm",
+                    "max-w-[75%] rounded-2xl px-4 py-3 shadow-sm relative transition-all duration-200",
                     message.sender === "doctor"
-                      ? "bg-blue-600 text-white rounded-tr-none"
-                      : "bg-white text-gray-800 rounded-tl-none border border-gray-200"
+                      ? "bg-blue-600 text-white rounded-br-none shadow-blue-200"
+                      : "bg-white text-gray-800 rounded-bl-none border border-blue-50 shadow-sm"
                   )}
                 >
                   <div 
-                    className="prose prose-sm max-w-none"
+                    className="prose prose-sm max-w-none prose-blue"
                     dangerouslySetInnerHTML={{ 
                       __html: formatMessageContent(message.content) 
                     }} 
                   />
                   <div className={cn(
-                    "text-xs mt-1.5 flex items-center justify-end",
+                    "text-xs mt-2 flex items-center justify-end gap-1.5",
                     message.sender === "doctor" ? "text-blue-100" : "text-gray-400"
                   )}>
                     {formatTime(message.timestamp)}
+                    {message.sender === "ai" && (
+                      <span className="text-blue-300">•</span>
+                    )}
+                    {message.sender === "ai" && (
+                      <span className="text-blue-300">AI Assistant</span>
+                    )}
                   </div>
                 </div>
               </div>
             ))}
-            
             {isStreaming && (
               <div className="flex items-start gap-3">
-                <Avatar className="h-8 w-8 mt-1">
-                  <AvatarImage src="/ai-avatar.png" />
-                  <AvatarFallback className="bg-blue-100 text-blue-600">
-                    <Bot className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="max-w-[75%] rounded-2xl rounded-tl-none bg-white px-4 py-2.5 shadow-sm border border-gray-200">
+                <div className="h-9 w-9 rounded-full bg-white border-2 border-blue-100 flex items-center justify-center mt-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div className="max-w-[75%] rounded-2xl rounded-tl-none bg-white px-4 py-3 shadow-sm border border-blue-50">
                   <div 
                     className="prose prose-sm max-w-none"
                     dangerouslySetInnerHTML={{ 
                       __html: formatMessageContent(streamingContent) 
                     }} 
                   />
-                  <div className="flex items-center gap-1.5 mt-1.5 justify-end">
-                    <span className="text-xs text-gray-400">typing</span>
+                  <div className="flex items-center gap-1.5 mt-2 justify-start">
                     <div className="flex space-x-1">
-                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></div>
                     </div>
+                    <span className="text-xs text-blue-500 ml-1">AI is typing</span>
                   </div>
                 </div>
               </div>
@@ -352,19 +369,15 @@ export function DoctorChatInterface() {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t bg-white relative">
-        {isLoading && (
-          <div className="absolute -top-6 left-0 right-0 flex justify-center">
-            <div className="inline-flex items-center gap-1.5 bg-white px-3 py-1 rounded-full text-xs text-gray-500 shadow-sm border border-gray-200">
-              <span>AI is thinking</span>
-              <div className="flex space-x-0.5">
-                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-              </div>
-            </div>
+      <div className="p-4 border-t border-blue-100 bg-white/80 backdrop-blur-sm relative">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-3 py-0.5 rounded-full border border-blue-100 shadow-sm">
+          <div className="flex items-center gap-1 text-xs text-blue-600 font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>CardioCare AI Assistant</span>
           </div>
-        )}
+        </div>
         <form
           onSubmit={async (e) => {
             e.preventDefault()
@@ -376,8 +389,8 @@ export function DoctorChatInterface() {
             <Textarea
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Type your message..."
-              className="min-h-[56px] max-h-[200px] pr-24 resize-none"
+              placeholder="Type your medical query..."
+              className="min-h-[56px] max-h-[200px] pr-24 resize-none border-blue-100 focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all duration-200"
               onKeyDown={async (e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault()
@@ -386,31 +399,52 @@ export function DoctorChatInterface() {
               }}
               disabled={isLoading}
             />
-            <div className="absolute right-2 bottom-2 flex items-center gap-1">
-              <button
-                type="button"
-                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
-                onClick={() => {
-                  // Toggle heart reaction logic here
-                  const heart = '❤️';
-                  setInputMessage(prev => prev.endsWith(heart) ? prev : prev + ' ' + heart);
-                }}
-              >
-                <span className="text-red-500 hover:text-red-600 text-xl">❤️</span>
-              </button>
-              <Button 
-                type="submit" 
-                size="sm"
-                disabled={!inputMessage.trim() || isLoading}
-                className="h-9 w-9 p-0 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors"
-              >
-                {isLoading ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-                <span className="sr-only">Send message</span>
-              </Button>
+            <div className="absolute right-2 bottom-2 flex items-center gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="p-1.5 rounded-full hover:bg-blue-50 transition-colors text-gray-500 hover:text-red-500"
+                      onClick={() => {
+                        const heart = '❤️';
+                        setInputMessage(prev => prev.endsWith(heart) ? prev : prev + ' ' + heart);
+                      }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Add heart reaction</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      type="submit" 
+                      size="sm"
+                      disabled={!inputMessage.trim() || isLoading}
+                      className="h-9 w-9 p-0 rounded-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg"
+                    >
+                      {isLoading ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                      )}
+                      <span className="sr-only">Send message</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Send message</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </form>
