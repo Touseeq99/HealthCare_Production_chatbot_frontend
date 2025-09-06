@@ -162,16 +162,6 @@ export function DoctorChatInterface() {
     setIsStreaming(true)
     setStreamingContent('')
 
-    // Create a temporary bot message that will be updated with the stream
-    const tempBotMessage: Message = {
-      id: `temp-${Date.now()}`,
-      content: '',
-      sender: 'ai',
-      timestamp: new Date(),
-    };
-    
-    setMessages(prev => [...prev, tempBotMessage]);
-
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/doctor/stream`, {
         method: "POST",
@@ -206,17 +196,6 @@ export function DoctorChatInterface() {
           
           // Update the streaming content and the last message
           setStreamingContent(content);
-          setMessages(prev => {
-            const newMessages = [...prev];
-            const lastMessage = newMessages[newMessages.length - 1];
-            if (lastMessage.id === tempBotMessage.id) {
-              return [
-                ...newMessages.slice(0, -1),
-                { ...lastMessage, content }
-              ];
-            }
-            return newMessages;
-          });
         }
       }
     } catch (error) {
@@ -228,7 +207,7 @@ export function DoctorChatInterface() {
         sender: "ai",
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev.filter(m => m.id !== tempBotMessage.id), botResponse]);
+      setMessages(prev => [...prev, botResponse]);
     } finally {
       setIsLoading(false);
       setIsStreaming(false);
@@ -329,10 +308,7 @@ export function DoctorChatInterface() {
                   )}>
                     {formatTime(message.timestamp)}
                     {message.sender === "ai" && (
-                      <span className="text-red-300">•</span>
-                    )}
-                    {message.sender === "ai" && (
-                      <span className="text-red-300">AI Assistant</span>
+                      <span className="text-red-300">• AI Assistant</span>
                     )}
                   </div>
                 </div>
@@ -346,12 +322,13 @@ export function DoctorChatInterface() {
                   </svg>
                 </div>
                 <div className="max-w-[75%] rounded-2xl rounded-tl-none bg-white px-5 py-4 shadow-sm border border-red-50">
-                  <div 
-                    className="prose prose-sm max-w-none text-gray-700"
-                    dangerouslySetInnerHTML={{ 
-                      __html: formatMessageContent(streamingContent) 
-                    }} 
-                  />
+                  <div className="flex items-center space-x-1">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
