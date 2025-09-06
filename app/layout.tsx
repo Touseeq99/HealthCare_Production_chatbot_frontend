@@ -4,6 +4,7 @@ import { GeistMono } from 'geist/font/mono'
 import { Analytics } from '@vercel/analytics/next'
 import { ClipboardProvider } from '@/components/clipboard-provider'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Footer } from '@/components/footer'
 import './globals.css'
 
@@ -28,6 +29,7 @@ export default function RootLayout({
             </div>
             <Footer />
             <Analytics />
+            <SpeedInsights />
           </ClipboardProvider>
         </ErrorBoundary>
       </body>
