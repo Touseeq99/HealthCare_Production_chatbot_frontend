@@ -243,95 +243,136 @@ export function DoctorChatInterface() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)] max-h-[calc(100vh-200px)] bg-white rounded-lg shadow">
-      <div className="flex-1 overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-200px)] max-h-[calc(100vh-200px)] bg-white rounded-lg shadow overflow-hidden">
+      <div className="flex-1 overflow-hidden flex flex-col">
         <ScrollArea 
           ref={scrollAreaRef}
-          className="h-full w-full p-4"
+          className="flex-1 overflow-auto"
         >
           <div className="space-y-4">
-            {messages.map((message) => (
+          {messages.map((message) => (
+            <div 
+              key={message.id} 
+              className={cn(
+                "flex",
+                message.sender === "doctor" ? "justify-end" : "justify-start"
+              )}
+            >
               <div
-                key={message.id}
                 className={cn(
-                  "flex",
-                  message.sender === "doctor" ? "justify-end" : "justify-start"
+                  "max-w-2xl px-4 py-3 rounded-lg group transition-all duration-200",
+                  message.sender === "doctor"
+                    ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+                    : "bg-white border border-red-200/50 text-gray-800 shadow-sm"
                 )}
               >
-                <div
-                  className={cn(
-                    "max-w-[80%] rounded-lg px-4 py-2",
-                    message.sender === "doctor"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100 text-gray-800"
-                  )}
-                >
+                {message.sender === "ai" && message.id.startsWith('temp-') && !message.content ? (
+                  <div className="h-5 flex items-center">
+                    <span className="inline-block w-2 h-5 bg-red-500 animate-pulse"></span>
+                  </div>
+                ) : (
                   <div 
-                    className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ 
-                      __html: formatMessageContent(message.content) 
-                    }} 
+                    className={`text-sm leading-relaxed ${message.sender === "doctor" ? "text-white" : "text-black"} [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_ul>li]:mb-1 [&_strong]:font-semibold`}
+                    dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
                   />
-                  <div className="text-xs opacity-70 mt-1">
+                )}
+                <div className="flex items-center justify-between mt-2">
+                  <p className={`text-xs opacity-70 ${message.sender === "doctor" ? "text-white" : "text-gray-600"}`}>
                     {formatTime(message.timestamp)}
-                  </div>
+                  </p>
+                  {message.sender === "ai" && (
+                    <CopyButton 
+                      text={message.content} 
+                      size="sm" 
+                      variant="ghost"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    />
+                  )}
                 </div>
               </div>
-            ))}
-            {isStreaming && (
-              <div className="flex justify-start">
-                <div className="max-w-[80%] rounded-lg bg-gray-100 px-4 py-2">
-                  <div 
-                    className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ 
-                      __html: formatMessageContent(streamingContent) 
-                    }} 
-                  />
-                  <div className="flex space-x-1 mt-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                  </div>
+            </div>
+          ))}
+          
+          {/* Typing indicator
+          {(isLoading || isStreaming) && (
+            <div className="flex justify-start">
+              <div className="bg-white border border-red-200/50 text-gray-800 shadow-sm max-w-2xl px-4 py-3 rounded-lg">
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
-      </div>
-      <div className="p-4 border-t">
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault()
-            await handleSendMessage()
+            </div>
+          )} */}
+          
+          <div ref={messagesEndRef} />
+        </div>
+      </ScrollArea>
+
+        {/* Input Area */}
+      <div className="bg-gradient-to-r from-red-50/90 to-blue-50/90 backdrop-blur-sm border-t border-red-200/30 p-4">
+        <form 
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSendMessage();
           }}
-          className="flex items-end gap-2"
+          className="max-w-4xl mx-auto"
         >
-          <div className="flex-1">
+          <div className="relative">
             <Textarea
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Type your message..."
-              className="min-h-[60px] max-h-[200px] resize-none"
-              onKeyDown={async (e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault()
-                  await handleSendMessage()
+              placeholder="Ask about medical conditions, treatments, guidelines, or research..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage();
                 }
               }}
+              className={cn(
+                "bg-white border-gray-200 text-black resize-none pr-12 min-h-[60px] max-h-[200px]",
+                "focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+              )}
+              rows={1}
               disabled={isLoading}
             />
+            <Button
+              type="submit"
+              size="icon"
+              className={cn(
+                "absolute right-2 bottom-2 w-8 h-8 rounded-full transition-all duration-200",
+                !inputMessage.trim() || isLoading 
+                  ? "bg-gray-300 cursor-not-allowed" 
+                  : "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
+              )}
+              disabled={isLoading || !inputMessage.trim()}
+            >
+              <svg 
+                className={cn(
+                  "w-4 h-4 transition-transform duration-200",
+                  !inputMessage.trim() || isLoading ? "text-gray-500" : "text-white"
+                )} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                />
+              </svg>
+            </Button>
           </div>
-          <Button type="submit" disabled={!inputMessage.trim() || isLoading}>
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Sending</span>
-              </div>
-            ) : (
-              <span>Send</span>
-            )}
-          </Button>
+          <div className="flex items-center justify-between mt-2 text-xs text-gray-600">
+            <p>Press Enter to send, Shift+Enter for new line</p>
+            <p className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              Professional medical AI assistant
+            </p>
+          </div>
         </form>
       </div>
     </div>
