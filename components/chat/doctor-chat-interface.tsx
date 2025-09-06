@@ -352,7 +352,19 @@ export function DoctorChatInterface() {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t bg-white">
+      <div className="p-4 border-t bg-white relative">
+        {isLoading && (
+          <div className="absolute -top-6 left-0 right-0 flex justify-center">
+            <div className="inline-flex items-center gap-1.5 bg-white px-3 py-1 rounded-full text-xs text-gray-500 shadow-sm border border-gray-200">
+              <span>AI is thinking</span>
+              <div className="flex space-x-0.5">
+                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+            </div>
+          </div>
+        )}
         <form
           onSubmit={async (e) => {
             e.preventDefault()
@@ -360,45 +372,47 @@ export function DoctorChatInterface() {
           }}
           className="relative"
         >
-          <Textarea
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Type your message..."
-            className="min-h-[56px] max-h-[200px] pr-12 resize-none"
-            onKeyDown={async (e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault()
-                await handleSendMessage()
-              }
-            }}
-            disabled={isLoading}
-          />
-          <Button 
-            type="submit" 
-            size="icon"
-            disabled={!inputMessage.trim() || isLoading}
-            className="absolute right-2 bottom-2 h-9 w-9 rounded-full"
-          >
-            {isLoading ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-            <span className="sr-only">Send message</span>
-          </Button>
-          
-          {isLoading && (
-            <div className="absolute -top-6 left-0 right-0 flex justify-center">
-              <div className="inline-flex items-center gap-1.5 bg-white px-3 py-1 rounded-full text-xs text-gray-500 shadow-sm border border-gray-200">
-                <span>AI is thinking</span>
-                <div className="flex space-x-0.5">
-                  <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                </div>
-              </div>
+          <div className="relative">
+            <Textarea
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Type your message..."
+              className="min-h-[56px] max-h-[200px] pr-24 resize-none"
+              onKeyDown={async (e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault()
+                  await handleSendMessage()
+                }
+              }}
+              disabled={isLoading}
+            />
+            <div className="absolute right-2 bottom-2 flex items-center gap-1">
+              <button
+                type="button"
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                onClick={() => {
+                  // Toggle heart reaction logic here
+                  const heart = '❤️';
+                  setInputMessage(prev => prev.endsWith(heart) ? prev : prev + ' ' + heart);
+                }}
+              >
+                <span className="text-red-500 hover:text-red-600 text-xl">❤️</span>
+              </button>
+              <Button 
+                type="submit" 
+                size="sm"
+                disabled={!inputMessage.trim() || isLoading}
+                className="h-9 w-9 p-0 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors"
+              >
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+                <span className="sr-only">Send message</span>
+              </Button>
             </div>
-          )}
+          </div>
         </form>
       </div>
     </div>
