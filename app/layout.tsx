@@ -20,13 +20,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} flex flex-col min-h-screen`} suppressHydrationWarning={true}>
         <ErrorBoundary>
           <ClipboardProvider>
-            <div className="flex-grow">
+            <main className="flex-grow flex flex-col">
               {children}
-            </div>
+            </main>
             <Footer />
             <Analytics />
             <SpeedInsights />
