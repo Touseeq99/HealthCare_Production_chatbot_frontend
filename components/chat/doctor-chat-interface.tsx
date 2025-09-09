@@ -1,14 +1,14 @@
-"use client"
-
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { formatTime } from "@/lib/date-utils"
-import { LogOut, Send, Bot, User } from "lucide-react"
+import { LogOut, Send, Bot, User, Loader2, Sparkles } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import Image from "next/image";
 
 interface Message {
   id: string
@@ -23,12 +23,198 @@ interface ChatHistory {
   timestamp: Date
 }
 
+// Format message content helper function
+const formatMessageContent = (content: string) => {
+  if (!content) return content;
+  
+  // Process bold text
+  let formatted = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  
+  // Process headings
+  formatted = formatted
+    .replace(/^####\s+(.*?)$/gm, '<h4 class="text-base font-semibold mt-1 mb-0">$1</h4>')
+    .replace(/^###\s+(.*?)$/gm, '<h3 class="text-lg font-semibold mt-1 mb-0">$1</h3>')
+    .replace(/^##\s+(.*?)$/gm, '<h2 class="text-xl font-bold mt-2 mb-1">$1</h2>')
+    .replace(/^#\s+(.*?)$/gm, '<h1 class="text-2xl font-bold mt-3 mb-2">$1</h1>');
+  
+  // Process lists with proper nesting
+  const lines = formatted.split('\n');
+  let inList = false;
+  let listItems: string[] = [];
+  let result: string[] = [];
+  
+  const processList = () => {
+    if (listItems.length > 0) {
+      const listHtml = `<ul class="my-0 pl-4 space-y-1">${listItems.join('')}</ul>`;
+      result.push(listHtml);
+      listItems = [];
+    }
+  };
+  
+  lines.forEach(line => {
+    const isListItem = line.trim().match(/^[-*+]\s+/);
+    const isNestedListItem = line.trim().match(/^\s+[-*+]\s+/);
+    
+    if (isListItem || isNestedListItem) {
+      const level = (line.match(/^\s*/) || [''])[0].length;
+      const content = line.trim().substring(2);
+      const listItem = `<li class="pl-${Math.min(level + 1, 4)}">${content}</li>`;
+      listItems.push(listItem);
+      inList = true;
+    } else {
+      if (inList) {
+        processList();
+        inList = false;
+      }
+      result.push(line);
+    }
+  });
+  
+  processList(); // Process any remaining list items
+  formatted = result.join('\n');
+  
+  // Process paragraphs and other block elements
+  formatted = formatted
+    .split('\n\n')
+    .map(block => {
+      block = block.trim();
+      if (!block) return '';
+      
+      // Skip processing if already a list or heading
+      if (block.startsWith('<ul>') || block.startsWith('<h')) {
+        return block;
+      }
+      
+      // Handle blockquotes
+      if (block.startsWith('> ')) {
+        return `<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-600">${block.substring(2)}</blockquote>`;
+      }
+      
+      // Handle horizontal rules
+      if (block === '---' || block === '***' || block === '___') {
+        return '<hr class="my-2 border-gray-200" />';
+      }
+      
+      // Handle paragraphs that end with : (section headers)
+      if (block.endsWith(':')) {
+        return `<p class="font-semibold text-lg mb-0">${block}</p>`;
+      }
+      
+      // Regular paragraphs
+      return `<p class="mb-0">${block}</p>`;
+    })
+    .filter(Boolean)
+    .join('\n');
+  
+  // Process inline elements that might be left
+  formatted = formatted
+    .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>') // Inline code
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>') // Italics
+    .replace(/\n/g, '<br />'); // Line breaks
+  
+  return formatted;
+};
+
+// Message component with animations
+const MessageBubble = ({ message, isAi }: { message: Message, isAi: boolean }) => {
+  const variants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 25
+      }
+    },
+    exit: { opacity: 0, x: isAi ? -20 : 20, scale: 0.95 }
+  };
+
+  return (
+    <motion.div
+      className={cn(
+        "flex mb-4",
+        isAi ? "justify-start" : "justify-end"
+      )}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={variants}
+      layout
+    >
+      <div className={cn(
+        "flex max-w-[85%] md:max-w-[75%] lg:max-w-[65%] xl:max-w-[55%]",
+        isAi ? "flex-row" : "flex-row-reverse"
+      )}>
+        <div className={cn(
+          "flex-shrink-0",
+          isAi ? "mr-3" : "ml-3"
+        )}>
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={isAi ? "/ai-avatar.png" : "/doctor-avatar.png"} />
+            <AvatarFallback className={cn(
+              "text-sm font-medium",
+              isAi ? "bg-blue-100 text-blue-800" : "bg-primary text-white"
+            )}>
+              {isAi ? "AI" : "DR"}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+        <div className={cn(
+          "rounded-2xl px-4 py-2 text-sm",
+          isAi 
+            ? "bg-white border border-gray-200 shadow-sm text-gray-800" 
+            : "bg-primary text-white"
+        )}>
+          <div 
+            className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5"
+            dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
+          />
+          <div className={cn(
+            "text-xs mt-1 flex justify-end",
+            isAi ? "text-gray-500" : "text-white/80"
+          )}>
+            {formatTime(message.timestamp)}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// Typing indicator component
+const TypingIndicator = () => (
+  <motion.div 
+    className="flex items-center space-x-1 px-4 py-2"
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.3 }}
+  >
+    <motion.div 
+      className="h-2 w-2 rounded-full bg-primary/60"
+      animate={{ y: [0, -5, 0] }}
+      transition={{ duration: 0.8, repeat: Infinity, delay: 0 }}
+    />
+    <motion.div 
+      className="h-2 w-2 rounded-full bg-primary/60"
+      animate={{ y: [0, -5, 0] }}
+      transition={{ duration: 0.8, repeat: Infinity, delay: 0.2 }}
+    />
+    <motion.div 
+      className="h-2 w-2 rounded-full bg-primary/60"
+      animate={{ y: [0, -5, 0] }}
+      transition={{ duration: 0.8, repeat: Infinity, delay: 0.4 }}
+    />
+  </motion.div>
+);
+
 export function DoctorChatInterface() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content:
-        "Hello Doctor! I'm your AI medical assistant. I can help you with medical queries, research, and clinical guidance. How can I assist you today?",
+      content: "Welcome to MetaMed — a clinical decision support system designed to standardize and optimize evidence-based care using an advanced highly accurate system called CLARA. Please enter your clinical question.",
       sender: "ai",
       timestamp: new Date(),
     },
@@ -51,97 +237,6 @@ export function DoctorChatInterface() {
     }
   }, [])
 
-  function formatMessageContent(content: string) {
-    if (!content) return content;
-    
-    // Process bold text
-    let formatted = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    // Process headings
-    formatted = formatted
-      .replace(/^####\s+(.*?)$/gm, '<h4 class="text-base font-semibold mt-1 mb-0">$1</h4>')
-      .replace(/^###\s+(.*?)$/gm, '<h3 class="text-lg font-semibold mt-1 mb-0">$1</h3>')
-      .replace(/^##\s+(.*?)$/gm, '<h2 class="text-xl font-bold mt-2 mb-1">$1</h2>')
-      .replace(/^#\s+(.*?)$/gm, '<h1 class="text-2xl font-bold mt-3 mb-2">$1</h1>');
-    
-    // Process lists with proper nesting
-    const lines = formatted.split('\n');
-    let inList = false;
-    let listItems: string[] = [];
-    let result: string[] = [];
-    
-    const processList = () => {
-      if (listItems.length > 0) {
-        const listHtml = `<ul class="my-0 pl-4 space-y-1">${listItems.join('')}</ul>`;
-        result.push(listHtml);
-        listItems = [];
-      }
-    };
-    
-    lines.forEach(line => {
-      const isListItem = line.trim().match(/^[-*+]\s+/);
-      const isNestedListItem = line.trim().match(/^\s+[-*+]\s+/);
-      
-      if (isListItem || isNestedListItem) {
-        const level = (line.match(/^\s*/) || [''])[0].length;
-        const content = line.trim().substring(2);
-        const listItem = `<li class="pl-${Math.min(level + 1, 4)}">${content}</li>`;
-        listItems.push(listItem);
-        inList = true;
-      } else {
-        if (inList) {
-          processList();
-          inList = false;
-        }
-        result.push(line);
-      }
-    });
-    
-    processList(); // Process any remaining list items
-    formatted = result.join('\n');
-    
-    // Process paragraphs and other block elements
-    formatted = formatted
-      .split('\n\n')
-      .map(block => {
-        block = block.trim();
-        if (!block) return '';
-        
-        // Skip processing if already a list or heading
-        if (block.startsWith('<ul>') || block.startsWith('<h')) {
-          return block;
-        }
-        
-        // Handle blockquotes
-        if (block.startsWith('> ')) {
-          return `<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-600">${block.substring(2)}</blockquote>`;
-        }
-        
-        // Handle horizontal rules
-        if (block === '---' || block === '***' || block === '___') {
-          return '<hr class="my-2 border-gray-200" />';
-        }
-        
-        // Handle paragraphs that end with : (section headers)
-        if (block.endsWith(':')) {
-          return `<p class="font-semibold text-lg mb-0">${block}</p>`;
-        }
-        
-        // Regular paragraphs
-        return `<p class="mb-0">${block}</p>`;
-      })
-      .filter(Boolean)
-      .join('\n');
-    
-    // Process inline elements that might be left
-    formatted = formatted
-      .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>') // Inline code
-      .replace(/\*([^*]+)\*/g, '<em>$1</em>') // Italics
-      .replace(/\n/g, '<br />'); // Line breaks
-    
-    return formatted;
-  }
-  
   useEffect(() => {
     scrollToBottom()
   }, [messages, streamingContent, isLoading])
@@ -156,11 +251,11 @@ export function DoctorChatInterface() {
       timestamp: new Date(),
     }
 
-    setMessages((prev) => [...prev, newMessage])
+    setMessages(prev => [...prev, newMessage])
     setInputMessage("")
     setIsLoading(true)
     setIsStreaming(true)
-    setStreamingContent('')
+    setStreamingContent("")
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/doctor/stream`, {
@@ -193,25 +288,34 @@ export function DoctorChatInterface() {
         if (value) {
           const chunk = decoder.decode(value, { stream: true });
           content += chunk;
-          
-          // Update the streaming content and the last message
+          // Update the streaming content with the latest chunk
           setStreamingContent(content);
         }
       }
+
+      // After streaming is done, add the complete message to messages
+      if (content.trim()) {
+        const botResponse: Message = {
+          id: `ai-${Date.now()}`,
+          content: content,
+          sender: "ai",
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, botResponse]);
+      }
     } catch (error) {
-      console.error('Error during streaming:', error);
-      // Fallback to non-streaming response on error
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content: "I'm sorry, but I'm unable to process your message at this time. Please try again later.",
+      console.error('Error:', error);
+      const errorMessage: Message = {
+        id: `error-${Date.now()}`,
+        content: "Sorry, there was an error processing your request. Please try again.",
         sender: "ai",
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, botResponse]);
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
       setIsStreaming(false);
-      setStreamingContent('');
+      setStreamingContent("");
     }
   }
 
@@ -221,182 +325,141 @@ export function DoctorChatInterface() {
     window.location.href = "/login"
   }
 
-  return (
-    <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100vh-80px)] bg-white rounded-xl border border-red-100 shadow-2xl overflow-hidden">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-4 flex justify-between items-center shadow-sm">
-        <div className="flex items-center space-x-4">
-          <div className="p-2.5 bg-white/10 rounded-xl backdrop-blur-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-            </svg>
-          </div>
-          <div>
-            <h2 className="font-bold text-blue-800 text-xl">Doctor Chat</h2>
-            <p className="text-blue-700 text-sm flex items-center font-semibold">
-              Smarter Care, Simpler Things
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={handleLogout}
-                  className="text-blue-600 hover:bg-blue-50 transition-colors"
-                >
-                  <LogOut className="h-5 w-5" />
-                  <span className="sr-only">Logout</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Logout</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </div>
+  const displayMessages = useMemo(() => {
+    if (isStreaming && streamingContent) {
+      return [
+        ...messages,
+        {
+          id: 'streaming',
+          content: streamingContent,
+          sender: 'ai' as const,
+          timestamp: new Date()
+        }
+      ];
+    }
+    return messages;
+  }, [messages, isStreaming, streamingContent]);
 
-      {/* Messages */}
-      <div className="flex-1 overflow-hidden bg-gradient-to-b from-red-50 to-red-50 relative">
-        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-center opacity-5"></div>
-        <ScrollArea ref={scrollAreaRef} className="h-full w-full p-6 relative z-10">
-          <div className="space-y-5">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={cn(
-                  "flex items-start gap-4 group",
-                  message.sender === "doctor" ? "flex-row-reverse" : "flex-row"
-                )}
-              >
-                <div className={cn(
-                  "h-10 w-10 rounded-full flex items-center justify-center mt-1 flex-shrink-0 shadow-sm",
-                  message.sender === "doctor" 
-                    ? "bg-red-600 text-white" 
-                    : "bg-white text-red-600 border-2 border-red-100"
-                )}>
-                  {message.sender === "doctor" ? (
-                    <User className="h-4 w-4" />
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  )}
-                </div>
-                <div
-                  className={cn(
-                    "max-w-[75%] rounded-2xl px-5 py-4 shadow-sm relative transition-all duration-200",
-                    message.sender === "doctor"
-                      ? "bg-red-600 text-white rounded-br-none shadow-red-100"
-                      : "bg-white text-gray-800 rounded-bl-none border border-red-50 shadow-sm"
-                  )}
-                >
-                  <div 
-                    className={cn("prose prose-sm max-w-none", message.sender === "doctor" ? "text-white" : "text-gray-700")}
-                    dangerouslySetInnerHTML={{ 
-                      __html: formatMessageContent(message.content) 
-                    }} 
-                  />
-                  <div className={cn(
-                    "text-xs mt-3 flex items-center justify-end gap-1.5",
-                    message.sender === "doctor" ? "text-red-100" : "text-gray-400"
-                  )}>
-                    {formatTime(message.timestamp)}
-                    {message.sender === "ai" && (
-                      <span className="text-red-300">• AI Assistant</span>
-                    )}
+  return (
+    <div className="flex flex-col h-screen bg-background">
+      {/* Header */}
+      <motion.header 
+        className="border-b bg-white shadow-sm z-10"
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="flex h-16 items-center px-4">
+          <div className="flex items-center space-x-4">
+            <div className="relative flex-shrink-0">
+              <Image 
+                src="/MetamedMDlogo (2).png" 
+                alt="MetaMed Logo" 
+                width={40} 
+                height={40}
+                className="rounded-md object-contain"
+                priority
+              />
+            </div>
+            <h2 className="text-lg font-semibold text-gray-900">Doctor Chat</h2>
+          </div>
+          <div className="ml-auto flex items-center space-x-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-5 w-5 text-gray-700" />
+                    <span className="sr-only">End Session</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>End Session</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+      </motion.header>
+
+      {/* Messages Area */}
+      <div className="flex-1 overflow-hidden flex flex-col">
+        <ScrollArea 
+          ref={scrollAreaRef}
+          className="flex-1 p-4 overflow-y-auto"
+        >
+          <div className="space-y-4 pb-4">
+            <AnimatePresence initial={false}>
+              {displayMessages.map((message, index) => (
+                <MessageBubble 
+                  key={message.id + index} 
+                  message={message} 
+                  isAi={message.sender === 'ai'}
+                />
+              ))}
+              {(isLoading || isStreaming) && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-start"
+                > 
+                  <div className="flex-shrink-0 mr-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src="/ai-avatar.png" />
+                      <AvatarFallback className="bg-blue-100 text-blue-800 text-sm font-medium">
+                        AI
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
-                </div>
-              </div>
-            ))}
-            {isStreaming && (
-              <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-full bg-white border-2 border-red-100 flex items-center justify-center mt-1 shadow-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <div className="max-w-[75%] rounded-2xl rounded-tl-none bg-white px-5 py-4 shadow-sm border border-red-50">
-                  <div className="flex items-center space-x-1">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                    </div>
+                  <div className="bg-white border border-gray-200 rounded-2xl px-4 py-2">
+                    <TypingIndicator />
                   </div>
-                </div>
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
             <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
       </div>
 
-      {/* Input Area */}
-      <div className="p-5 border-t border-red-100 bg-white/90 backdrop-blur-sm relative">
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-red-100 shadow-sm">
-          <div className="flex items-center gap-2 text-xs text-red-600 font-medium">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            <span>AI Assistant</span>
-          </div>
-        </div>
+      {/* Input Area - Fixed at bottom */}
+      <div className="border-t bg-white px-4 py-3 shadow-[0_-2px_10px_rgba(0,0,0,0.03)]">
         <div className="relative">
           <Textarea
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Type your medical query..."
-            className="min-h-[60px] max-h-[200px] pr-24 resize-none border-red-200 focus:border-red-300 focus:ring-2 focus:ring-red-100 transition-all duration-200 text-base"
-            onKeyDown={async (e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault()
-                if (inputMessage.trim()) {
-                  await handleSendMessage()
-                }
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
               }
             }}
+            placeholder="Type your message here..."
+            className="min-h-[60px] max-h-32 pr-12 resize-none border-gray-300 focus-visible:ring-2 focus-visible:ring-primary/50 text-gray-900 placeholder:text-gray-400"
+            rows={1}
           />
-          <div className="absolute right-2 bottom-2 flex items-center gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  className="p-2 rounded-full hover:bg-red-50 transition-colors text-gray-500 hover:text-red-500"
-                  onClick={() => {
-                    const heart = '❤️';
-                    setInputMessage(prev => prev.endsWith(heart) ? prev : prev + ' ' + heart);
-                  }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Add Heart</p>
-              </TooltipContent>
-            </Tooltip>
+          <motion.div 
+            className="absolute right-2 bottom-2"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             <Button 
-              type="submit" 
-              size="sm"
-              disabled={!inputMessage.trim() || isLoading}
-              className="h-10 w-10 p-0 rounded-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 transition-all shadow-md hover:shadow-lg"
+              size="icon" 
               onClick={handleSendMessage}
+              disabled={isLoading || !inputMessage.trim()}
+              className="h-9 w-9 bg-primary hover:bg-primary/90"
             >
               {isLoading ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin text-white" />
               ) : (
                 <Send className="h-4 w-4 text-white" />
               )}
+              <span className="sr-only">Send message</span>
             </Button>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
-  )
+  );
 }

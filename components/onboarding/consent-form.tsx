@@ -180,45 +180,36 @@ export function ConsentForm() {
           )}
 
           {/* Consent Checkbox */}
-          <div className="flex items-start space-x-3 p-4 bg-white/90 rounded-lg transition-all duration-200 hover:bg-blue-50 border border-blue-200">
-            <Checkbox
+          <div className="mt-8 flex items-center">
+            <input
+              type="checkbox"
               id="consent"
               checked={hasConsented}
-              onCheckedChange={(checked) => setHasConsented(checked as boolean)}
-              className="mt-1 border-2 border-blue-500 focus:ring-2 focus:ring-blue-400 focus:border-blue-600 bg-white"
+              onChange={(e) => setHasConsented(e.target.checked)}
+              className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
             />
-            <label htmlFor="consent" className="text-sm leading-relaxed cursor-pointer text-black">
-              I have read and understood the above information. I acknowledge that I am using this healthcare chatbot
-              with full awareness of its limitations and intended purpose.
+            <label htmlFor="consent" className="ml-2 block text-sm text-gray-700">
+              I have read and agree to the terms and conditions above
             </label>
           </div>
 
-          {/* Action Button */}
-          <MedicalButton
-            onClick={handleContinue}
-            disabled={!hasConsented}
-            className="w-full"
-            size="lg"
-            medical
-            isLoading={isSubmitting}
-          >
-            I Understand & Continue
-          </MedicalButton>
+          {/* Submit Button */}
+          <div className="mt-8">
+            <button
+              type="button"
+              onClick={handleContinue}
+              disabled={!hasConsented || isSubmitting}
+              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                !hasConsented || isSubmitting
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-primary hover:bg-primary/90'
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary`}
+            >
+              {isSubmitting ? 'Processing...' : 'Agree & Continue'}
+            </button>
+          </div>
         </CardContent>
       </AnimatedCard>
-
-      {/* Additional Info */}
-      <div className="text-center text-sm text-gray-600">
-        <p>
-          Need help? Contact our support team at{" "}
-          <a
-            href="mailto:support@cardiochat.com"
-            className="text-primary hover:text-primary/80 transition-colors duration-200"
-          >
-            support@cardiochat.com
-          </a>
-        </p>
-      </div>
     </div>
   )
 }

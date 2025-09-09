@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Sitemap: https://metamedmd.com/sitemap.xml
+
+# Crawl-delay: 10
+# Uncomment above and adjust if needed to limit crawl rate
+
+# Block specific paths (example)
+# Disallow: /private/
+# Disallow: /admin/
