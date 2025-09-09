@@ -27,11 +27,6 @@ export default function RootLayout({
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} flex flex-col min-h-screen bg-blue-100`} suppressHydrationWarning={true}>
         <ErrorBoundary>
           <ClipboardProvider>
-            <header className="w-full flex flex-col items-center mt-8 mb-4">
-              <img src="/MetamedMDlogo (2).png" alt="MetaMedMD Logo" className="h-24 w-auto mx-auto" />
-              <h1 className="text-3xl font-bold text-red-500 mt-4">MetaMedMD</h1>
-              <p className="text-lg text-gray-700 mt-1">Smarter Care, Simpler Things</p>
-            </header>
             <main className="flex-grow flex flex-col">
               {children}
             </main>
