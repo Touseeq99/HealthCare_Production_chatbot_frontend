@@ -6,6 +6,7 @@ import { ClipboardProvider } from '@/components/clipboard-provider'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Footer } from '@/components/footer'
+import { useEffect, useState } from 'react'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -14,17 +15,43 @@ export const metadata: Metadata = {
   generator: 'Custom',
 }
 
+function LoadingSpinner() {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-100/80 backdrop-blur-sm">
+      <div className="w-16 h-16 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
+    </div>
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const handleStart = () => setLoading(true)
+    const handleStop = () => setLoading(false)
+
+    window.addEventListener('routeChangeStart', handleStart)
+    window.addEventListener('routeChangeComplete', handleStop)
+    window.addEventListener('routeChangeError', handleStop)
+
+    return () => {
+      window.removeEventListener('routeChangeStart', handleStart)
+      window.removeEventListener('routeChangeComplete', handleStop)
+      window.removeEventListener('routeChangeError', handleStop)
+    }
+  }, [])
+
   return (
     <html lang="en" className="h-full">
       <head>
         <link rel="icon" type="image/png" href="/MetamedMDlogo (2).png" />
       </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} flex flex-col min-h-screen bg-blue-100`} suppressHydrationWarning={true}>
+        {loading && <LoadingSpinner />}
         <ErrorBoundary>
           <ClipboardProvider>
             <main className="flex-grow flex flex-col">

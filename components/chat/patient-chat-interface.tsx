@@ -222,11 +222,21 @@ export function PatientChatInterface() {
 
   return (
     <div className="min-h-screen bg-blue-100 flex flex-col">
-      <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-4 flex flex-col items-center">
-        <h2 className="font-bold text-blue-800 text-xl">Patient Chat</h2>
-        <p className="text-blue-700 text-sm font-semibold">Smarter Care, Simpler Things</p>
+      <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-4 flex justify-between items-center">
+        <div className="flex flex-col items-start">
+          <h2 className="font-bold text-blue-800 text-xl">MetaMedMD Patient Chat</h2>
+          <p className="text-blue-700 text-sm font-semibold">Smarter Care, Simpler Things</p>
+        </div>
+        <Button
+          onClick={handleLogout}
+          variant="outline"
+          size="sm"
+          className="bg-white border-blue-200 text-blue-700 hover:bg-blue-50 hover:text-blue-900"
+        >
+          Logout
+        </Button>
       </div>
-      <div className="flex-1">
+      <div className="flex-1 flex flex-col">
         <Tabs defaultValue="chat" className="flex-1 flex flex-col">
           <div className="bg-blue-50/50 backdrop-blur-sm border-b border-blue-200/30 px-4">
             <div className="max-w-4xl mx-auto">
@@ -244,7 +254,7 @@ export function PatientChatInterface() {
           </div>
 
           <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
-            <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 max-h-[calc(100vh-220px)] overflow-y-auto">
               <div className="max-w-4xl mx-auto space-y-6">
                 {messages.map((message) => (
                   <div
@@ -322,29 +332,7 @@ export function PatientChatInterface() {
                 ))}
               </div>
             </ScrollArea>
-
-            {messages.length <= 2 && (
-              <div className="px-4 pb-2">
-                <div className="max-w-4xl mx-auto">
-                  <p className="text-sm text-gray-600 mb-3 text-center">Try asking about:</p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {quickSuggestions.map((suggestion, index) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSendMessage(suggestion)}
-                        className="bg-blue-100/50 hover:bg-blue-200/70 border-blue-200/50 text-blue-800 hover:text-blue-900 rounded-full"
-                      >
-                        {suggestion}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="bg-gradient-to-r from-blue-50/90 to-blue-100/90 backdrop-blur-sm border-t border-blue-200/30 p-4">
+            <div className="sticky bottom-0 left-0 w-full bg-gradient-to-r from-blue-50/90 to-blue-100/90 backdrop-blur-sm border-t border-blue-200/30 p-4 z-20">
               <div className="max-w-4xl mx-auto">
                 <div className="flex gap-3">
                   <Input
@@ -415,7 +403,7 @@ export function PatientChatInterface() {
                                 </Badge>
                               </div>
                             </div>
-                            <div className="w-10 h-10 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                            <div className="w-10 h-10 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center">
                               <BookOpen className="w-5 h-5 text-primary" />
                             </div>
                           </div>
