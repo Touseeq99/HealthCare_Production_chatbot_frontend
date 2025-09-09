@@ -224,18 +224,17 @@ export function DoctorChatInterface() {
   return (
     <div className="flex flex-col h-[calc(100vh-80px)] max-h-[calc(100vh-80px)] bg-white rounded-xl border border-red-100 shadow-2xl overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 p-4 flex justify-between items-center shadow-sm">
+      <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-4 flex justify-between items-center shadow-sm">
         <div className="flex items-center space-x-4">
           <div className="p-2.5 bg-white/10 rounded-xl backdrop-blur-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
             </svg>
           </div>
           <div>
-            <h2 className="font-bold text-white text-xl">CardioCare AI</h2>
-            <p className="text-red-100 text-sm flex items-center">
-              <span className="w-2.5 h-2.5 bg-green-400 rounded-full mr-2 animate-pulse"></span>
-              Online - 24/7 Cardiac Support
+            <h2 className="font-bold text-blue-800 text-xl">Doctor Chat</h2>
+            <p className="text-blue-700 text-sm flex items-center font-semibold">
+              Smarter Care, Simpler Things
             </p>
           </div>
         </div>
@@ -247,7 +246,7 @@ export function DoctorChatInterface() {
                   variant="ghost" 
                   size="icon"
                   onClick={handleLogout}
-                  className="text-white/90 hover:bg-white/20 hover:text-white transition-colors"
+                  className="text-blue-600 hover:bg-blue-50 transition-colors"
                 >
                   <LogOut className="h-5 w-5" />
                   <span className="sr-only">Logout</span>
@@ -344,7 +343,7 @@ export function DoctorChatInterface() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            <span>CardioCare AI Assistant</span>
+            <span>AI Assistant</span>
           </div>
         </div>
         <div className="relative">

@@ -34,7 +34,7 @@ export function PatientChatInterface() {
     {
       id: "1",
       content:
-        "Hello! I'm your friendly CardioChat assistant. I'm here to provide educational information about heart health and general wellness. How are you feeling today?",
+        "Hello! I'm your friendly assistant. I'm here to provide educational information about heart health and general wellness. How are you feeling today?",
       sender: "bot",
       timestamp: new Date(),
       type: "text",
@@ -221,97 +221,17 @@ export function PatientChatInterface() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-blue-50 relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute top-1/4 right-1/6 w-8 h-8 text-red-400/30 animate-bounce"
-          style={{ animationDelay: "0s", animationDuration: "3s" }}
-        >
-          <svg fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
-        </div>
-
-        <div
-          className="absolute top-2/3 left-1/6 w-6 h-6 text-blue-400/40 animate-bounce"
-          style={{ animationDelay: "1s", animationDuration: "4s" }}
-        >
-          <svg fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
-        </div>
-
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-red-200/20 rounded-full animate-pulse" />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-200/30 rounded-full animate-pulse"
-          style={{ animationDelay: "1s" }}
-        />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-pink-200/40 rounded-full animate-pulse"
-          style={{ animationDelay: "2s" }}
-        />
-
-        <div className="absolute bottom-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-red-400/30 to-transparent">
-          <svg
-            className="absolute top-0 left-0 w-full h-6 -translate-y-1/2"
-            viewBox="0 0 1200 24"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0,12 L100,12 L120,6 L140,18 L160,12 L200,12 L220,8 L240,16 L260,12 L300,12 L320,6 L340,18 L360,12 L400,12 L420,8 L440,16 L460,12 L500,12 L520,6 L540,18 L560,12 L600,12 L620,8 L640,16 L660,12 L700,12 L720,6 L740,18 L760,12 L800,12 L820,8 L840,16 L860,12 L900,12 L920,6 L940,18 L960,12 L1000,12 L1020,8 L1040,16 L1060,12 L1100,12 L1120,6 L1140,18 L1160,12 L1200,12"
-              stroke="currentColor"
-              strokeWidth="2"
-              fill="none"
-              className="text-red-500/50"
-              style={{
-                animation: "heartbeat-pulse 2s ease-in-out infinite",
-              }}
-            />
-          </svg>
-        </div>
+    <div className="min-h-screen bg-blue-100 flex flex-col">
+      <div className="bg-gradient-to-r from-blue-100 to-blue-200 p-4 flex flex-col items-center">
+        <h2 className="font-bold text-blue-800 text-xl">Patient Chat</h2>
+        <p className="text-blue-700 text-sm font-semibold">Smarter Care, Simpler Things</p>
       </div>
-
-      <div className="relative z-10 flex flex-col h-screen">
-        <div className="bg-gradient-to-r from-red-100/90 to-blue-100/90 backdrop-blur-sm border-b border-red-200/30 p-4">
-          <div className="flex items-center justify-between max-w-4xl mx-auto">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-200/30 to-blue-200/30 rounded-full flex items-center justify-center animate-pulse">
-                <svg 
-                  className="w-6 h-6 text-red-500" 
-                  fill="currentColor" 
-                  viewBox="0 0 24 24"
-                  style={{ animation: "heart-glow 2s ease-in-out infinite" }}
-                >
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold text-black">Your Health Companion</h1>
-                <p className="text-sm text-gray-600">Here to support your wellness journey</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-red-100/80 text-red-800 border-red-200">
-                ❤️ Patient Care
-              </Badge>
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                size="sm"
-                className="ml-4 bg-red-50 hover:bg-red-100 border-red-200 text-red-700 hover:text-red-800"
-              >
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-
+      <div className="flex-1">
         <Tabs defaultValue="chat" className="flex-1 flex flex-col">
-          <div className="bg-red-50/50 backdrop-blur-sm border-b border-red-200/30 px-4">
+          <div className="bg-blue-50/50 backdrop-blur-sm border-b border-blue-200/30 px-4">
             <div className="max-w-4xl mx-auto">
               <TabsList className="grid w-full grid-cols-2 bg-transparent">
-                <TabsTrigger value="chat" className="flex items-center gap-2 text-red-700 data-[state=active]:text-red-800 data-[state=active]:bg-red-100">
+                <TabsTrigger value="chat" className="flex items-center gap-2 text-blue-700 data-[state=active]:text-blue-800 data-[state=active]:bg-blue-100">
                   <MessageCircle className="h-4 w-4" />
                   💬 Chat Assistant
                 </TabsTrigger>
@@ -333,8 +253,8 @@ export function PatientChatInterface() {
                   >
                     <div className="flex items-start gap-3 max-w-lg group">
                       {message.sender === "bot" && (
-                        <div className="w-8 h-8 bg-gradient-to-br from-red-200/30 to-blue-200/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1 animate-pulse">
-                          <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-200/30 to-blue-300/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1 animate-pulse">
+                          <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                           </svg>
                         </div>
@@ -344,15 +264,15 @@ export function PatientChatInterface() {
                           message.sender === "user"
                             ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-br-md"
                             : message.type === "health-tip"
-                              ? "bg-gradient-to-r from-red-100/80 to-pink-100/80 border border-red-200/50 text-red-900 rounded-bl-md"
-                              : "bg-white/90 backdrop-blur-sm border border-red-200/30 text-gray-800 rounded-bl-md"
+                              ? "bg-gradient-to-r from-blue-100/80 to-blue-200/80 border border-blue-200/50 text-blue-900 rounded-bl-md"
+                              : "bg-white/90 backdrop-blur-sm border border-blue-200/30 text-gray-800 rounded-bl-md"
                         }`}
                       >
                         {message.type === "health-tip" ? (
                           <>
                             <div className="flex items-center gap-2 mb-2">
-                              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                              <span className="text-xs font-medium text-red-800">💡 Health Tip</span>
+                              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                              <span className="text-xs font-medium text-blue-800">💡 Health Tip</span>
                             </div>
                             <div 
                               className="text-sm leading-relaxed text-black [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_ul>li]:mb-1 [&_strong]:font-semibold"
@@ -361,7 +281,7 @@ export function PatientChatInterface() {
                           </>
                         ) : message.sender === 'bot' && message.id.startsWith('temp-') && !message.content ? (
                           <div className="h-5 flex items-center">
-                            <span className="inline-block w-2 h-5 bg-red-500 animate-pulse"></span>
+                            <span className="inline-block w-2 h-5 bg-blue-500 animate-pulse"></span>
                           </div>
                         ) : (
                           <div 
@@ -400,23 +320,6 @@ export function PatientChatInterface() {
                     </div>
                   </div>
                 ))}
-{/* 
-                {isTyping && (
-                  <div className="flex justify-start">
-                    <div className="flex items-start gap-3 max-w-lg">
-                      <div className="w-8 h-8 bg-gradient-to-br from-red-200/30 to-blue-200/30 rounded-full flex items-center justify-center flex-shrink-0">
-                        <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                        </svg>
-                      </div>
-                      <div className="bg-white/90 backdrop-blur-sm border border-red-200/30 px-4 py-3 rounded-2xl rounded-bl-md min-w-[80px]">
-                        <div className="h-5 flex items-center">
-                          <span className="inline-block w-2 h-5 bg-red-500 animate-pulse"></span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )} */}
               </div>
             </ScrollArea>
 
@@ -431,7 +334,7 @@ export function PatientChatInterface() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleSendMessage(suggestion)}
-                        className="bg-red-100/50 hover:bg-red-200/70 border-red-200/50 text-red-800 hover:text-red-900 rounded-full"
+                        className="bg-blue-100/50 hover:bg-blue-200/70 border-blue-200/50 text-blue-800 hover:text-blue-900 rounded-full"
                       >
                         {suggestion}
                       </Button>
@@ -441,7 +344,7 @@ export function PatientChatInterface() {
               </div>
             )}
 
-            <div className="bg-gradient-to-r from-red-50/90 to-blue-50/90 backdrop-blur-sm border-t border-red-200/30 p-4">
+            <div className="bg-gradient-to-r from-blue-50/90 to-blue-100/90 backdrop-blur-sm border-t border-blue-200/30 p-4">
               <div className="max-w-4xl mx-auto">
                 <div className="flex gap-3">
                   <Input
@@ -453,7 +356,7 @@ export function PatientChatInterface() {
                   />
                   <Button
                     onClick={() => handleSendMessage()}
-                    className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-full px-6 text-white"
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-full px-6 text-white"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -639,7 +542,7 @@ export function PatientChatInterface() {
         }
       `}</style>
     </div>
-  )} // Added the missing closing brace here
+  )
 
   function formatMessageContent(content: string) {
     if (!content) return content;

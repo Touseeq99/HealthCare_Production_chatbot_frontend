@@ -180,12 +180,12 @@ export function ConsentForm() {
           )}
 
           {/* Consent Checkbox */}
-          <div className="flex items-start space-x-3 p-4 bg-secondary/20 rounded-lg transition-all duration-200 hover:bg-secondary/30">
+          <div className="flex items-start space-x-3 p-4 bg-white/90 rounded-lg transition-all duration-200 hover:bg-blue-50 border border-blue-200">
             <Checkbox
               id="consent"
               checked={hasConsented}
               onCheckedChange={(checked) => setHasConsented(checked as boolean)}
-              className="mt-1"
+              className="mt-1 border-2 border-blue-500 focus:ring-2 focus:ring-blue-400 focus:border-blue-600 bg-white"
             />
             <label htmlFor="consent" className="text-sm leading-relaxed cursor-pointer text-black">
               I have read and understood the above information. I acknowledge that I am using this healthcare chatbot
