@@ -7,20 +7,13 @@ import { ErrorBoundary } from '@/components/error-boundary'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Footer } from '@/components/footer'
 import { useEffect, useState } from 'react'
+import LoadingSpinner from '@/components/loading-spinner'
 import './globals.css'
 
 export const metadata: Metadata = {
   title: 'MetaMedMD',
   description: 'MetaMedMD: Smarter Care, Simpler Things',
   generator: 'Custom',
-}
-
-function LoadingSpinner() {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-100/80 backdrop-blur-sm">
-      <div className="w-16 h-16 border-4 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
-    </div>
-  );
 }
 
 export default function RootLayout({
@@ -51,7 +44,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/MetamedMDlogo (2).png" />
       </head>
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} flex flex-col min-h-screen bg-blue-100`} suppressHydrationWarning={true}>
-        {loading && <LoadingSpinner />}
+        <LoadingSpinner />
         <ErrorBoundary>
           <ClipboardProvider>
             <main className="flex-grow flex flex-col">
