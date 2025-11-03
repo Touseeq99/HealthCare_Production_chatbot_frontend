@@ -3,14 +3,22 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { MessageSquare } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { formatTime } from "@/lib/date-utils"
-import { LogOut, Send, Bot, User, Loader2, Sparkles } from "lucide-react"
+import { LogOut, Send, Bot, User, Loader2, Sparkles, FileText, Search } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import Image from "next/image";
+import Image from "next/image"
+import { 
+  Root as Tabs,
+  List as TabsList,
+  Trigger as TabsTrigger,
+  Content as TabsContent 
+} from "@radix-ui/react-tabs"
+import { EvidenceEngine } from "@/components/evidence/EvidenceEngine"
 
 interface Message {
   id: string
@@ -119,72 +127,54 @@ const formatMessageContent = (content: string) => {
 
 // Message component with animations
 const MessageBubble = ({ message, isAi }: { message: Message, isAi: boolean }) => {
-  const variants = {
-    hidden: { opacity: 0, y: 20, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 25
-      }
-    },
-    exit: { opacity: 0, x: isAi ? -20 : 20, scale: 0.95 }
-  };
-
+  const formattedContent = useMemo(() => formatMessageContent(message.content), [message.content])
+  
   return (
     <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
       className={cn(
-        "flex mb-4",
-        isAi ? "justify-start" : "justify-end"
+        "flex items-start gap-4 p-5 rounded-xl shadow-sm",
+        isAi 
+          ? "bg-white dark:bg-slate-800/80 border border-gray-100 dark:border-slate-700/50" 
+          : "bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/30 ml-auto"
       )}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      variants={variants}
-      layout
     >
       <div className={cn(
-        "flex max-w-[85%] md:max-w-[75%] lg:max-w-[65%] xl:max-w-[55%]",
-        isAi ? "flex-row" : "flex-row-reverse"
+        "flex-shrink-0 h-9 w-9 rounded-lg flex items-center justify-center shadow-sm",
+        isAi 
+          ? "bg-gradient-to-br from-blue-500 to-indigo-600" 
+          : "bg-white dark:bg-slate-800 border border-blue-100 dark:border-blue-900/50"
       )}>
-        <div className={cn(
-          "flex-shrink-0",
-          isAi ? "mr-3" : "ml-3"
-        )}>
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={isAi ? "/ai-avatar.png" : "/doctor-avatar.png"} />
-            <AvatarFallback className={cn(
-              "text-sm font-medium",
-              isAi ? "bg-blue-100 text-blue-800" : "bg-primary text-white"
-            )}>
-              {isAi ? "AI" : "DR"}
-            </AvatarFallback>
-          </Avatar>
-        </div>
-        <div className={cn(
-          "rounded-2xl px-4 py-2 text-sm",
-          isAi 
-            ? "bg-white border border-gray-200 shadow-sm text-gray-800" 
-            : "bg-primary text-white"
-        )}>
-          <div 
-            className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5"
-            dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
-          />
-          <div className={cn(
-            "text-xs mt-1 flex justify-end",
-            isAi ? "text-gray-500" : "text-white/80"
+        {isAi ? (
+          <Bot className="h-4.5 w-4.5 text-white" />
+        ) : (
+          <User className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex flex-wrap items-center gap-2 mb-1.5">
+          <span className={cn(
+            "font-semibold text-sm",
+            isAi 
+              ? "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+              : "text-blue-700 dark:text-blue-300"
           )}>
+            {isAi ? "CLARA AI" : "You"}
+          </span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">
             {formatTime(message.timestamp)}
-          </div>
+          </span>
         </div>
+        <div 
+          className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"
+          dangerouslySetInnerHTML={{ __html: formattedContent }}
+        />
       </div>
     </motion.div>
-  );
-};
+  )
+}
 
 // Typing indicator component
 const TypingIndicator = () => (
@@ -216,7 +206,7 @@ export function DoctorChatInterface() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content: "Welcome to MetaMed — a clinical decision support system designed to standardize and optimize evidence-based care using an advanced highly accurate system called CLARA. Please enter your clinical question.",
+      content: "Welcome to **MetaMedMD** — a clinical decision support system designed to standardize and optimize evidence-based care using our advanced CLARA AI system. How can I assist you with your clinical questions today?",
       sender: "ai",
       timestamp: new Date(),
     },
@@ -247,17 +237,21 @@ export function DoctorChatInterface() {
     if (!inputMessage.trim() || isLoading) return
 
     const newMessage: Message = {
-      id: Date.now().toString(),
+      id: `user-${Date.now()}`,
       content: inputMessage,
       sender: "doctor",
       timestamp: new Date(),
     }
 
-    setMessages(prev => [...prev, newMessage])
-    setInputMessage("")
-    setIsLoading(true)
-    setIsStreaming(true)
-    setStreamingContent("")
+    // Clear input immediately
+    const userMessage = inputMessage;
+    setInputMessage("");
+    
+    // Add user message to chat
+    setMessages(prev => [...prev, newMessage]);
+    setIsLoading(true);
+    setIsStreaming(true);
+    setStreamingContent("");
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/doctor/stream`, {
@@ -266,7 +260,7 @@ export function DoctorChatInterface() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: inputMessage
+          message: userMessage
         }),
       });
 
@@ -290,20 +284,26 @@ export function DoctorChatInterface() {
         if (value) {
           const chunk = decoder.decode(value, { stream: true });
           content += chunk;
-          // Update the streaming content with the latest chunk
           setStreamingContent(content);
         }
       }
 
-      // After streaming is done, add the complete message to messages
+      // After streaming is done, update the messages with the final response
       if (content.trim()) {
-        const botResponse: Message = {
-          id: `ai-${Date.now()}`,
-          content: content,
-          sender: "ai",
-          timestamp: new Date(),
-        };
-        setMessages(prev => [...prev, botResponse]);
+        setMessages(prev => {
+          // Remove any existing streaming message
+          const filtered = prev.filter(msg => msg.id !== 'streaming');
+          // Add the final response
+          return [
+            ...filtered,
+            {
+              id: `ai-${Date.now()}`,
+              content: content,
+              sender: 'ai' as const,
+              timestamp: new Date()
+            }
+          ];
+        });
       }
     } catch (error) {
       console.error('Error:', error);
@@ -329,139 +329,162 @@ export function DoctorChatInterface() {
 
   const displayMessages = useMemo(() => {
     if (isStreaming && streamingContent) {
-      return [
-        ...messages,
-        {
-          id: 'streaming',
-          content: streamingContent,
-          sender: 'ai' as const,
-          timestamp: new Date()
-        }
-      ];
+      // Only show the streaming message if it's not empty
+      if (streamingContent.trim()) {
+        return [
+          ...messages,
+          {
+            id: 'streaming',
+            content: streamingContent,
+            sender: 'ai' as const,
+            timestamp: new Date()
+          }
+        ];
+      }
     }
     return messages;
   }, [messages, isStreaming, streamingContent]);
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      {/* Header */}
-      <motion.header 
-        className="border-b bg-white shadow-sm z-10"
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="flex h-16 items-center px-4">
-          <div className="flex items-center space-x-4">
-            <div className="relative flex-shrink-0">
-              <Image 
-                src="/MetamedMDlogo (2).png" 
-                alt="MetaMed Logo" 
-                width={40} 
-                height={40}
-                className="rounded-md object-contain"
-                priority
-              />
-            </div>
-            <h2 className="text-lg font-semibold text-gray-900">Doctor Chat</h2>
-          </div>
-          <div className="ml-auto flex items-center space-x-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="h-5 w-5 text-gray-700" />
-                    <span className="sr-only">End Session</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>End Session</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </div>
-      </motion.header>
-
-      {/* Messages Area */}
-      <div className="flex-1 overflow-hidden flex flex-col">
-        <ScrollArea 
-          ref={scrollAreaRef}
-          className="flex-1 p-4 overflow-y-auto"
-        >
-          <div className="space-y-4 pb-4">
-            <AnimatePresence initial={false}>
-              {displayMessages.map((message, index) => (
-                <MessageBubble 
-                  key={message.id + index} 
-                  message={message} 
-                  isAi={message.sender === 'ai'}
+    <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800">
+      <Tabs defaultValue="chat" className="h-full flex flex-col">
+        {/* Header */}
+        <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-slate-800/50 shadow-sm">
+          <div className="container mx-auto">
+            <div className="flex justify-between items-center p-4">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex items-center space-x-3"
+              >
+                <Image
+                  src="/MetamedMDlogo (2).png"
+                  alt="MetaMedMD Logo"
+                  width={40}
+                  height={40}
+                  className="rounded-lg"
                 />
-              ))}
-              {(isLoading || isStreaming) && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start"
-                > 
-                  <div className="flex-shrink-0 mr-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="/ai-avatar.png" />
-                      <AvatarFallback className="bg-blue-100 text-blue-800 text-sm font-medium">
-                        AI
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                  <div className="bg-white border border-gray-200 rounded-2xl px-4 py-2">
-                    <TypingIndicator />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-            <div ref={messagesEndRef} />
+                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  MetaMedMD
+                </h1>
+              </motion.div>
+              
+              <div className="flex items-center space-x-4">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleLogout}
+                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      >
+                        <LogOut className="h-5 w-5" />
+                        <span className="sr-only">Sign out</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Sign out</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+            
+            {/* Tabs */}
+            <TabsList className="flex border-b border-gray-200 dark:border-slate-800 px-4">
+              <TabsTrigger
+                value="chat"
+                className="flex items-center px-4 py-3 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Chat
+              </TabsTrigger>
+              <TabsTrigger
+                value="evidence"
+                className="flex items-center px-4 py-3 text-sm font-medium border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Evidence Engine
+              </TabsTrigger>
+            </TabsList>
           </div>
-        </ScrollArea>
-      </div>
+        </header>
 
-      {/* Input Area - Fixed at bottom */}
-      <div className="border-t bg-white px-4 py-3 shadow-[0_-2px_10px_rgba(0,0,0,0.03)]">
-        <div className="relative">
-          <Textarea
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage();
-              }
-            }}
-            placeholder="Type your message here..."
-            className="min-h-[60px] max-h-32 pr-12 resize-none border-gray-300 focus-visible:ring-2 focus-visible:ring-primary/50 text-gray-900 placeholder:text-gray-400"
-            rows={1}
-          />
-          <motion.div 
-            className="absolute right-2 bottom-2"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button 
-              size="icon" 
-              onClick={handleSendMessage}
-              disabled={isLoading || !inputMessage.trim()}
-              className="h-9 w-9 bg-primary hover:bg-primary/90"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin text-white" />
-              ) : (
-                <Send className="h-4 w-4 text-white" />
-              )}
-              <span className="sr-only">Send message</span>
-            </Button>
-          </motion.div>
+        {/* Main Content */}
+        <div className="flex-1 overflow-hidden">
+          <TabsContent value="chat" className="h-full">
+            <div className="h-full flex flex-col max-w-4xl mx-auto w-full">
+              {/* Chat Area */}
+              <ScrollArea 
+                ref={scrollAreaRef}
+                className="flex-1 p-4 overflow-y-auto"
+              >
+                <div className="space-y-6 pb-4">
+                  <AnimatePresence initial={false}>
+                    {displayMessages.map((message) => (
+                      <MessageBubble 
+                        key={message.id} 
+                        message={message} 
+                        isAi={message.sender === 'ai'}
+                      />
+                    ))}
+                    
+                    {isLoading && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <TypingIndicator />
+                      </motion.div>
+                    )}
+                    <div ref={messagesEndRef} />
+                  </AnimatePresence>
+                </div>
+              </ScrollArea>
+
+              {/* Input Area */}
+              <div className="border-t border-gray-200 dark:border-slate-800 p-4">
+                <div className="relative">
+                  <Textarea
+                    placeholder="Type your message..."
+                    className="min-h-[60px] max-h-40 resize-none pr-12 text-base bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-gray-300/50 dark:border-slate-700/50 hover:border-blue-400/50 focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 transition-all duration-200 shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSendMessage()
+                      }
+                    }}
+                    disabled={isLoading}
+                  />
+                  <Button 
+                    size="icon" 
+                    className="absolute right-2 bottom-2 h-8 w-8 rounded-lg"
+                    onClick={handleSendMessage}
+                    disabled={!inputMessage.trim() || isLoading}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="evidence" className="h-full">
+            <div className="h-full">
+              <EvidenceEngine />
+            </div>
+          </TabsContent>
         </div>
-      </div>
+      </Tabs>
     </div>
-  );
+  )
 }
