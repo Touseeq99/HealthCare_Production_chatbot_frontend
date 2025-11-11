@@ -9,7 +9,7 @@ import Image from "next/image";
 export default function LandingPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const words = ['Doctors', 'Patients', 'Healthcare Providers'];
+  const words = ['Doctors', 'Patients', 'Healthcare Providers' ,'Nurse', 'Students'];
 
   useEffect(() => {
     setIsMounted(true);
@@ -74,7 +74,7 @@ export default function LandingPage() {
           <motion.h1 
             className="text-5xl md:text-7xl font-bold text-slate-800 dark:text-white leading-tight mb-8"
           >
-            AI-Powered Healthcare Platform for
+            Human Intelligence Healthcare Platform for
             <div className="h-24 mt-4 relative">
               <AnimatePresence mode="wait">
                 <motion.span
@@ -97,7 +97,7 @@ export default function LandingPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            Empowering healthcare professionals and patients with AI-driven insights and support for better health outcomes.
+          The Hybrid Intelligence Healthcare platform empowering healthcare professionals and patients with AI-driven insights and support for better health outcomes.
           </motion.p>
           
           <motion.div 
@@ -133,10 +133,10 @@ export default function LandingPage() {
               {
                 title: "For Patients",
                 description: [
-                  "Get instant answers to your health questions",
-                  "24/7 access to AI-powered medical advice",
-                  "Personalized health recommendations",
-                  "Secure and private consultations"
+                  "Get instant, reliable answers to your health questions",
+                  "Access Trusted medical guidance anytime, day or night",
+                  "Recieve Personalized health recommendations for your wellbeing",
+                  "enjoy Secure, confidential consultations with clinical oversight"
                 ],
                 icon: "👨‍⚕️",
                 color: "from-blue-500 to-blue-600",
@@ -145,10 +145,9 @@ export default function LandingPage() {
               {
                 title: "For Doctors",
                 description: [
-                  "AI-assisted diagnosis support",
-                  "Efficient patient management",
-                  "Latest medical research at your fingertips",
-                  "Seamless integration with your practice"
+                  "Advanced clinical decision support you can trust",
+                  "Streamline tools for efficient patient management",
+                  "instant access to latest medical evidence and research"
                 ],
                 icon: "👩‍⚕️",
                 color: "from-teal-500 to-teal-600",
