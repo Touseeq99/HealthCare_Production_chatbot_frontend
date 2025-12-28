@@ -117,6 +117,19 @@ export function LoginForm() {
         setLoginAttempts(0)
         localStorage.removeItem('accountLock')
         
+        // Store authentication data in localStorage for client-side access
+        localStorage.setItem("userToken", result.token || "")
+        localStorage.setItem("userRole", role)
+        localStorage.setItem("userEmail", email)
+        if (result.user) {
+          localStorage.setItem("userName", result.user.name || "")
+        }
+        
+        // Set cookies for middleware access
+        document.cookie = `userToken=${result.token || ""}; path=/; max-age=86400`
+        document.cookie = `userRole=${role}; path=/; max-age=86400`
+        document.cookie = `userEmail=${email}; path=/; max-age=86400`
+        
         // Redirect based on role
         const redirectPath = getRedirectPath(role)
         router.push(redirectPath)

@@ -12,13 +12,15 @@ import { LogOut, Send, Bot, User, Loader2, Sparkles, FileText, Search } from "lu
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import Image from "next/image"
-import { 
+import {
   Root as Tabs,
   List as TabsList,
   Trigger as TabsTrigger,
-  Content as TabsContent 
+  Content as TabsContent
 } from "@radix-ui/react-tabs"
 import { EvidenceEngine } from "@/components/evidence/EvidenceEngine"
+import { StructuredResponse } from "./structured-response"
+import { formatMessageContent } from "@/lib/text-formatting"
 
 interface Message {
   id: string
@@ -33,102 +35,12 @@ interface ChatHistory {
   timestamp: Date
 }
 
-// Format message content helper function
-const formatMessageContent = (content: string) => {
-  if (!content) return content;
-  
-  // Process bold text
-  let formatted = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  
-  // Process headings
-  formatted = formatted
-    .replace(/^####\s+(.*?)$/gm, '<h4 class="text-base font-semibold mt-1 mb-0">$1</h4>')
-    .replace(/^###\s+(.*?)$/gm, '<h3 class="text-lg font-semibold mt-1 mb-0">$1</h3>')
-    .replace(/^##\s+(.*?)$/gm, '<h2 class="text-xl font-bold mt-2 mb-1">$1</h2>')
-    .replace(/^#\s+(.*?)$/gm, '<h1 class="text-2xl font-bold mt-3 mb-2">$1</h1>');
-  
-  // Process lists with proper nesting
-  const lines = formatted.split('\n');
-  let inList = false;
-  let listItems: string[] = [];
-  let result: string[] = [];
-  
-  const processList = () => {
-    if (listItems.length > 0) {
-      const listHtml = `<ul class="my-0 pl-4 space-y-1">${listItems.join('')}</ul>`;
-      result.push(listHtml);
-      listItems = [];
-    }
-  };
-  
-  lines.forEach(line => {
-    const isListItem = line.trim().match(/^[-*+]\s+/);
-    const isNestedListItem = line.trim().match(/^\s+[-*+]\s+/);
-    
-    if (isListItem || isNestedListItem) {
-      const level = (line.match(/^\s*/) || [''])[0].length;
-      const content = line.trim().substring(2);
-      const listItem = `<li class="pl-${Math.min(level + 1, 4)}">${content}</li>`;
-      listItems.push(listItem);
-      inList = true;
-    } else {
-      if (inList) {
-        processList();
-        inList = false;
-      }
-      result.push(line);
-    }
-  });
-  
-  processList(); // Process any remaining list items
-  formatted = result.join('\n');
-  
-  // Process paragraphs and other block elements
-  formatted = formatted
-    .split('\n\n')
-    .map(block => {
-      block = block.trim();
-      if (!block) return '';
-      
-      // Skip processing if already a list or heading
-      if (block.startsWith('<ul>') || block.startsWith('<h')) {
-        return block;
-      }
-      
-      // Handle blockquotes
-      if (block.startsWith('> ')) {
-        return `<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-600">${block.substring(2)}</blockquote>`;
-      }
-      
-      // Handle horizontal rules
-      if (block === '---' || block === '***' || block === '___') {
-        return '<hr class="my-2 border-gray-200" />';
-      }
-      
-      // Handle paragraphs that end with : (section headers)
-      if (block.endsWith(':')) {
-        return `<p class="font-semibold text-lg mb-0">${block}</p>`;
-      }
-      
-      // Regular paragraphs
-      return `<p class="mb-0">${block}</p>`;
-    })
-    .filter(Boolean)
-    .join('\n');
-  
-  // Process inline elements that might be left
-  formatted = formatted
-    .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 rounded">$1</code>') // Inline code
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>') // Italics
-    .replace(/\n/g, '<br />'); // Line breaks
-  
-  return formatted;
-};
+
 
 // Message component with animations
 const MessageBubble = ({ message, isAi }: { message: Message, isAi: boolean }) => {
   const formattedContent = useMemo(() => formatMessageContent(message.content), [message.content])
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -136,15 +48,15 @@ const MessageBubble = ({ message, isAi }: { message: Message, isAi: boolean }) =
       transition={{ duration: 0.2 }}
       className={cn(
         "flex items-start gap-4 p-5 rounded-xl shadow-sm",
-        isAi 
-          ? "bg-white dark:bg-slate-800/80 border border-gray-100 dark:border-slate-700/50" 
+        isAi
+          ? "bg-white dark:bg-slate-800/80 border border-gray-100 dark:border-slate-700/50"
           : "bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800/30 ml-auto"
       )}
     >
       <div className={cn(
         "flex-shrink-0 h-9 w-9 rounded-lg flex items-center justify-center shadow-sm",
-        isAi 
-          ? "bg-gradient-to-br from-blue-500 to-indigo-600" 
+        isAi
+          ? "bg-gradient-to-br from-blue-500 to-indigo-600"
           : "bg-white dark:bg-slate-800 border border-blue-100 dark:border-blue-900/50"
       )}>
         {isAi ? (
@@ -157,7 +69,7 @@ const MessageBubble = ({ message, isAi }: { message: Message, isAi: boolean }) =
         <div className="flex flex-wrap items-center gap-2 mb-1.5">
           <span className={cn(
             "font-semibold text-sm",
-            isAi 
+            isAi
               ? "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
               : "text-blue-700 dark:text-blue-300"
           )}>
@@ -167,10 +79,14 @@ const MessageBubble = ({ message, isAi }: { message: Message, isAi: boolean }) =
             {formatTime(message.timestamp)}
           </span>
         </div>
-        <div 
-          className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"
-          dangerouslySetInnerHTML={{ __html: formattedContent }}
-        />
+        {isAi ? (
+          <StructuredResponse content={message.content} />
+        ) : (
+          <div
+            className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"
+            dangerouslySetInnerHTML={{ __html: formattedContent }}
+          />
+        )}
       </div>
     </motion.div>
   )
@@ -178,23 +94,23 @@ const MessageBubble = ({ message, isAi }: { message: Message, isAi: boolean }) =
 
 // Typing indicator component
 const TypingIndicator = () => (
-  <motion.div 
+  <motion.div
     className="flex items-center space-x-1 px-4 py-2"
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.3 }}
   >
-    <motion.div 
+    <motion.div
       className="h-2 w-2 rounded-full bg-primary/60"
       animate={{ y: [0, -5, 0] }}
       transition={{ duration: 0.8, repeat: Infinity, delay: 0 }}
     />
-    <motion.div 
+    <motion.div
       className="h-2 w-2 rounded-full bg-primary/60"
       animate={{ y: [0, -5, 0] }}
       transition={{ duration: 0.8, repeat: Infinity, delay: 0.2 }}
     />
-    <motion.div 
+    <motion.div
       className="h-2 w-2 rounded-full bg-primary/60"
       animate={{ y: [0, -5, 0] }}
       transition={{ duration: 0.8, repeat: Infinity, delay: 0.4 }}
@@ -208,7 +124,7 @@ export function DoctorChatInterface() {
       id: "1",
       content: "Welcome to **MetaMedMD** — a clinical decision support system designed to standardize and optimize evidence-based care using our advanced CLARA AI system. How can I assist you with your clinical questions today?",
       sender: "ai",
-      timestamp: new Date(),
+      timestamp: new Date("2025-01-01T00:00:00"),
     },
   ])
   const [inputMessage, setInputMessage] = useState("")
@@ -236,17 +152,18 @@ export function DoctorChatInterface() {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return
 
+    const now = new Date()
     const newMessage: Message = {
-      id: `user-${Date.now()}`,
+      id: `user-${now.getTime()}`,
       content: inputMessage,
       sender: "doctor",
-      timestamp: new Date(),
+      timestamp: now,
     }
 
     // Clear input immediately
     const userMessage = inputMessage;
     setInputMessage("");
-    
+
     // Add user message to chat
     setMessages(prev => [...prev, newMessage]);
     setIsLoading(true);
@@ -280,7 +197,7 @@ export function DoctorChatInterface() {
       while (!done) {
         const { value, done: doneReading } = await reader.read();
         done = doneReading;
-        
+
         if (value) {
           const chunk = decoder.decode(value, { stream: true });
           content += chunk;
@@ -290,6 +207,7 @@ export function DoctorChatInterface() {
 
       // After streaming is done, update the messages with the final response
       if (content.trim()) {
+        const now = new Date()
         setMessages(prev => {
           // Remove any existing streaming message
           const filtered = prev.filter(msg => msg.id !== 'streaming');
@@ -297,21 +215,22 @@ export function DoctorChatInterface() {
           return [
             ...filtered,
             {
-              id: `ai-${Date.now()}`,
+              id: `ai-${now.getTime()}`,
               content: content,
               sender: 'ai' as const,
-              timestamp: new Date()
+              timestamp: now
             }
           ];
         });
       }
     } catch (error) {
       console.error('Error:', error);
+      const now = new Date()
       const errorMessage: Message = {
-        id: `error-${Date.now()}`,
+        id: `error-${now.getTime()}`,
         content: "Sorry, there was an error processing your request. Please try again.",
         sender: "ai",
-        timestamp: new Date(),
+        timestamp: now,
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -322,8 +241,17 @@ export function DoctorChatInterface() {
   }
 
   const handleLogout = () => {
+    // Clear localStorage
     localStorage.removeItem("userRole")
     localStorage.removeItem("userToken")
+    localStorage.removeItem("userEmail")
+    localStorage.removeItem("userName")
+
+    // Clear cookies
+    document.cookie = "userToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    document.cookie = "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    document.cookie = "userEmail=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+
     window.location.href = "/login"
   }
 
@@ -337,7 +265,7 @@ export function DoctorChatInterface() {
             id: 'streaming',
             content: streamingContent,
             sender: 'ai' as const,
-            timestamp: new Date()
+            timestamp: new Date("2025-01-01T00:00:00")
           }
         ];
       }
@@ -352,7 +280,7 @@ export function DoctorChatInterface() {
         <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-slate-800/50 shadow-sm">
           <div className="container mx-auto">
             <div className="flex justify-between items-center p-4">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
@@ -369,7 +297,7 @@ export function DoctorChatInterface() {
                   MetaMedMD
                 </h1>
               </motion.div>
-              
+
               <div className="flex items-center space-x-4">
                 <TooltipProvider>
                   <Tooltip>
@@ -391,7 +319,7 @@ export function DoctorChatInterface() {
                 </TooltipProvider>
               </div>
             </div>
-            
+
             {/* Tabs */}
             <TabsList className="flex border-b border-gray-200 dark:border-slate-800 px-4">
               <TabsTrigger
@@ -417,22 +345,23 @@ export function DoctorChatInterface() {
           <TabsContent value="chat" className="h-full">
             <div className="h-full flex flex-col max-w-4xl mx-auto w-full">
               {/* Chat Area */}
-              <ScrollArea 
+              <ScrollArea
                 ref={scrollAreaRef}
                 className="flex-1 p-4 overflow-y-auto"
               >
                 <div className="space-y-6 pb-4">
                   <AnimatePresence initial={false}>
                     {displayMessages.map((message) => (
-                      <MessageBubble 
-                        key={message.id} 
-                        message={message} 
+                      <MessageBubble
+                        key={message.id}
+                        message={message}
                         isAi={message.sender === 'ai'}
                       />
                     ))}
-                    
+
                     {isLoading && (
                       <motion.div
+                        key="typing-indicator"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3 }}
@@ -461,8 +390,8 @@ export function DoctorChatInterface() {
                     }}
                     disabled={isLoading}
                   />
-                  <Button 
-                    size="icon" 
+                  <Button
+                    size="icon"
                     className="absolute right-2 bottom-2 h-8 w-8 rounded-lg"
                     onClick={handleSendMessage}
                     disabled={!inputMessage.trim() || isLoading}
