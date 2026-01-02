@@ -27,6 +27,7 @@ export function SignupForm() {
   const [step, setStep] = useState(1)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [generalError, setGeneralError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState<FormData>({
@@ -43,7 +44,7 @@ export function SignupForm() {
 
   const validateStep = (stepNumber: number): boolean => {
     const newErrors: Record<string, string> = {}
-    
+
     if (stepNumber === 1) {
       if (!formData.name) newErrors.name = "Name is required"
       if (!formData.surname) newErrors.surname = "Surname is required"
@@ -54,30 +55,30 @@ export function SignupForm() {
       }
       if (!formData.role) newErrors.role = "Please select a role"
     }
-    
+
     if (stepNumber === 2) {
       if (formData.role === 'doctor') {
         if (!formData.specialization) newErrors.specialization = "Specialization is required"
         if (!formData.doctorRegisterNumber) newErrors.doctorRegisterNumber = "Registration number is required"
       }
     }
-    
+
     if (step === 3) {
       if (!formData.password) {
         newErrors.password = "Password is required"
       } else if (formData.password.length < 8) {
         newErrors.password = "Password must be at least 8 characters"
       }
-      
+
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = "Passwords do not match"
       }
-      
+
       if (!formData.agreeToTerms) {
         newErrors.agreeToTerms = "You must agree to the terms and conditions"
       }
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -94,25 +95,41 @@ export function SignupForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateStep(3)) {
       return
     }
-    
+
     setIsSubmitting(true)
-    
+    setGeneralError("")
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      
-      // Redirect based on role after successful signup
-      if (formData.role === 'doctor') {
-        router.push('/doctor/dashboard')
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Store non-sensitive info in localStorage (optional, similar to login)
+        localStorage.setItem("userName", formData.name)
+
+        // Redirect based on role after successful signup
+        if (formData.role === 'doctor') {
+          router.push('/doctor/dashboard')
+        } else {
+          router.push('/patient/chat')
+        }
       } else {
-        router.push('/patient/dashboard')
+        setGeneralError(result.message || "Registration failed. Please try again.")
       }
     } catch (error) {
       console.error('Signup error:', error)
+      setGeneralError("An unexpected error occurred. Please check your connection and try again.")
     } finally {
       setIsSubmitting(false)
     }
@@ -163,7 +180,7 @@ export function SignupForm() {
                 {errors.surname && <p className="mt-1 text-sm text-red-600">{errors.surname}</p>}
               </div>
             </div>
-            
+
             <div>
               <Label htmlFor="email" className="block text-sm font-medium text-slate-800 mb-1">
                 Email Address *
@@ -178,7 +195,7 @@ export function SignupForm() {
               />
               {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
             </div>
-            
+
             <div>
               <Label htmlFor="role" className="block text-sm font-medium text-slate-800 mb-1">
                 I am a *
@@ -201,7 +218,7 @@ export function SignupForm() {
             </div>
           </motion.div>
         )
-        
+
       case 2:
         return (
           <motion.div
@@ -240,17 +257,17 @@ export function SignupForm() {
                 </div>
               </>
             )}
-            
+
             <div className="pt-2">
               <p className="text-sm text-gray-500">
-                {formData.role === 'doctor' 
+                {formData.role === 'doctor'
                   ? 'Your medical license will be verified before account activation.'
                   : 'Please proceed to set up your account security.'}
               </p>
             </div>
           </motion.div>
         )
-        
+
       case 3:
         return (
           <motion.div
@@ -290,7 +307,7 @@ export function SignupForm() {
                 <p className="mt-1 text-xs text-gray-500">Minimum 8 characters</p>
               )}
             </div>
-            
+
             <div>
               <Label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-800 mb-1">
                 Confirm Password *
@@ -319,7 +336,7 @@ export function SignupForm() {
               </div>
               {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
             </div>
-            
+
             <div className="pt-2">
               <div className="flex items-start">
                 <div className="flex items-center h-5">
@@ -346,7 +363,7 @@ export function SignupForm() {
             </div>
           </motion.div>
         )
-        
+
       default:
         return null
     }
@@ -354,17 +371,25 @@ export function SignupForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {generalError && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm mb-4"
+        >
+          {generalError}
+        </motion.div>
+      )}
       {/* Progress Steps */}
       <div className="mb-6">
         <div className="flex items-center justify-between">
           {[1, 2, 3].map((stepNum) => (
             <div key={stepNum} className="flex flex-col items-center">
-              <div 
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  step >= stepNum 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-200 text-gray-600'
-                }`}
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= stepNum
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-600'
+                  }`}
               >
                 {stepNum}
               </div>
@@ -376,16 +401,16 @@ export function SignupForm() {
         </div>
         <div className="relative mt-2">
           <div className="absolute top-0 left-0 h-0.5 bg-gray-200 w-full -z-10"></div>
-          <div 
+          <div
             className="absolute top-0 left-0 h-0.5 bg-blue-600 transition-all duration-300 -z-5"
             style={{ width: `${((step - 1) / 2) * 100}%` }}
           ></div>
         </div>
       </div>
-      
+
       {/* Form Content */}
       {renderStep()}
-      
+
       {/* Navigation Buttons */}
       <div className="flex justify-between pt-4">
         <Button
@@ -398,7 +423,7 @@ export function SignupForm() {
         >
           Back
         </Button>
-        
+
         {step < 3 ? (
           <Button
             type="button"

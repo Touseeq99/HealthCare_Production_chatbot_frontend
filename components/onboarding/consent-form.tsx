@@ -89,7 +89,6 @@ export function ConsentForm() {
     setIsSubmitting(true)
     try {
       // TODO: Save consent to backend
-      console.log("User consented:", { role, timestamp: new Date().toISOString() })
 
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000))
@@ -199,11 +198,10 @@ export function ConsentForm() {
               type="button"
               onClick={handleContinue}
               disabled={!hasConsented || isSubmitting}
-              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                !hasConsented || isSubmitting
+              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${!hasConsented || isSubmitting
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-primary hover:bg-primary/90'
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary`}
+                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary`}
             >
               {isSubmitting ? 'Processing...' : 'Agree & Continue'}
             </button>

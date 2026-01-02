@@ -31,7 +31,7 @@ import {
   MessageSquare,
   User
 } from 'lucide-react';
-import { getFiles, getCategories, getPaperTypes, type FileResponse, type SearchRequest } from '@/lib/api/evidence';
+import { getFiles, getCategories, getPaperTypes, searchEvidence, type FileResponse, type SearchRequest } from '@/lib/api/evidence';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -74,7 +74,28 @@ export function EvidenceEngine() {
       const currentPage = pagination.page;
       const currentPageSize = pagination.page_size;
 
-      const response = await getFiles(currentPage, currentPageSize);
+      // Check if we have active filters or search query
+      const hasActiveFilters =
+        searchQuery.trim() !== '' ||
+        (filters.paper_types && filters.paper_types.length > 0) ||
+        filters.min_total_score !== undefined ||
+        filters.max_total_score !== undefined ||
+        (filters.keywords && filters.keywords.length > 0);
+
+      let response;
+      if (hasActiveFilters) {
+        // Use search API if filters are present
+        const searchParams: SearchRequest = {
+          ...filters,
+          search_text: searchQuery || undefined,
+          page: currentPage,
+          page_size: currentPageSize,
+        };
+        response = await searchEvidence(searchParams);
+      } else {
+        // Otherwise use standard list API
+        response = await getFiles(currentPage, currentPageSize);
+      }
 
       // Handle the response data
       if (response && response.items) {
@@ -85,7 +106,7 @@ export function EvidenceEngine() {
           page: response.page || currentPage,
           page_size: response.page_size || currentPageSize,
           total: response.total || 0,
-          total_pages: response.total_pages || Math.ceil((response.total || 0) / currentPageSize),
+          total_pages: response.total_pages || Math.ceil((response.total || 0) / (response.page_size || currentPageSize)),
         }));
       }
     } catch (error) {
@@ -127,7 +148,11 @@ export function EvidenceEngine() {
     setFilters(prev => ({
       ...prev,
       [key]: value,
-      page: 1, // Reset to first page when filters change
+    }));
+    // Reset to first page when filters change
+    setPagination(prev => ({
+      ...prev,
+      page: 1
     }));
   };
 

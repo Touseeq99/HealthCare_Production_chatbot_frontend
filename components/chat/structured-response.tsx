@@ -15,7 +15,7 @@ import {
     Info,
     ShieldAlert
 } from "lucide-react"
-import { formatMessageContent } from "@/lib/text-formatting"
+import { MarkdownRenderer } from "./markdown-renderer"
 
 interface StructuredResponseProps {
     content: string
@@ -97,10 +97,9 @@ export function StructuredResponse({ content }: StructuredResponseProps) {
     if (sections.length === 0) {
         // Fallback for non-structured content
         return (
-            <div
-                className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"
-                dangerouslySetInnerHTML={{ __html: formatMessageContent(content) }}
-            />
+            <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+                <MarkdownRenderer content={content} variant="doctor" />
+            </div>
         )
     }
 
@@ -128,10 +127,9 @@ export function StructuredResponse({ content }: StructuredResponseProps) {
                             <Icon className={cn("h-5 w-5", config.iconColor)} />
                             <h3 className="font-bold text-lg">{section.originalTitle}</h3>
                         </div>
-                        <div
-                            className="prose prose-sm dark:prose-invert max-w-none flex-grow"
-                            dangerouslySetInnerHTML={{ __html: formatMessageContent(section.content) }}
-                        />
+                        <div className="prose prose-sm dark:prose-invert max-w-none flex-grow">
+                            <MarkdownRenderer content={section.content} variant="doctor" />
+                        </div>
                     </motion.div>
                 )
             })}

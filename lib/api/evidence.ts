@@ -1,14 +1,13 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+const API_BASE_URL = '/api/proxy/evidence';
 
 // Get paginated files
 export const getFiles = async (page = 1, pageSize = 10) => {
-  const response = await axios.get(`${API_BASE_URL}/evidence/files`, {
+  const response = await axios.get(`${API_BASE_URL}/files`, {
     params: { page, page_size: pageSize },
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+      'Content-Type': 'application/json'
     }
   });
   return response.data;
@@ -16,10 +15,9 @@ export const getFiles = async (page = 1, pageSize = 10) => {
 
 // Search evidence
 export const searchEvidence = async (filters: SearchRequest) => {
-  const response = await axios.post(`${API_BASE_URL}/evidence/search`, filters, {
+  const response = await axios.post(`${API_BASE_URL}/search`, filters, {
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+      'Content-Type': 'application/json'
     }
   });
   return response.data;
@@ -27,9 +25,8 @@ export const searchEvidence = async (filters: SearchRequest) => {
 
 // Get available categories
 export const getCategories = async () => {
-  const response = await axios.get(`${API_BASE_URL}/evidence/categories`, {
+  const response = await axios.get(`${API_BASE_URL}/categories`, {
     headers: {
-      'Authorization': `Bearer ${localStorage.getItem('userToken')}`
     }
   });
   return response.data.categories;
@@ -37,9 +34,8 @@ export const getCategories = async () => {
 
 // Get available paper types
 export const getPaperTypes = async () => {
-  const response = await axios.get(`${API_BASE_URL}/evidence/paper-types`, {
+  const response = await axios.get(`${API_BASE_URL}/paper-types`, {
     headers: {
-      'Authorization': `Bearer ${localStorage.getItem('userToken')}`
     }
   });
   return response.data.paper_types;

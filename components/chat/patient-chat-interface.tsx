@@ -1,3 +1,4 @@
+/// <reference types="styled-jsx" />
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from "react"
@@ -13,6 +14,7 @@ import { CopyButton } from "@/components/ui/copy-button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { formatTime } from "@/lib/date-utils"
 import { BookOpen, MessageCircle, Calendar, User, Heart, Zap } from "lucide-react"
+import { MarkdownRenderer } from "./markdown-renderer"
 
 interface Message {
   id: string
@@ -97,8 +99,7 @@ export function PatientChatInterface() {
 
   const fetchBlogPosts = async () => {
     try {
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/articles`
-      console.log("Fetching from URL:", apiUrl)
+      const apiUrl = `/api/proxy/admin/articles`
 
       const response = await fetch(apiUrl)
 
@@ -153,10 +154,10 @@ export function PatientChatInterface() {
     setMessages((prev) => [...prev, tempBotMessage])
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/patient/stream`, {
+      const response = await fetch(`/api/proxy/chat/patient/stream`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           message: inputMessage,
@@ -213,9 +214,11 @@ export function PatientChatInterface() {
     }
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" })
     localStorage.removeItem("userRole")
-    localStorage.removeItem("userToken")
+    localStorage.removeItem("userEmail")
+    localStorage.removeItem("userName")
     window.location.href = "/login"
   }
 
@@ -364,37 +367,33 @@ export function PatientChatInterface() {
                         )}
 
                         <div
-                          className={`px-4 py-3 rounded-2xl shadow-md min-w-[80px] border ${
-                            message.sender === "user"
-                              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500/30 rounded-br-md"
-                              : message.type === "health-tip"
-                                ? "bg-white text-gray-800 border-blue-200 rounded-bl-md shadow-sm dark:bg-slate-700/90 dark:text-white dark:border-slate-600"
-                                : "bg-white text-gray-800 border-blue-100 rounded-bl-md shadow-sm dark:bg-slate-800/90 dark:text-white dark:border-slate-700"
-                          }`}
+                          className={`px-4 py-3 rounded-2xl shadow-md min-w-[80px] border ${message.sender === "user"
+                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500/30 rounded-br-md"
+                            : message.type === "health-tip"
+                              ? "bg-white text-gray-800 border-blue-200 rounded-bl-md shadow-sm dark:bg-slate-700/90 dark:text-white dark:border-slate-600"
+                              : "bg-white text-gray-800 border-blue-100 rounded-bl-md shadow-sm dark:bg-slate-800/90 dark:text-white dark:border-slate-700"
+                            }`}
                         >
                           {message.type === "health-tip" ? (
                             <>
                               <div className="flex items-center gap-2 mb-2">
                                 <motion.div
-                              animate={{
-                                scale: [1, 1.2, 1],
-                              }}
-                              transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                repeatType: "loop",
-                              }}
-                            >
-                              <Zap className="w-3 h-3 text-cyan-400" />
-                            </motion.div>
+                                  animate={{
+                                    scale: [1, 1.2, 1],
+                                  }}
+                                  transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    repeatType: "loop",
+                                  }}
+                                >
+                                  <Zap className="w-3 h-3 text-cyan-400" />
+                                </motion.div>
                                 <span className="text-xs font-medium text-cyan-300">Health Tip</span>
                               </div>
-                              <div
-                                className="text-sm leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_ul>li]:mb-1 [&_strong]:font-semibold"
-                                dangerouslySetInnerHTML={{
-                                  __html: formatMessageContent(message.content),
-                                }}
-                              />
+                              <div className="text-sm leading-relaxed">
+                                <MarkdownRenderer content={message.content} />
+                              </div>
                             </>
                           ) : message.sender === "bot" && message.id.startsWith("temp-") && !message.content ? (
                             <div className="h-5 flex items-center gap-1">
@@ -423,21 +422,15 @@ export function PatientChatInterface() {
                               />
                             </div>
                           ) : (
-                            <div
-                              className={`text-sm leading-relaxed ${
-                                message.sender === "user" ? "text-white" : "text-gray-800 dark:text-white"
-                              } [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:my-2 [&_ul>li]:mb-1 [&_strong]:font-semibold`}
-                              dangerouslySetInnerHTML={{
-                                __html: formatMessageContent(message.content),
-                              }}
-                            />
+                            <div className={`text-sm leading-relaxed ${message.sender === "user" ? "text-white" : "text-gray-800 dark:text-white"}`}>
+                              <MarkdownRenderer content={message.content} variant={message.sender === "bot" ? "patient" : "user"} />
+                            </div>
                           )}
 
                           <div className="flex items-center justify-between mt-2">
                             <p
-                              className={`text-xs ${
-                                message.sender === "user" ? "text-blue-100/70" : "text-blue-300/60"
-                              }`}
+                              className={`text-xs ${message.sender === "user" ? "text-blue-100/70" : "text-blue-300/60"
+                                }`}
                             >
                               {formatTime(message.timestamp)}
                             </p>
@@ -453,7 +446,7 @@ export function PatientChatInterface() {
                         </div>
 
                         {message.sender === "user" && (
-                          <motion.div 
+                          <motion.div
                             className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm"
                             whileHover={{ rotate: 360 }}
                             transition={{ duration: 0.5 }}
@@ -498,11 +491,10 @@ export function PatientChatInterface() {
                     <Button
                       onClick={() => handleSendMessage()}
                       disabled={!inputMessage.trim() || isLoading}
-                      className={`relative overflow-hidden rounded-xl px-6 h-12 font-medium shadow-lg transition-all duration-200 ${
-                        inputMessage.trim()
-                          ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-700 hover:to-cyan-600"
-                          : "bg-slate-700/50 text-slate-400 cursor-not-allowed"
-                      }`}
+                      className={`relative overflow-hidden rounded-xl px-6 h-12 font-medium shadow-lg transition-all duration-200 ${inputMessage.trim()
+                        ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-700 hover:to-cyan-600"
+                        : "bg-slate-700/50 text-slate-400 cursor-not-allowed"
+                        }`}
                     >
                       {isLoading ? (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -599,11 +591,10 @@ export function PatientChatInterface() {
                                       </div>
                                       <Badge
                                         variant="secondary"
-                                        className={`ml-0 text-xs ${
-                                          post.status === "published"
-                                            ? "bg-green-100 text-green-800 border-green-200 group-hover:bg-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-700/50 dark:group-hover:bg-green-800/60"
-                                            : "bg-amber-100 text-amber-800 border-amber-200 group-hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700/50 dark:group-hover:bg-amber-800/60"
-                                        }`}
+                                        className={`ml-0 text-xs ${post.status === "published"
+                                          ? "bg-green-100 text-green-800 border-green-200 group-hover:bg-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-700/50 dark:group-hover:bg-green-800/60"
+                                          : "bg-amber-100 text-amber-800 border-amber-200 group-hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700/50 dark:group-hover:bg-amber-800/60"
+                                          }`}
                                       >
                                         {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
                                       </Badge>
@@ -757,88 +748,3 @@ export function PatientChatInterface() {
   )
 }
 
-function formatMessageContent(content: string) {
-  if (!content) return content
-
-  let formatted = content.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-
-  formatted = formatted
-    .replace(/^####\s+(.*?)$/gm, '<h4 class="text-base font-semibold mt-1 mb-0">$1</h4>')
-    .replace(/^###\s+(.*?)$/gm, '<h3 class="text-lg font-semibold mt-1 mb-0">$1</h3>')
-    .replace(/^##\s+(.*?)$/gm, '<h2 class="text-xl font-bold mt-2 mb-1">$1</h2>')
-    .replace(/^#\s+(.*?)$/gm, '<h1 class="text-2xl font-bold mt-3 mb-2">$1</h1>')
-
-  const lines = formatted.split("\n")
-  let inList = false
-  let listItems: string[] = []
-  const result: string[] = []
-
-  const processList = () => {
-    if (listItems.length > 0) {
-      const listHtml = `<ul class="my-0 pl-4 space-y-1">${listItems.join("")}</ul>`
-      result.push(listHtml)
-      listItems = []
-    }
-  }
-
-  lines.forEach((line) => {
-    const isListItem = line.trim().match(/^[-*+]\s+/)
-    const isNestedListItem = line.trim().match(/^\s+[-*+]\s+/)
-
-    if (isListItem || isNestedListItem) {
-      const level = (line.match(/^\s*/) || [""])[0].length
-      const content = line.trim().substring(2)
-      const listItem = `<li class="pl-${Math.min(level + 1, 4)}">${content}</li>`
-      listItems.push(listItem)
-      inList = true
-    } else {
-      if (inList) {
-        processList()
-        inList = false
-      }
-      result.push(line)
-    }
-  })
-
-  processList()
-  formatted = result.join("\n")
-
-  formatted = formatted
-    .split("\n\n")
-    .map((block) => {
-      block = block.trim()
-      if (!block) return ""
-
-      if (block.startsWith("<ul>") || block.startsWith("<h")) {
-        return block
-      }
-
-      if (block.startsWith("> ")) {
-        return `<blockquote class="border-l-4 border-blue-600/40 pl-4 italic text-blue-300">${block.substring(
-          2,
-        )}</blockquote>`
-      }
-
-      if (block === "---" || block === "***" || block === "___") {
-        return '<hr class="my-2 border-blue-700/40" />'
-      }
-
-      if (block.endsWith(":")) {
-        return `<p class="font-semibold text-lg mb-0 text-cyan-300">${block}</p>`
-      }
-
-      return `<p class="mb-0 text-blue-100">${block}</p>`
-    })
-    .filter(Boolean)
-    .join("\n")
-
-  formatted = formatted
-    .replace(
-      /`([^`]+)`/g,
-      '<code class="bg-slate-700/60 border border-blue-600/40 px-1 rounded text-cyan-300">$1</code>',
-    )
-    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
-    .replace(/\n/g, "<br />")
-
-  return formatted
-}

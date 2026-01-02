@@ -20,7 +20,7 @@ import {
 } from "@radix-ui/react-tabs"
 import { EvidenceEngine } from "@/components/evidence/EvidenceEngine"
 import { StructuredResponse } from "./structured-response"
-import { formatMessageContent } from "@/lib/text-formatting"
+import { MarkdownRenderer } from "./markdown-renderer"
 
 interface Message {
   id: string
@@ -39,7 +39,6 @@ interface ChatHistory {
 
 // Message component with animations
 const MessageBubble = ({ message, isAi }: { message: Message, isAi: boolean }) => {
-  const formattedContent = useMemo(() => formatMessageContent(message.content), [message.content])
 
   return (
     <motion.div
@@ -82,10 +81,9 @@ const MessageBubble = ({ message, isAi }: { message: Message, isAi: boolean }) =
         {isAi ? (
           <StructuredResponse content={message.content} />
         ) : (
-          <div
-            className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"
-            dangerouslySetInnerHTML={{ __html: formattedContent }}
-          />
+          <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+            <MarkdownRenderer content={message.content} variant="doctor" />
+          </div>
         )}
       </div>
     </motion.div>
@@ -171,10 +169,10 @@ export function DoctorChatInterface() {
     setStreamingContent("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/doctor/stream`, {
+      const response = await fetch(`/api/proxy/chat/doctor/stream`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           message: userMessage
@@ -240,17 +238,14 @@ export function DoctorChatInterface() {
     }
   }
 
-  const handleLogout = () => {
-    // Clear localStorage
+  const handleLogout = async () => {
+    // Clear secure cookies server-side
+    await fetch("/api/auth/logout", { method: "POST" })
+
+    // Clear non-sensitive localStorage
     localStorage.removeItem("userRole")
-    localStorage.removeItem("userToken")
     localStorage.removeItem("userEmail")
     localStorage.removeItem("userName")
-
-    // Clear cookies
-    document.cookie = "userToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-    document.cookie = "userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
-    document.cookie = "userEmail=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
 
     window.location.href = "/login"
   }

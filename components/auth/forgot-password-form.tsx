@@ -16,7 +16,6 @@ export function ForgotPasswordForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // TODO: Implement forgot password logic
-    console.log("Password reset request for:", email)
     setIsSubmitted(true)
   }
 

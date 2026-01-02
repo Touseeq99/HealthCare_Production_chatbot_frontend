@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Users, UserCheck, Activity, Settings, FileText, Plus, LogOut } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import { getCookie } from "@/lib/cookies"
 
 interface BlogPost {
   id: string
@@ -46,7 +47,7 @@ export default function AdminDashboard() {
 
   const fetchUserStats = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/users`)
+      const response = await fetch(`/api/proxy/admin/users`)
       const data = await response.json()
       if (response.ok) {
         setUserStats(data)
@@ -58,7 +59,7 @@ export default function AdminDashboard() {
 
   const fetchBlogPosts = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/articles`)
+      const response = await fetch(`/api/proxy/admin/articles`)
       const data = await response.json()
       if (response.ok) {
         setBlogPosts(data)
@@ -70,34 +71,14 @@ export default function AdminDashboard() {
 
 
   useEffect(() => {
-    // Check for auth in both cookie and localStorage
-    const getCookie = (name: string) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop()?.split(';').shift();
-      return null;
-    };
+    // Check for auth via userRole in cookies
+    const userRole = getCookie('userRole');
 
-    // Check both cookie and localStorage for token
-    const cookieToken = getCookie('auth-token');
-    const localStorageToken = localStorage.getItem('authToken');
-    const userRole = localStorage.getItem('userRole');
-    const isAuth = localStorage.getItem('isAuthenticated');
-
-    console.log('Auth check:', { 
-      cookieToken: !!cookieToken, 
-      localStorageToken: !!localStorageToken, 
-      userRole, 
-      isAuth 
-    });
-
-    if ((!cookieToken && !localStorageToken) || userRole !== 'admin' || isAuth !== 'true') {
-      console.log('Redirecting to login - missing auth');
+    if (userRole !== 'admin') {
       router.push('/login');
       return;
     }
 
-    console.log('Authentication successful, loading dashboard');
     setIsAuthenticated(true);
 
     const loadData = async () => {
@@ -106,8 +87,7 @@ export default function AdminDashboard() {
         await Promise.all([fetchUserStats(), fetchBlogPosts()]);
       } catch (error) {
         console.error("Error loading dashboard data:", error);
-        // Clear auth and redirect to login on error
-        document.cookie = 'auth-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        // For server-side auth errors, redirect to login
         router.push("/login");
       } finally {
         setIsLoading(false);
@@ -117,7 +97,8 @@ export default function AdminDashboard() {
     loadData();
   }, [router])
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" })
     localStorage.clear()
     router.push("/login")
   }
@@ -134,21 +115,12 @@ export default function AdminDashboard() {
     }
 
     try {
-      console.log('Sending request to create article:', {
-        url: `${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/articles`,
-        method: "POST",
-        body: {
-          title: newPost.title,
-          content: newPost.content,
-          author: "Admin"
-        }
-      });
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/admin/articles`, {
+      const response = await fetch(`/api/proxy/admin/articles`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          "Accept": "application/json"
         },
         body: JSON.stringify({
           title: newPost.title,
@@ -157,8 +129,7 @@ export default function AdminDashboard() {
         }),
       });
 
-      console.log('Response status:', response.status);
-      
+
       if (!response.ok) {
         const errorData = await response.text();
         console.error('Error response:', errorData);
@@ -166,10 +137,9 @@ export default function AdminDashboard() {
       }
 
       const savedPost = await response.json();
-      console.log('Article created successfully:', savedPost);
       setBlogPosts([...blogPosts, savedPost]);
       setNewPost({ title: "", content: "" });
-      
+
       toast({
         title: "Success",
         description: "Article created successfully",
@@ -195,7 +165,7 @@ export default function AdminDashboard() {
     })
 
     try {
-      const response = await fetch("/api/admin/upload-docs", {
+      const response = await fetch("/api/proxy/admin/upload-docs", {
         method: "POST",
         body: formData,
       })
@@ -242,7 +212,7 @@ export default function AdminDashboard() {
       "Almost there..."
     ];
     const randomMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
-    
+
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-50 via-pink-50 to-blue-50">
         <div className="relative">
@@ -352,12 +322,12 @@ export default function AdminDashboard() {
                     />
                   </div>
 
-          
+
                 </div>
               </CardContent>
             </Card>
 
- 
+
           </TabsContent>
 
           <TabsContent value="blog" className="space-y-6">
