@@ -115,10 +115,7 @@ export function SignupForm() {
       const result = await response.json();
 
       if (result.success) {
-        // Store non-sensitive info in localStorage (optional, similar to login)
         localStorage.setItem("userName", formData.name)
-
-        // Redirect based on role after successful signup
         if (formData.role === 'doctor') {
           router.push('/doctor/dashboard')
         } else {
@@ -154,7 +151,7 @@ export function SignupForm() {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="name" className="block text-sm font-medium text-slate-800 mb-1">
+                <Label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-1.5">
                   First Name *
                 </Label>
                 <Input
@@ -162,12 +159,12 @@ export function SignupForm() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`${errors.name ? 'border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'} text-slate-800`}
+                  className={`${errors.name ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all`}
                 />
-                {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+                {errors.name && <p className="mt-1 text-sm text-red-600 font-medium">{errors.name}</p>}
               </div>
               <div>
-                <Label htmlFor="surname" className="block text-sm font-medium text-slate-800 mb-1">
+                <Label htmlFor="surname" className="block text-sm font-semibold text-slate-700 mb-1.5">
                   Last Name *
                 </Label>
                 <Input
@@ -175,14 +172,14 @@ export function SignupForm() {
                   name="surname"
                   value={formData.surname}
                   onChange={handleChange}
-                  className={`${errors.surname ? 'border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'} text-slate-800`}
+                  className={`${errors.surname ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all`}
                 />
-                {errors.surname && <p className="mt-1 text-sm text-red-600">{errors.surname}</p>}
+                {errors.surname && <p className="mt-1 text-sm text-red-600 font-medium">{errors.surname}</p>}
               </div>
             </div>
 
             <div>
-              <Label htmlFor="email" className="block text-sm font-medium text-slate-800 mb-1">
+              <Label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Email Address *
               </Label>
               <Input
@@ -191,13 +188,13 @@ export function SignupForm() {
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`${errors.email ? 'border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'} text-slate-800`}
+                className={`${errors.email ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all`}
               />
-              {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+              {errors.email && <p className="mt-1 text-sm text-red-600 font-medium">{errors.email}</p>}
             </div>
 
             <div>
-              <Label htmlFor="role" className="block text-sm font-medium text-slate-800 mb-1">
+              <Label htmlFor="role" className="block text-sm font-semibold text-slate-700 mb-1.5">
                 I am a *
               </Label>
               <Select
@@ -206,15 +203,15 @@ export function SignupForm() {
                   setFormData(prev => ({ ...prev, role: value }))
                 }
               >
-                <SelectTrigger className={`${errors.role ? 'border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'} text-slate-800`}>
-                  <SelectValue placeholder="Select your role" />
+                <SelectTrigger className={`${errors.role ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg`}>
+                  <SelectValue placeholder="Select your role" className="text-slate-500" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="patient">Patient</SelectItem>
-                  <SelectItem value="doctor">Doctor</SelectItem>
+                <SelectContent className="bg-white border-slate-200 shadow-xl rounded-xl p-1">
+                  <SelectItem value="patient" className="text-slate-700 focus:bg-teal-50 focus:text-teal-700 rounded-lg cursor-pointer py-2">Patient</SelectItem>
+                  <SelectItem value="doctor" className="text-slate-700 focus:bg-teal-50 focus:text-teal-700 rounded-lg cursor-pointer py-2">Doctor</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.role && <p className="mt-1 text-sm text-red-600">{errors.role}</p>}
+              {errors.role && <p className="mt-1 text-sm text-red-600 font-medium">{errors.role}</p>}
             </div>
           </motion.div>
         )
@@ -229,7 +226,7 @@ export function SignupForm() {
             {formData.role === 'doctor' && (
               <>
                 <div>
-                  <Label htmlFor="specialization" className="block text-sm font-medium text-slate-800 mb-1">
+                  <Label htmlFor="specialization" className="block text-sm font-semibold text-slate-700 mb-1.5">
                     Specialization *
                   </Label>
                   <Input
@@ -237,12 +234,12 @@ export function SignupForm() {
                     name="specialization"
                     value={formData.specialization}
                     onChange={handleChange}
-                    className={`${errors.specialization ? 'border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'} text-slate-800`}
+                    className={`${errors.specialization ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all`}
                   />
-                  {errors.specialization && <p className="mt-1 text-sm text-red-600">{errors.specialization}</p>}
+                  {errors.specialization && <p className="mt-1 text-sm text-red-600 font-medium">{errors.specialization}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="doctorRegisterNumber" className="block text-sm font-medium text-slate-800 mb-1">
+                  <Label htmlFor="doctorRegisterNumber" className="block text-sm font-semibold text-slate-700 mb-1.5">
                     Medical License Number *
                   </Label>
                   <Input
@@ -250,16 +247,16 @@ export function SignupForm() {
                     name="doctorRegisterNumber"
                     value={formData.doctorRegisterNumber}
                     onChange={handleChange}
-                    className={`${errors.doctorRegisterNumber ? 'border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'} text-slate-800`}
+                    className={`${errors.doctorRegisterNumber ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all`}
                     placeholder="e.g., MD123456"
                   />
-                  {errors.doctorRegisterNumber && <p className="mt-1 text-sm text-red-600">{errors.doctorRegisterNumber}</p>}
+                  {errors.doctorRegisterNumber && <p className="mt-1 text-sm text-red-600 font-medium">{errors.doctorRegisterNumber}</p>}
                 </div>
               </>
             )}
 
             <div className="pt-2">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-slate-500 bg-slate-50 p-4 rounded-lg border border-slate-100">
                 {formData.role === 'doctor'
                   ? 'Your medical license will be verified before account activation.'
                   : 'Please proceed to set up your account security.'}
@@ -276,7 +273,7 @@ export function SignupForm() {
             className="space-y-4"
           >
             <div>
-              <Label htmlFor="password" className="block text-sm font-medium text-slate-800 mb-1">
+              <Label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Create Password *
               </Label>
               <div className="relative">
@@ -286,12 +283,12 @@ export function SignupForm() {
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleChange}
-                  className={`${errors.password ? 'border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'} text-slate-800 pr-10`}
+                  className={`${errors.password ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all pr-10`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
                   tabIndex={-1}
                 >
                   {showPassword ? (
@@ -302,14 +299,14 @@ export function SignupForm() {
                 </button>
               </div>
               {errors.password ? (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                <p className="mt-1 text-sm text-red-600 font-medium">{errors.password}</p>
               ) : (
-                <p className="mt-1 text-xs text-gray-500">Minimum 8 characters</p>
+                <p className="mt-1 text-xs text-slate-500">Minimum 8 characters</p>
               )}
             </div>
 
             <div>
-              <Label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-800 mb-1">
+              <Label htmlFor="confirmPassword" className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Confirm Password *
               </Label>
               <div className="relative">
@@ -319,12 +316,12 @@ export function SignupForm() {
                   type={showConfirmPassword ? "text" : "password"}
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`${errors.confirmPassword ? 'border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'} text-slate-800 pr-10`}
+                  className={`${errors.confirmPassword ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all pr-10`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
                   tabIndex={-1}
                 >
                   {showConfirmPassword ? (
@@ -334,7 +331,7 @@ export function SignupForm() {
                   )}
                 </button>
               </div>
-              {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && <p className="mt-1 text-sm text-red-600 font-medium">{errors.confirmPassword}</p>}
             </div>
 
             <div className="pt-2">
@@ -347,17 +344,17 @@ export function SignupForm() {
                     onCheckedChange={(checked) =>
                       setFormData(prev => ({ ...prev, agreeToTerms: !!checked }))
                     }
-                    className={`h-4 w-4 rounded ${errors.agreeToTerms ? 'border-red-500' : 'border-gray-300 text-blue-600 focus:ring-blue-500'}`}
+                    className={`h-4 w-4 rounded ${errors.agreeToTerms ? 'border-red-500' : 'border-slate-300 text-teal-600 focus:ring-teal-500 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600'}`}
 
                   />
                 </div>
                 <div className="ml-3 text-sm">
-                  <label htmlFor="agreeToTerms" className="font-medium text-slate-800">
+                  <label htmlFor="agreeToTerms" className="font-medium text-slate-700">
                     I agree to the{' '}
-                    <a href="/terms" className="text-blue-600 hover:text-blue-500">Terms of Service</a> and{' '}
-                    <a href="/privacy" className="text-blue-600 hover:text-blue-500">Privacy Policy</a> *
+                    <a href="/terms" className="text-teal-600 hover:text-teal-700 font-bold hover:underline">Terms of Service</a> and{' '}
+                    <a href="/privacy" className="text-teal-600 hover:text-teal-700 font-bold hover:underline">Privacy Policy</a> *
                   </label>
-                  {errors.agreeToTerms && <p className="mt-1 text-sm text-red-600">{errors.agreeToTerms}</p>}
+                  {errors.agreeToTerms && <p className="mt-1 text-sm text-red-600 font-medium">{errors.agreeToTerms}</p>}
                 </div>
               </div>
             </div>
@@ -375,51 +372,46 @@ export function SignupForm() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm mb-4"
+          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4 flex items-center gap-2"
         >
+          <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
           {generalError}
         </motion.div>
       )}
       {/* Progress Steps */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
+      <div className="mb-8">
+        <div className="flex items-center justify-between relative z-10 w-full">
           {[1, 2, 3].map((stepNum) => (
-            <div key={stepNum} className="flex flex-col items-center">
+            <div key={stepNum} className="flex flex-col items-center group cursor-default">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step >= stepNum
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-600'
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 shadow-sm ${step >= stepNum
+                  ? 'bg-teal-500 text-white shadow-teal-500/30 scale-110'
+                  : 'bg-slate-100 text-slate-400'
                   }`}
               >
                 {stepNum}
               </div>
-              <span className="mt-1 text-xs text-gray-600">
+              <span className={`mt-2 text-xs font-bold uppercase tracking-wider transition-colors ${step >= stepNum ? 'text-teal-600' : 'text-slate-400'}`}>
                 {stepNum === 1 ? 'Account' : stepNum === 2 ? 'Details' : 'Security'}
               </span>
             </div>
           ))}
         </div>
-        <div className="relative mt-2">
-          <div className="absolute top-0 left-0 h-0.5 bg-gray-200 w-full -z-10"></div>
-          <div
-            className="absolute top-0 left-0 h-0.5 bg-blue-600 transition-all duration-300 -z-5"
-            style={{ width: `${((step - 1) / 2) * 100}%` }}
-          ></div>
-        </div>
       </div>
 
       {/* Form Content */}
-      {renderStep()}
+      <div className="min-h-[300px]">
+        {renderStep()}
+      </div>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between pt-4">
+      <div className="flex justify-between pt-4 border-t border-slate-100 mt-6">
         <Button
           type="button"
-          variant="outline"
+          variant="ghost"
           onClick={handlePrev}
           disabled={step === 1 || isSubmitting}
-          className={`${step === 1 ? 'hidden' : 'flex items-center'} text-blue-600 border-blue-300 hover:bg-blue-400 hover:text-black`}
-
+          className={`${step === 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'} text-slate-500 hover:text-slate-900 hover:bg-slate-100`}
         >
           Back
         </Button>
@@ -428,7 +420,7 @@ export function SignupForm() {
           <Button
             type="button"
             onClick={handleNext}
-            className="ml-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+            className="bg-teal-500 hover:bg-teal-600 text-white shadow-lg shadow-teal-500/20 px-8 rounded-xl font-bold transition-all hover:scale-105"
           >
             Continue
           </Button>
@@ -436,13 +428,13 @@ export function SignupForm() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="ml-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+            className="bg-teal-500 hover:bg-teal-600 text-white shadow-lg shadow-teal-500/20 px-8 rounded-xl font-bold transition-all hover:scale-105"
           >
             {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating Account...
-              </>
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Creating...</span>
+              </div>
             ) : (
               'Create Account'
             )}

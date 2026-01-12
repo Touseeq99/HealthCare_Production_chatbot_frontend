@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -29,9 +29,10 @@ import {
   Calendar,
   Tag,
   MessageSquare,
-  User
+  User,
+  Shield
 } from 'lucide-react';
-import { getFiles, getCategories, getPaperTypes, searchEvidence, type FileResponse, type SearchRequest } from '@/lib/api/evidence';
+import { getFiles, getCategories, getPaperTypes, searchEvidence, getEvidenceCache, updateEvidenceCache, type FileResponse, type SearchRequest } from '@/lib/api/evidence';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -62,13 +63,24 @@ export function EvidenceEngine() {
 
   // Fetch initial data
   useEffect(() => {
-    fetchFiles();
-    fetchCategories();
-    fetchPaperTypes();
+    const cache = getEvidenceCache();
+    if (cache.hasLoaded && cache.files) {
+      // Use cached data if available
+      setFiles(cache.files);
+      setCategories(cache.categories || []);
+      setPaperTypes(cache.paperTypes || []);
+      if (cache.pagination) setPagination(cache.pagination);
+      setIsLoading(false);
+      setIsLoadingPaperTypes(false);
+    } else {
+      // Otherwise fetch fresh - handled by the fetchFiles effect
+      fetchCategories();
+      fetchPaperTypes();
+    }
   }, []);
 
   // Fetch files based on filters
-  const fetchFiles = async () => {
+  const fetchFiles = useCallback(async (isInitialLoad = false) => {
     try {
       setIsLoading(true);
       const currentPage = pagination.page;
@@ -98,16 +110,45 @@ export function EvidenceEngine() {
       }
 
       // Handle the response data
-      if (response && response.items) {
-        setFiles(response.items);
+      if (Array.isArray(response)) {
+        setFiles(response);
+        setPagination(prev => {
+          const paginationData = {
+            ...prev,
+            total: response.length,
+            total_pages: 1,
+          };
 
-        setPagination(prev => ({
-          ...prev,
-          page: response.page || currentPage,
-          page_size: response.page_size || currentPageSize,
-          total: response.total || 0,
-          total_pages: response.total_pages || Math.ceil((response.total || 0) / (response.page_size || currentPageSize)),
-        }));
+          if (isInitialLoad && !hasActiveFilters) {
+            updateEvidenceCache({
+              files: response,
+              pagination: paginationData,
+              hasLoaded: true
+            });
+          }
+          return paginationData;
+        });
+
+      } else if (response && response.items) {
+        setFiles(response.items);
+        setPagination(prev => {
+          const paginationData = {
+            ...prev,
+            page: response.page || currentPage,
+            page_size: response.page_size || currentPageSize,
+            total: response.total || 0,
+            total_pages: response.total_pages || Math.ceil((response.total || 0) / (response.page_size || currentPageSize)),
+          };
+
+          if (isInitialLoad && !hasActiveFilters && (paginationData.page === 1)) {
+            updateEvidenceCache({
+              files: response.items,
+              pagination: paginationData,
+              hasLoaded: true
+            });
+          }
+          return paginationData;
+        });
       }
     } catch (error) {
       console.error('Error fetching files:', error);
@@ -115,12 +156,13 @@ export function EvidenceEngine() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [pagination.page, pagination.page_size, searchQuery, filters]);
 
   const fetchCategories = async () => {
     try {
       const data = await getCategories();
       setCategories(data);
+      updateEvidenceCache({ categories: data });
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -130,7 +172,9 @@ export function EvidenceEngine() {
     try {
       setIsLoadingPaperTypes(true);
       const data = await getPaperTypes();
-      setPaperTypes(Array.isArray(data) ? data : []);
+      const types = Array.isArray(data) ? data : [];
+      setPaperTypes(types);
+      updateEvidenceCache({ paperTypes: types });
     } catch (error) {
       console.error('Error fetching paper types:', error);
       setPaperTypes([]);
@@ -141,7 +185,8 @@ export function EvidenceEngine() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchFiles();
+    // Reset page to 1 when searching
+    setPagination(prev => ({ ...prev, page: 1 }));
   };
 
   const handleFilterChange = (key: keyof SearchRequest, value: any) => {
@@ -162,7 +207,10 @@ export function EvidenceEngine() {
       page_size: 10,
     });
     setSearchQuery('');
-    fetchFiles();
+    setPagination(prev => ({
+      ...prev,
+      page: 1
+    }));
   };
 
   const handlePageChange = (newPage: number) => {
@@ -176,36 +224,36 @@ export function EvidenceEngine() {
 
   useEffect(() => {
     fetchFiles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.page, pagination.page_size]);
+  }, [fetchFiles]);
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-emerald-600 bg-emerald-50 border-emerald-200';
-    if (score >= 60) return 'text-blue-600 bg-blue-50 border-blue-200';
-    return 'text-amber-600 bg-amber-50 border-amber-200';
+    if (score >= 80) return 'text-teal-400 bg-teal-500/10 border-teal-500/20';
+    if (score >= 60) return 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+    return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
   };
 
   return (
-    <div className="h-full flex flex-col bg-slate-50/50 dark:bg-slate-900/50 rounded-xl overflow-hidden border border-white/20 shadow-sm backdrop-blur-sm">
+    <div className="h-full flex flex-col bg-slate-900 rounded-xl overflow-hidden border border-slate-800 shadow-sm">
       {/* Header */}
-      <div className="border-b border-gray-200/50 dark:border-slate-800/50 bg-white/80 dark:bg-slate-900/80 px-6 py-4 backdrop-blur-md sticky top-0 z-10 w-full">
+      <div className="border-b border-slate-800 bg-slate-900 px-6 py-4 sticky top-0 z-10 w-full">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Evidence Engine
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Shield className="w-5 h-5 text-teal-400" />
+              Evidence Library
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-slate-400">
               Access and manage your clinical knowledge base
             </p>
           </div>
 
           <div className="flex items-center space-x-3">
             <form onSubmit={handleSearch} className="relative group">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-teal-400 transition-colors" />
               <Input
                 type="text"
                 placeholder="Search evidence..."
-                className="pl-10 w-64 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                className="pl-10 w-64 bg-slate-800 border-slate-700 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-slate-200 placeholder:text-slate-500"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -213,35 +261,35 @@ export function EvidenceEngine() {
 
             <Dialog open={isFilterOpen} onOpenChange={setIsFilterOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline" size="icon" className="bg-white/50 dark:bg-slate-800/50 hover:bg-blue-50 dark:hover:bg-blue-900/20 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+                <Button variant="outline" size="icon" className="bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700">
                   <Filter className="h-4 w-4" />
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-6xl p-0 gap-0 bg-white dark:bg-slate-900 overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
-                  <DialogTitle className="text-lg font-semibold text-slate-800 dark:text-slate-100">Filter Evidence</DialogTitle>
+              <DialogContent className="max-w-6xl p-0 gap-0 bg-slate-900 border-slate-800 overflow-hidden flex flex-col max-h-[90vh] text-slate-200">
+                <div className="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+                  <DialogTitle className="text-lg font-semibold text-white">Filter Evidence</DialogTitle>
                 </div>
 
                 <ScrollArea className="flex-1">
                   <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Paper Types Column */}
                     <div className="space-y-3">
-                      <label className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-blue-500" />
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-teal-500" />
                         Paper Types
                       </label>
-                      <div className="h-[250px] pr-4 border rounded-lg bg-slate-50/50 dark:bg-slate-900/50 p-3 overflow-y-auto">
+                      <div className="h-[150px] pr-4 border border-slate-700 rounded-lg bg-slate-800/50 p-3 overflow-y-auto">
                         <div className="space-y-2">
                           {isLoadingPaperTypes ? (
                             <div className="flex items-center justify-center py-4">
-                              <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+                              <Loader2 className="h-5 w-5 animate-spin text-teal-500" />
                             </div>
                           ) : paperTypes && paperTypes.length > 0 ? (
                             paperTypes.map((type) => (
-                              <label key={type} className="flex items-center p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                              <label key={type} className="flex items-center p-2 rounded-md hover:bg-slate-800 transition-colors cursor-pointer">
                                 <input
                                   type="checkbox"
-                                  className="h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                                  className="h-4 w-4 accent-teal-500 rounded border-slate-600 bg-slate-700"
                                   checked={filters.paper_types?.includes(type) || false}
                                   onChange={(e) => {
                                     const newTypes = filters.paper_types || [];
@@ -252,7 +300,7 @@ export function EvidenceEngine() {
                                     }
                                   }}
                                 />
-                                <span className="ml-3 text-sm text-slate-600 dark:text-slate-300 capitalize">{type?.replace(/_/g, ' ') || 'Unknown'}</span>
+                                <span className="ml-3 text-sm text-slate-300 capitalize">{type?.replace(/_/g, ' ') || 'Unknown'}</span>
                               </label>
                             ))) :
                             (
@@ -260,51 +308,103 @@ export function EvidenceEngine() {
                             )}
                         </div>
                       </div>
+
+                      <div className="mt-4 pt-4 border-t border-slate-800">
+                        <label className="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2 mb-3">
+                          <Calendar className="h-4 w-4 text-amber-500" />
+                          Date Range
+                        </label>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-500 mb-1">Start Date</label>
+                            <Input
+                              type="date"
+                              className="bg-slate-800 border-slate-700 text-slate-200"
+                              value={filters.start_date?.split('T')[0] || ''}
+                              onChange={(e) => handleFilterChange('start_date', e.target.value ? `${e.target.value}T00:00:00Z` : undefined)}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-500 mb-1">End Date</label>
+                            <Input
+                              type="date"
+                              className="bg-slate-800 border-slate-700 text-slate-200"
+                              value={filters.end_date?.split('T')[0] || ''}
+                              onChange={(e) => handleFilterChange('end_date', e.target.value ? `${e.target.value}T23:59:59Z` : undefined)}
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Scores Column */}
                     <div className="space-y-6">
-                      <label className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
                         <Star className="h-4 w-4 text-amber-500" />
                         Quality Scores
                       </label>
 
-                      <div className="space-y-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-100 dark:border-slate-800">
+                      <div className="space-y-4 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
                         <div>
-                          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">Minimum Score (0-100)</label>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1.5">Min Total Score (0-100)</label>
                           <Input
                             type="number"
                             min="0"
                             max="100"
-                            className="bg-white dark:bg-slate-800"
+                            className="bg-slate-800 border-slate-700 text-slate-200"
                             value={filters.min_total_score || ''}
                             onChange={(e) => handleFilterChange('min_total_score', e.target.value ? Number(e.target.value) : undefined)}
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">Maximum Score (0-100)</label>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1.5">Max Total Score (0-100)</label>
                           <Input
                             type="number"
                             min="0"
                             max="100"
-                            className="bg-white dark:bg-slate-800"
+                            className="bg-slate-800 border-slate-700 text-slate-200"
                             value={filters.max_total_score || ''}
                             onChange={(e) => handleFilterChange('max_total_score', e.target.value ? Number(e.target.value) : undefined)}
                           />
                         </div>
+                        <Separator className="bg-slate-700" />
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-500 mb-1.5">Min Confidence %</label>
+                          <Input
+                            type="number"
+                            min="0"
+                            max="100"
+                            className="bg-slate-800 border-slate-700 text-slate-200"
+                            value={filters.min_confidence || ''}
+                            onChange={(e) => handleFilterChange('min_confidence', e.target.value ? Number(e.target.value) : undefined)}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2 p-3 bg-teal-500/10 rounded-lg border border-teal-500/20">
+                        <input
+                          type="checkbox"
+                          id="has_comments"
+                          className="h-4 w-4 accent-teal-500 rounded border-slate-600 bg-slate-700"
+                          checked={filters.has_comments || false}
+                          onChange={(e) => handleFilterChange('has_comments', e.target.checked)}
+                        />
+                        <label htmlFor="has_comments" className="text-sm font-medium text-slate-200 cursor-pointer">
+                          Include Only Reviewed Files
+                        </label>
                       </div>
                     </div>
 
                     {/* Keywords Column */}
                     <div className="space-y-3">
-                      <label className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                        <Tag className="h-4 w-4 text-emerald-500" />
+                      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <Tag className="h-4 w-4 text-teal-500" />
                         Keywords
                       </label>
-                      <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-100 dark:border-slate-800 h-full">
-                        <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">Comma separated values</label>
+                      <div className="p-4 bg-slate-800/50 rounded-lg border border-slate-700 h-full">
+                        <label className="block text-xs font-semibold text-slate-500 mb-2">Comma separated values</label>
                         <textarea
-                          className="w-full h-[150px] p-3 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none resize-none"
+                          className="w-full h-[150px] p-3 rounded-md border border-slate-700 bg-slate-800 text-slate-200 text-sm focus:ring-2 focus:ring-teal-500/50 outline-none resize-none"
                           placeholder="e.g. prognosis, diagnosis, treatment..."
                           value={filters.keywords?.join(', ') || ''}
                           onChange={(e) => {
@@ -320,20 +420,23 @@ export function EvidenceEngine() {
                   </div>
                 </ScrollArea>
 
-                <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex justify-end space-x-3">
+                <div className="p-6 border-t border-slate-800 bg-slate-900 flex justify-end space-x-3">
                   <Button
                     variant="outline"
                     onClick={clearFilters}
-                    className="text-slate-600 hover:bg-slate-100"
+                    className="text-slate-400 border-slate-700 hover:bg-slate-800 hover:text-white"
                   >
                     Reset All
                   </Button>
                   <Button
                     onClick={() => {
-                      fetchFiles();
                       setIsFilterOpen(false);
+                      // Applying filters might not strictly require checking page if filters object already updated
+                      // But usually 'Filter' dialog Apply button implies action.
+                      // We'll rely on the effect triggered by state changes if any.
+                      // If no state changed, no fetch. That's consistent.
                     }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white min-w-[120px]"
+                    className="bg-teal-500 hover:bg-teal-600 text-white min-w-[120px]"
                   >
                     Apply Filters
                   </Button>
@@ -347,36 +450,39 @@ export function EvidenceEngine() {
       {/* Main Content */}
       <div className="flex-1 overflow-hidden relative min-h-0">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <div className="px-6 border-b border-gray-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
-            <TabsList className="flex space-x-6">
+          <div className="px-6 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm">
+            <TabsList className="flex space-x-6 bg-transparent">
               <TabsTrigger
                 value="all"
-                className="relative py-4 text-sm font-medium text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400 outline-none group"
+                className="relative py-4 text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors data-[state=active]:text-teal-400 data-[state=active]:bg-transparent outline-none group"
               >
                 All Evidence
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-teal-500 scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
               </TabsTrigger>
             </TabsList>
           </div>
 
-          <div className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-slate-900/20">
-            <TabsContent value={activeTab} className="outline-none m-0 p-6">
+          <div className="flex-1 overflow-y-auto bg-slate-900/50 p-6">
+            <TabsContent value="active" className="outline-none m-0">
+              {/* empty */}
+            </TabsContent>
+            <TabsContent value="all" className="outline-none m-0">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center h-64 space-y-4">
-                  <Loader2 className="h-8 w-8 animate-spin text-blue-600/50" />
-                  <p className="text-sm text-slate-400">Loading evidence...</p>
+                  <Loader2 className="h-8 w-8 animate-spin text-teal-500/50" />
+                  <p className="text-sm text-slate-500">Loading evidence...</p>
                 </div>
               ) : !files || files.length === 0 ? (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col items-center justify-center h-64 text-center p-8 bg-white/50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 mx-auto max-w-2xl mt-8"
+                  className="flex flex-col items-center justify-center h-64 text-center p-8 bg-slate-800/50 rounded-2xl border border-dashed border-slate-700 mx-auto max-w-2xl mt-8"
                 >
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-full mb-4">
-                    <FileText className="h-10 w-10 text-blue-400" />
+                  <div className="bg-slate-800 p-4 rounded-full mb-4">
+                    <FileText className="h-10 w-10 text-slate-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">No evidence found</h3>
-                  <p className="text-slate-500 dark:text-slate-400 max-w-sm mt-2">
+                  <h3 className="text-lg font-semibold text-slate-300">No evidence found</h3>
+                  <p className="text-slate-500 max-w-sm mt-2">
                     {searchQuery || Object.keys(filters).length > 2
                       ? 'Try adjusting your search criteria or filters to see results'
                       : 'Your knowledge base is currently empty'}
@@ -392,11 +498,11 @@ export function EvidenceEngine() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
-                        className="group bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md border border-slate-100 dark:border-slate-700/50 hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300 cursor-pointer relative overflow-hidden"
+                        className="group bg-slate-800 rounded-xl p-5 shadow-sm hover:shadow-lg border border-slate-700 hover:border-teal-500/50 transition-all duration-300 cursor-pointer relative overflow-hidden"
                         onClick={() => setSelectedFile(file)}
                       >
                         <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-full hover:bg-blue-100">
+                          <Button size="icon" variant="ghost" className="h-8 w-8 text-teal-400 bg-teal-500/10 rounded-full hover:bg-teal-500/20">
                             <BookOpen className="h-4 w-4" />
                           </Button>
                         </div>
@@ -412,12 +518,12 @@ export function EvidenceEngine() {
                           </div>
 
                           <div className="flex-1 min-w-0 pt-1">
-                            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1 mb-2">
+                            <h3 className="text-lg font-bold text-slate-200 group-hover:text-teal-400 transition-colors line-clamp-1 mb-2">
                               {file.file_name}
                             </h3>
 
-                            <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mb-3">
-                              <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900/50 px-2.5 py-1 rounded-md">
+                            <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400 mb-3">
+                              <div className="flex items-center gap-1.5 bg-slate-900/50 px-2.5 py-1 rounded-md border border-slate-700/50">
                                 <Tag className="h-3.5 w-3.5" />
                                 <span className="capitalize">{file.paper_type ? file.paper_type.replace(/_/g, ' ') : 'N/A'}</span>
                               </div>
@@ -438,19 +544,19 @@ export function EvidenceEngine() {
                                     <Badge
                                       key={`${keyword}-${idx}`}
                                       variant="secondary"
-                                      className="bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 hover:bg-white hover:shadow-sm transition-all font-medium border-transparent hover:border-slate-200"
+                                      className="bg-slate-900/60 text-slate-400 hover:bg-slate-900 transition-all font-medium border border-slate-700/50"
                                     >
                                       {keyword}
                                     </Badge>
                                   ))}
                                   {file.keywords.length > 4 && (
-                                    <Badge variant="outline" className="text-xs text-slate-400 border-dashed">
+                                    <Badge variant="outline" className="text-xs text-slate-500 border-dashed border-slate-600">
                                       +{file.keywords.length - 4}
                                     </Badge>
                                   )}
                                 </>
                               ) : (
-                                <span className="text-xs text-slate-400 italic">No keywords tagged</span>
+                                <span className="text-xs text-slate-500 italic">No keywords tagged</span>
                               )}
                             </div>
                           </div>
@@ -467,19 +573,20 @@ export function EvidenceEngine() {
 
       {/* Pagination Footer */}
       {pagination.total_pages > 1 && (
-        <div className="border-t border-slate-200 dark:border-slate-800 px-6 py-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
+        <div className="border-t border-slate-800 px-6 py-4 bg-slate-900">
           <div className="flex items-center justify-between max-w-5xl mx-auto">
-            <div className="text-sm text-slate-500 dark:text-slate-400">
-              Showing <span className="font-bold text-slate-800 dark:text-slate-200">{(pagination.page - 1) * pagination.page_size + 1}</span> to{' '}
-              <span className="font-bold text-slate-800 dark:text-slate-200">
+            <div className="text-sm text-slate-400">
+              Showing <span className="font-bold text-slate-200">{(pagination.page - 1) * pagination.page_size + 1}</span> to{' '}
+              <span className="font-bold text-slate-200">
                 {Math.min(pagination.page * pagination.page_size, pagination.total)}
               </span>{' '}
-              of <span className="font-bold text-slate-800 dark:text-slate-200">{pagination.total}</span>
+              of <span className="font-bold text-slate-200">{pagination.total}</span>
             </div>
             <div className="flex space-x-2">
               <Button
                 variant="outline"
                 size="sm"
+                className="bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
                 onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page === 1}
               >
@@ -488,6 +595,7 @@ export function EvidenceEngine() {
               <Button
                 variant="outline"
                 size="sm"
+                className="bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"
                 onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page >= pagination.total_pages}
               >
@@ -498,26 +606,26 @@ export function EvidenceEngine() {
         </div>
       )}
 
-      {/* Details Modal - Redesigned to be HORIZONTAL / SIDE-BY-SIDE */}
+      {/* Details Modal */}
       <Dialog open={!!selectedFile} onOpenChange={(open) => !open && setSelectedFile(null)}>
-        <DialogContent className="max-w-[95vw] 2xl:max-w-7xl p-0 gap-0 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 overflow-hidden h-[90vh] sm:h-[85vh] flex flex-col">
+        <DialogContent className="max-w-[95vw] 2xl:max-w-7xl p-0 gap-0 bg-slate-950 border-slate-800 text-slate-200 overflow-hidden h-[90vh] sm:h-[85vh] flex flex-col">
           {selectedFile && (
             <>
               {/* Modal Header */}
-              <div className="flex-shrink-0 px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md">
+              <div className="flex-shrink-0 px-8 py-5 border-b border-slate-800 flex items-center justify-between bg-slate-900">
                 <div className="flex items-center gap-4">
                   <div className={cn(
-                    "flex items-center justify-center w-12 h-12 rounded-xl border-2 bg-white dark:bg-slate-800",
+                    "flex items-center justify-center w-12 h-12 rounded-xl border-2 bg-slate-900",
                     getScoreColor(selectedFile.total_score)
                   )}>
                     <span className="text-lg font-bold">{selectedFile.total_score}</span>
                   </div>
                   <div>
-                    <DialogTitle className="text-xl font-bold text-slate-900 dark:text-white leading-tight line-clamp-1">
+                    <DialogTitle className="text-xl font-bold text-white leading-tight line-clamp-1">
                       {selectedFile.file_name}
                     </DialogTitle>
-                    <p className="text-xs text-slate-500 flex items-center gap-2 mt-1">
-                      <span className="uppercase font-semibold tracking-wider text-[10px] bg-slate-200 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                    <p className="text-xs text-slate-400 flex items-center gap-2 mt-1">
+                      <span className="uppercase font-semibold tracking-wider text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-teal-400">
                         {selectedFile.paper_type?.replace(/_/g, ' ') || 'Unknown Type'}
                       </span>
                       <span>•</span>
@@ -527,44 +635,44 @@ export function EvidenceEngine() {
                 </div>
               </div>
 
-              {/* Horizontal Split Layout: Content (Left) + Comments (Right) */}
+              {/* Horizontal Split Layout */}
               <div className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-12 h-full">
-                {/* LEFT COLUMN: Metadata & Keywords (4 columns wide) */}
-                <div className="col-span-12 md:col-span-4 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-900/30 h-full overflow-y-auto">
+                {/* LEFT COLUMN */}
+                <div className="col-span-12 md:col-span-4 border-b md:border-b-0 md:border-r border-slate-800 bg-slate-900/50 h-full overflow-y-auto">
                   <div className="p-6 space-y-8">
                     {/* Stats */}
                     <div className="space-y-4">
-                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Verification Stats</h4>
-                      <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-4">
+                      <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Verification Stats</h4>
+                      <div className="p-4 bg-slate-900 rounded-xl border border-slate-800 shadow-sm space-y-4">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-slate-500">Confidence</span>
-                          <Badge variant={selectedFile.confidence > 80 ? "default" : "secondary"}>
+                          <span className="text-sm text-slate-400">Confidence</span>
+                          <Badge variant={selectedFile.confidence > 80 ? "default" : "secondary"} className="bg-teal-500 text-white hover:bg-teal-600">
                             {selectedFile.confidence}%
                           </Badge>
                         </div>
-                        <Separator />
+                        <Separator className="bg-slate-800" />
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-slate-500">Reviews</span>
-                          <span className="text-sm font-bold">{selectedFile.comments.length}</span>
+                          <span className="text-sm text-slate-400">Reviews</span>
+                          <span className="text-sm font-bold text-slate-200">{selectedFile.comments.length}</span>
                         </div>
-                        <Separator />
+                        <Separator className="bg-slate-800" />
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-slate-500">Review ID</span>
-                          <span className="text-xs font-mono text-slate-400">#{selectedFile.id}</span>
+                          <span className="text-sm text-slate-400">Review ID</span>
+                          <span className="text-xs font-mono text-slate-500">#{selectedFile.id}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Keywords */}
                     <div className="space-y-3">
-                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tagged Keywords</h4>
+                      <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Tagged Keywords</h4>
                       <div className="flex flex-wrap gap-2">
                         {selectedFile.keywords.length > 0 ? (
                           selectedFile.keywords.map((keyword) => (
                             <Badge
                               key={keyword}
                               variant="outline"
-                              className="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 py-1"
+                              className="bg-slate-900 text-slate-400 border-slate-700 py-1"
                             >
                               {keyword}
                             </Badge>
@@ -574,19 +682,49 @@ export function EvidenceEngine() {
                         )}
                       </div>
                     </div>
+
+                    {/* Detailed Category Scores */}
+                    {selectedFile.scores && selectedFile.scores.length > 0 && (
+                      <div className="space-y-4">
+                        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Detailed Performance</h4>
+                        <div className="space-y-3">
+                          {selectedFile.scores.map((score, idx) => (
+                            <div key={idx} className="bg-slate-900 p-3 rounded-lg border border-slate-800 shadow-sm">
+                              <div className="flex justify-between items-center mb-1.5">
+                                <span className="text-xs font-bold capitalize text-slate-400">
+                                  {score.category?.replace(/_/g, ' ')}
+                                </span>
+                                <Badge variant="secondary" className="text-[10px] font-bold bg-slate-800 text-slate-300">
+                                  {score.score}/{score.max_score}
+                                </Badge>
+                              </div>
+                              <div className="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                                <div
+                                  className="bg-teal-500 h-full rounded-full transition-all"
+                                  style={{ width: `${(score.score / score.max_score) * 100}%` }}
+                                />
+                              </div>
+                              {score.rationale && (
+                                <p className="text-[10px] text-slate-500 mt-2 line-clamp-2 italic">"{score.rationale}"</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* RIGHT COLUMN: Reviewer Comments (8 columns wide) */}
-                <div className="col-span-12 md:col-span-8 bg-white dark:bg-slate-900 h-full overflow-y-auto">
+                {/* RIGHT COLUMN */}
+                <div className="col-span-12 md:col-span-8 bg-slate-950 h-full overflow-y-auto">
                   <div className="p-8">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600 dark:text-blue-400">
+                      <div className="p-2 bg-teal-500/10 rounded-lg text-teal-400">
                         <MessageSquare className="h-5 w-5" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Reviewer Feedback</h3>
-                        <p className="text-sm text-slate-500">Detailed analysis from clinical reviewers</p>
+                        <h3 className="text-lg font-bold text-white">Reviewer Feedback</h3>
+                        <p className="text-sm text-slate-400">Detailed analysis from clinical reviewers</p>
                       </div>
                     </div>
 
@@ -601,14 +739,14 @@ export function EvidenceEngine() {
                             className={cn(
                               "p-5 rounded-xl border transition-all hover:shadow-md",
                               comment.is_penalty
-                                ? "bg-red-50/50 dark:bg-red-900/5 border-red-100 dark:border-red-900/20"
-                                : "bg-emerald-50/50 dark:bg-emerald-900/5 border-emerald-100 dark:border-emerald-900/20"
+                                ? "bg-red-900/10 border-red-900/30"
+                                : "bg-emerald-900/10 border-emerald-900/30"
                             )}
                           >
                             <div className="flex gap-4">
                               <div className={cn(
                                 "flex-shrink-0 mt-1",
-                                comment.is_penalty ? "text-red-500" : "text-emerald-500"
+                                comment.is_penalty ? "text-red-400" : "text-emerald-400"
                               )}>
                                 {comment.is_penalty ? (
                                   <AlertCircle className="h-5 w-5" />
@@ -620,14 +758,14 @@ export function EvidenceEngine() {
                                 <div className="flex items-center gap-2 mb-1">
                                   <span className={cn(
                                     "text-xs font-bold uppercase tracking-wide",
-                                    comment.is_penalty ? "text-red-600" : "text-emerald-600"
+                                    comment.is_penalty ? "text-red-400" : "text-emerald-400"
                                   )}>
                                     {comment.is_penalty ? "Critical Note" : "Validation"}
                                   </span>
-                                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                                  <span className="text-slate-600">•</span>
                                   <span className="text-xs text-slate-500">Reviewer #{idx + 1}</span>
                                 </div>
-                                <p className="text-slate-800 dark:text-slate-200 leading-relaxed text-sm">
+                                <p className="text-slate-300 leading-relaxed text-sm">
                                   {comment.comment}
                                 </p>
                               </div>
@@ -636,8 +774,8 @@ export function EvidenceEngine() {
                         ))}
                       </div>
                     ) : (
-                      <div className="py-12 text-center bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-                        <p className="text-slate-500 dark:text-slate-400">No review comments available for this document.</p>
+                      <div className="py-12 text-center bg-slate-900/50 rounded-xl border border-dashed border-slate-800">
+                        <p className="text-slate-500">No review comments available for this document.</p>
                       </div>
                     )}
                   </div>
@@ -645,11 +783,11 @@ export function EvidenceEngine() {
               </div>
 
               {/* Footer */}
-              <div className="flex-shrink-0 border-t border-slate-200 dark:border-slate-800 px-6 py-4 bg-white dark:bg-slate-900 flex justify-end">
+              <div className="flex-shrink-0 border-t border-slate-800 px-6 py-4 bg-slate-900 flex justify-end">
                 <Button
                   onClick={() => setSelectedFile(null)}
                   variant="outline"
-                  className="min-w-[100px]"
+                  className="min-w-[100px] border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
                 >
                   Close
                 </Button>

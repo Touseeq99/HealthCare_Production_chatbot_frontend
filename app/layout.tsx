@@ -105,7 +105,7 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body
-        className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-200"
+        className="min-h-screen bg-background text-foreground transition-colors duration-200"
         suppressHydrationWarning
       >
         <ErrorBoundary>

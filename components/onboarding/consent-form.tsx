@@ -2,13 +2,14 @@
 
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { MedicalButton } from "@/components/ui/medical-button"
-import { AnimatedCard } from "@/components/ui/animated-card"
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { motion } from "framer-motion"
+import { CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Checkbox } from "@/components/ui/checkbox"
 import type { UserRole } from "@/lib/auth-utils"
 import { getRoleDisplayName, getRoleDashboardRoute } from "@/lib/auth-utils"
+import { Check, AlertTriangle, Shield, Stethoscope, FileText, ArrowRight } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 export function ConsentForm() {
   const router = useRouter()
@@ -31,16 +32,7 @@ export function ConsentForm() {
             "In case of medical emergencies, contact emergency services immediately.",
             "Your health information will be kept confidential and secure.",
           ],
-          icon: (
-            <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-              />
-            </svg>
-          ),
+          icon: <Shield className="w-8 h-8 text-teal-400" />,
         }
       case "doctor":
         return {
@@ -53,32 +45,14 @@ export function ConsentForm() {
             "The tool should supplement, not replace, your medical knowledge.",
             "Report any technical issues or concerns to the support team.",
           ],
-          icon: (
-            <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-              />
-            </svg>
-          ),
+          icon: <Stethoscope className="w-8 h-8 text-teal-400" />,
         }
       default:
         return {
           title: "Terms of Use",
           description: "Please review our terms of use",
           content: ["Please review and accept our terms of use to continue."],
-          icon: (
-            <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          ),
+          icon: <FileText className="w-8 h-8 text-teal-400" />,
         }
     }
   }
@@ -88,10 +62,8 @@ export function ConsentForm() {
 
     setIsSubmitting(true)
     try {
-      // TODO: Save consent to backend
-
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
       // Navigate to role-specific dashboard
       const dashboardRoute = getRoleDashboardRoute(role)
@@ -106,108 +78,117 @@ export function ConsentForm() {
   const content = getConsentContent(role)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 w-full max-w-2xl mx-auto">
       {/* Welcome Header */}
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4 animate-medical-pulse">
+      <div className="text-center space-y-4">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="inline-flex items-center justify-center w-20 h-20 bg-slate-800 rounded-2xl mb-2 shadow-xl border border-slate-700 relative overflow-hidden group"
+        >
+          <div className="absolute inset-0 bg-teal-500/10 group-hover:bg-teal-500/20 transition-colors" />
           {content.icon}
+        </motion.div>
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Welcome to CLARA</h1>
+          <p className="text-slate-400">Hello {getRoleDisplayName(role)}! Let's get you set up.</p>
         </div>
-        <h1 className="text-3xl font-bold text-black mb-2">Welcome to CardioChat</h1>
-        <p className="text-gray-600">Hello {getRoleDisplayName(role)}! Let's get you started.</p>
       </div>
 
       {/* Consent Card */}
-      <AnimatedCard medical hover>
-        <CardHeader className="text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full mb-4 mx-auto animate-gentle-float">
-            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-          </div>
-          <CardTitle className="text-2xl font-bold text-black">{content.title}</CardTitle>
-          <CardDescription className="text-gray-600">{content.description}</CardDescription>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl"
+      >
+        <CardHeader className="text-center border-b border-slate-800 bg-slate-900/50 pb-8 pt-8">
+          <CardTitle className="text-2xl font-bold text-white mb-2">{content.title}</CardTitle>
+          <CardDescription className="text-slate-400 text-base">{content.description}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+
+        <CardContent className="p-8 space-y-8">
           {/* Content List */}
           <div className="space-y-4">
             {content.content.map((item, index) => (
-              <div key={index} className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-2" />
-                <p className="text-sm text-black leading-relaxed">{item}</p>
-              </div>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 + (index * 0.1) }}
+                className="flex items-start gap-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:bg-slate-800 hover:border-teal-500/30 transition-all group"
+              >
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-500/10 flex items-center justify-center mt-0.5 group-hover:bg-teal-500/20 transition-colors">
+                  <Check className="w-3.5 h-3.5 text-teal-400" />
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed group-hover:text-slate-200">{item}</p>
+              </motion.div>
             ))}
           </div>
 
           {/* Role-specific alerts */}
           {role === "patient" && (
-            <Alert className="border-accent/50 bg-accent/5">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
-              <AlertDescription className="text-black">
-                <strong>Emergency Notice:</strong> If you're experiencing a medical emergency, please call emergency
-                services immediately. Do not use this chatbot for urgent medical situations.
+            <Alert className="border-red-900/50 bg-red-950/20">
+              <AlertTriangle className="h-5 w-5 text-red-400" />
+              <AlertDescription className="text-red-200 ml-2">
+                <strong className="text-red-400 block mb-1">Emergency Notice</strong>
+                If you're experiencing a medical emergency, please call emergency services immediately. Do not use this chatbot for urgent situations.
               </AlertDescription>
             </Alert>
           )}
 
           {role === "doctor" && (
-            <Alert className="border-primary/50 bg-primary/5">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <AlertDescription className="text-black">
-                <strong>Professional Reminder:</strong> This tool is designed to assist your practice but should never
-                replace your clinical judgment and expertise.
+            <Alert className="border-teal-900/50 bg-teal-950/20">
+              <Shield className="h-5 w-5 text-teal-400" />
+              <AlertDescription className="text-teal-100 ml-2">
+                <strong className="text-teal-400 block mb-1">Professional Reminder</strong>
+                This tool is designed to assist your practice but should never replace your clinical judgment and expertise.
               </AlertDescription>
             </Alert>
           )}
 
           {/* Consent Checkbox */}
-          <div className="mt-8 flex items-center">
-            <input
-              type="checkbox"
-              id="consent"
-              checked={hasConsented}
-              onChange={(e) => setHasConsented(e.target.checked)}
-              className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
-            />
-            <label htmlFor="consent" className="ml-2 block text-sm text-gray-700">
-              I have read and agree to the terms and conditions above
+          <div className="pt-4 border-t border-slate-800">
+            <label className="flex items-start gap-4 cursor-pointer group p-4 rounded-xl hover:bg-slate-800/50 transition-colors">
+              <div className="relative flex items-center">
+                <input
+                  type="checkbox"
+                  className="peer h-5 w-5 appearance-none rounded border border-slate-600 bg-slate-800 checked:bg-teal-500 checked:border-teal-500 transition-all cursor-pointer"
+                  checked={hasConsented}
+                  onChange={(e) => setHasConsented(e.target.checked)}
+                />
+                <Check className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" />
+              </div>
+              <span className="text-sm text-slate-400 group-hover:text-slate-300 transition-colors select-none">
+                I acknowledge that I have read, understood, and agree to the terms and conditions outlined above.
+              </span>
             </label>
           </div>
 
           {/* Submit Button */}
-          <div className="mt-8">
-            <button
-              type="button"
-              onClick={handleContinue}
-              disabled={!hasConsented || isSubmitting}
-              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${!hasConsented || isSubmitting
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-primary hover:bg-primary/90'
-                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary`}
-            >
-              {isSubmitting ? 'Processing...' : 'Agree & Continue'}
-            </button>
-          </div>
+          <Button
+            onClick={handleContinue}
+            disabled={!hasConsented || isSubmitting}
+            className={cn(
+              "w-full h-12 text-base font-medium transition-all duration-300",
+              hasConsented && !isSubmitting
+                ? "bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-900/20"
+                : "bg-slate-800 text-slate-500 cursor-not-allowed"
+            )}
+          >
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-slate-400 border-t-white rounded-full animate-spin" />
+                Processing...
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                Agree & Continue <ArrowRight className="w-4 h-4" />
+              </span>
+            )}
+          </Button>
         </CardContent>
-      </AnimatedCard>
+      </motion.div>
     </div>
   )
 }

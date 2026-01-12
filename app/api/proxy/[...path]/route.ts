@@ -33,11 +33,16 @@ async function handleRequest(request: NextRequest, pathArray: string[], method: 
     const cookieStore = await cookies()
     const token = cookieStore.get('userToken')?.value
 
+    if (!token) {
+        return NextResponse.json(
+            { message: 'No authentication token found' },
+            { status: 401 }
+        )
+    }
+
     const headers = new Headers()
     headers.set('Content-Type', 'application/json')
-    if (token) {
-        headers.set('Authorization', `Bearer ${token}`)
-    }
+    headers.set('Authorization', `Bearer ${token}`)
 
     let body = undefined
     if (['POST', 'PUT', 'PATCH'].includes(method)) {
@@ -56,14 +61,22 @@ async function handleRequest(request: NextRequest, pathArray: string[], method: 
         })
 
         // If it's a streaming response (like chat), pipe it directly
-        if (response.body && response.headers.get('content-type')?.includes('text/event-stream') || path.includes('stream')) {
+        if (response.body && (response.headers.get('content-type')?.includes('text/event-stream') || path.includes('stream'))) {
+            const responseHeaders = new Headers({
+                'Content-Type': response.headers.get('content-type') || 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+            });
+
+            // Pass through session ID header if present
+            const sessionId = response.headers.get('X-Session-ID');
+            if (sessionId) {
+                responseHeaders.set('X-Session-ID', sessionId);
+            }
+
             return new NextResponse(response.body, {
                 status: response.status,
-                headers: {
-                    'Content-Type': response.headers.get('content-type') || 'text/event-stream',
-                    'Cache-Control': 'no-cache',
-                    'Connection': 'keep-alive',
-                },
+                headers: responseHeaders,
             })
         }
 

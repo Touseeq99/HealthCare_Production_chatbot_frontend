@@ -13,8 +13,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CopyButton } from "@/components/ui/copy-button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { formatTime } from "@/lib/date-utils"
-import { BookOpen, MessageCircle, Calendar, User, Heart, Zap } from "lucide-react"
+import { BookOpen, MessageCircle, Calendar, User, Heart, Zap, Menu, PanelLeftClose, X } from "lucide-react"
 import { MarkdownRenderer } from "./markdown-renderer"
+import { useChatSessions } from "@/hooks/use-chat-sessions"
+import { ChatSessionsSidebar } from "./chat-sessions-sidebar"
+import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 
 interface Message {
   id: string
@@ -25,12 +29,10 @@ interface Message {
 }
 
 interface BlogPost {
-  id: string
+  id: number
   title: string
   content: string
-  author: string
-  date: string
-  status: "published" | "draft"
+  created_at: string
 }
 
 export function PatientChatInterface() {
@@ -38,7 +40,7 @@ export function PatientChatInterface() {
     {
       id: "1",
       content:
-        "Hello! I'm your Cardiology Assistant. I'm here to provide educational information about heart health and general wellness. How are you feeling today?",
+        "Hello! I'm CLARA, your Personal Health Assistant. I'm here to provide evidence-based information about your health and wellness. How are you feeling today?",
       sender: "bot",
       timestamp: new Date(),
       type: "text",
@@ -51,8 +53,90 @@ export function PatientChatInterface() {
   const [isStreaming, setIsStreaming] = useState(false)
   const [streamingContent, setStreamingContent] = useState("")
   const [selectedArticle, setSelectedArticle] = useState<BlogPost | null>(null)
+  const [isLoadingArticle, setIsLoadingArticle] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [tab, setTab] = useState<"chat" | "blog">("chat")
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+
+  const { toast } = useToast()
+  const {
+    sessions,
+    currentSessionId,
+    setCurrentSessionId,
+    isLoadingSessions,
+    createSession,
+    deleteSession,
+    updateSessionName,
+    getSessionHistory,
+    fetchSessions
+  } = useChatSessions("patient")
+
+  const handleSelectSession = async (sessionId: number | string) => {
+    setCurrentSessionId(sessionId)
+    setIsLoading(true)
+    try {
+      const history = await getSessionHistory(sessionId)
+      if (history && history.length > 0) {
+        const formattedMessages: Message[] = history.map((msg) => ({
+          id: msg.message_id.toString(),
+          content: msg.content,
+          sender: msg.role === "user" ? "user" : "bot",
+          timestamp: new Date(msg.timestamp),
+          type: "text",
+        }))
+        setMessages(formattedMessages)
+      } else {
+        setMessages([
+          {
+            id: "1",
+            content: "Hello! I'm CLARA, your Personal Health Assistant. I'm here to provide evidence-based information about your health and wellness. How are you feeling today?",
+            sender: "bot",
+            timestamp: new Date(),
+            type: "text",
+          },
+        ])
+      }
+    } catch (error) {
+      console.error("Failed to load history:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load chat history",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleCreateNewChat = () => {
+    setCurrentSessionId(null)
+    setMessages([
+      {
+        id: "1",
+        content: "Hello! I'm CLARA, your Personal Health Assistant. I'm here to provide evidence-based information about your health and wellness. How are you feeling today?",
+        sender: "bot",
+        timestamp: new Date(),
+        type: "text",
+        startDate: new Date(),
+      } as any, // startDate is not in Message type but was used in previous code? Actually checking types, Message doesn't have startDate. Removing it if it causes issues, but let's keep it clean.
+    ])
+  }
+
+  const handleDeleteSession = async (sessionId: number | string) => {
+    const success = await deleteSession(sessionId)
+    if (success) {
+      toast({
+        title: "Success",
+        description: "Session deleted successfully",
+      })
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to delete session",
+        variant: "destructive",
+      })
+    }
+  }
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
@@ -99,9 +183,14 @@ export function PatientChatInterface() {
 
   const fetchBlogPosts = async () => {
     try {
-      const apiUrl = `/api/proxy/admin/articles`
+      const apiUrl = `/api/proxy/articles`
 
       const response = await fetch(apiUrl)
+
+      if (response.status === 401) {
+        window.location.href = '/login'
+        return
+      }
 
       if (!response.ok) {
         const errorText = await response.text()
@@ -154,18 +243,38 @@ export function PatientChatInterface() {
     setMessages((prev) => [...prev, tempBotMessage])
 
     try {
-      const response = await fetch(`/api/proxy/chat/patient/stream`, {
+      const response = await fetch(`/api/proxy/patient/stream`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           message: inputMessage,
+          session_id: currentSessionId
         }),
       })
 
+      if (response.status === 401) {
+        window.location.href = '/login'
+        return
+      }
+
       if (!response.ok) {
         throw new Error("Network response was not ok")
+      }
+
+      // Check for new session ID in headers
+      const xSessionId = response.headers.get("X-Session-ID")
+      if (xSessionId && !currentSessionId) {
+        setCurrentSessionId(xSessionId)
+
+        // ChatGPT style: auto-generate a concise name from the first message
+        const generatedName = inputMessage.length > 40
+          ? inputMessage.substring(0, 40).trim() + "..."
+          : inputMessage;
+
+        await updateSessionName(xSessionId, generatedName)
+        fetchSessions() // Refresh sessions list to show the new one
       }
 
       if (!response.body) {
@@ -222,9 +331,28 @@ export function PatientChatInterface() {
     window.location.href = "/login"
   }
 
-  const handleReadMore = (article: BlogPost) => {
-    setSelectedArticle(article)
+  const handleReadMore = async (article: BlogPost) => {
+    setSelectedArticle(article) // Show basic info first
     setIsModalOpen(true)
+    setIsLoadingArticle(true)
+
+    try {
+      const response = await fetch(`/api/proxy/articles/${article.id}`)
+      if (response.status === 401) {
+        window.location.href = '/login'
+        return
+      }
+      if (response.ok) {
+        const detailedArticle = await response.json()
+        setSelectedArticle(detailedArticle)
+      } else {
+        console.error("Failed to fetch detailed article")
+      }
+    } catch (e) {
+      console.error("Error fetching article details:", e)
+    } finally {
+      setIsLoadingArticle(false)
+    }
   }
 
   const handleCloseModal = () => {
@@ -238,44 +366,53 @@ export function PatientChatInterface() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 flex flex-col font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-[#0F172A] flex flex-col font-sans relative overflow-hidden text-slate-200">
       {/* Subtle animated background elements */}
-      <div className="absolute inset-0 overflow-hidden opacity-30">
-        <div className="absolute -top-1/2 -right-1/4 w-[800px] h-[800px] bg-blue-100 rounded-full mix-blend-multiply blur-3xl animate-blob"></div>
-        <div className="absolute -bottom-1/4 -left-1/4 w-[700px] h-[700px] bg-indigo-100 rounded-full mix-blend-multiply blur-3xl animate-blob animation-delay-2000"></div>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-teal-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
       </div>
+
       <motion.header
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-white/80 backdrop-blur-md border-b border-blue-100 shadow-sm relative z-10 dark:bg-slate-800/95 dark:border-slate-700"
+        className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-sm relative z-10"
       >
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <motion.div
             initial={{ x: -10, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.3 }}
-            className="flex items-center space-x-3"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center shadow-md group">
-              <motion.div
-                animate={{
-                  scale: [1, 1.1, 1],
-                  rotate: [0, 10, -10, 0],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  repeatType: "reverse",
-                }}
-                className="group-hover:animate-pulse"
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="text-slate-400 hover:text-teal-400 hover:bg-slate-800"
               >
-                <Heart className="w-5 h-5 text-white" strokeWidth={2.5} fill="currentColor" />
-              </motion.div>
-            </div>
-            <div>
-              <h2 className="font-bold text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">MetaMedMD</h2>
-              <p className="text-sm text-blue-600 font-medium dark:text-blue-300">Your Personal Health Assistant</p>
+                {isSidebarOpen ? <PanelLeftClose className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+              <div className="w-10 h-10 bg-teal-500/10 border border-teal-500/20 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/10 group">
+                <motion.div
+                  animate={{
+                    scale: [1, 1.1, 1],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                  }}
+                  className="group-hover:text-teal-400 text-teal-500"
+                >
+                  <Heart className="w-5 h-5 fill-current" strokeWidth={2.5} />
+                </motion.div>
+              </div>
+              <div>
+                <h2 className="font-bold text-2xl text-white tracking-tight">CLARA</h2>
+                <p className="text-xs text-teal-500 font-medium uppercase tracking-wider">Patient Assistant</p>
+              </div>
             </div>
           </motion.div>
 
@@ -295,15 +432,9 @@ export function PatientChatInterface() {
                 onClick={handleLogout}
                 variant="outline"
                 size="sm"
-                className="border-blue-200 text-blue-600 bg-white hover:bg-blue-50 hover:text-blue-700 transition-all duration-300 shadow-sm relative overflow-hidden dark:border-blue-500/50 dark:text-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-800/50"
+                className="border-slate-700 text-slate-400 bg-slate-800 hover:bg-slate-700 hover:text-white transition-all duration-300 shadow-sm"
               >
-                <span className="relative z-10">Sign Out</span>
-                <motion.span
-                  className="absolute inset-0 bg-gradient-to-r from-blue-100 to-blue-50 dark:from-cyan-500/20 dark:to-blue-500/20"
-                  initial={{ x: '-100%' }}
-                  whileHover={{ x: '0%' }}
-                  transition={{ duration: 0.4, ease: 'easeInOut' }}
-                />
+                Sign Out
               </Button>
             </motion.div>
           </motion.div>
@@ -317,20 +448,20 @@ export function PatientChatInterface() {
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.3 }}
-            className="bg-slate-800/50 backdrop-blur-sm border-b border-blue-700/30 px-4"
+            className="bg-slate-900/50 backdrop-blur-sm border-b border-slate-800 px-4"
           >
             <div className="max-w-6xl mx-auto">
-              <TabsList className="grid w-full grid-cols-2 bg-blue-50 p-1 h-12 rounded-xl border border-blue-100 backdrop-blur-sm dark:bg-slate-800/50 dark:border-slate-700">
+              <TabsList className="grid w-full grid-cols-2 bg-slate-800 p-1 h-12 rounded-xl border border-slate-700">
                 <TabsTrigger
                   value="chat"
-                  className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 data-[state=active]:border data-[state=active]:border-blue-100 rounded-lg transition-all duration-200 h-10 text-blue-600 hover:bg-white/50 dark:text-blue-200 dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-white dark:data-[state=active]:border-slate-600"
+                  className="flex items-center gap-2 data-[state=active]:bg-teal-500 data-[state=active]:text-white rounded-lg transition-all duration-200 h-10 text-slate-400 hover:text-white"
                 >
                   <MessageCircle className="h-4 w-4" strokeWidth={2} />
                   <span className="font-medium">Chat Assistant</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="blog"
-                  className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 data-[state=active]:border data-[state=active]:border-blue-100 rounded-lg transition-all duration-200 h-10 text-blue-600 hover:bg-white/50 dark:text-blue-200 dark:data-[state=active]:bg-slate-700 dark:data-[state=active]:text-white dark:data-[state=active]:border-slate-600"
+                  className="flex items-center gap-2 data-[state=active]:bg-teal-500 data-[state=active]:text-white rounded-lg transition-all duration-200 h-10 text-slate-400 hover:text-white"
                 >
                   <BookOpen className="h-4 w-4" strokeWidth={2} />
                   <span className="font-medium">Health Articles ({blogPosts.length})</span>
@@ -340,195 +471,236 @@ export function PatientChatInterface() {
           </motion.div>
 
           {/* Chat Tab */}
-          <TabsContent value="chat" className="flex-1 flex flex-col mt-0">
-            <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 max-h-[calc(100vh-220px)] overflow-y-auto">
-              <div className="max-w-3xl mx-auto space-y-4 px-2">
-                <AnimatePresence initial={false}>
-                  {messages.map((message) => (
-                    <motion.div
-                      key={message.id}
-                      initial="hidden"
-                      animate="visible"
-                      exit={{ opacity: 0, y: 4, filter: "blur(3px)" }}
-                      variants={messageVariants}
-                      transition={{ duration: 0.18, ease: "easeOut" }}
-                      className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-                    >
-                      <div className="flex items-start gap-3 max-w-lg group">
-                        {message.sender === "bot" && (
-                          <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ duration: 0.2 }}
-                            className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-md"
-                          >
-                            <Heart className="w-4 h-4 text-white" strokeWidth={2} />
-                          </motion.div>
-                        )}
+          <TabsContent value="chat" className="flex-1 flex flex-row mt-0 overflow-hidden">
+            <AnimatePresence>
+              {isSidebarOpen && (
+                <>
+                  <motion.div
+                    initial={{ width: 0, x: -20, opacity: 0 }}
+                    animate={{ width: 288, x: 0, opacity: 1 }}
+                    exit={{ width: 0, x: -20, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="fixed md:relative inset-y-0 left-0 z-50 bg-slate-900 border-r border-slate-800 shadow-xl md:shadow-none overflow-hidden"
+                  >
+                    <div className="flex md:hidden justify-end p-2">
+                      <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
+                        <X className="h-5 w-5 text-slate-400" />
+                      </Button>
+                    </div>
+                    <ChatSessionsSidebar
+                      sessions={sessions}
+                      currentSessionId={currentSessionId}
+                      onSelectSession={(id) => {
+                        handleSelectSession(id);
+                        if (window.innerWidth < 768) setIsSidebarOpen(false);
+                      }}
+                      onCreateSession={() => {
+                        handleCreateNewChat();
+                        if (window.innerWidth < 768) setIsSidebarOpen(false);
+                      }}
+                      onDeleteSession={handleDeleteSession}
+                      onRenameSession={async (id, name) => {
+                        const success = await updateSessionName(id, name);
+                        if (success) {
+                          toast({ title: "Success", description: "Chat renamed" });
+                        } else {
+                          toast({ title: "Error", description: "Failed to rename chat", variant: "destructive" });
+                        }
+                      }}
+                      isLoading={isLoadingSessions}
+                      role="patient"
+                    />
+                  </motion.div>
+                  {/* Mobile Overlay */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
+                  />
+                </>
+              )}
+            </AnimatePresence>
 
-                        <div
-                          className={`px-4 py-3 rounded-2xl shadow-md min-w-[80px] border ${message.sender === "user"
-                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500/30 rounded-br-md"
-                            : message.type === "health-tip"
-                              ? "bg-white text-gray-800 border-blue-200 rounded-bl-md shadow-sm dark:bg-slate-700/90 dark:text-white dark:border-slate-600"
-                              : "bg-white text-gray-800 border-blue-100 rounded-bl-md shadow-sm dark:bg-slate-800/90 dark:text-white dark:border-slate-700"
-                            }`}
-                        >
-                          {message.type === "health-tip" ? (
-                            <>
-                              <div className="flex items-center gap-2 mb-2">
-                                <motion.div
-                                  animate={{
-                                    scale: [1, 1.2, 1],
-                                  }}
-                                  transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    repeatType: "loop",
-                                  }}
-                                >
-                                  <Zap className="w-3 h-3 text-cyan-400" />
-                                </motion.div>
-                                <span className="text-xs font-medium text-cyan-300">Health Tip</span>
-                              </div>
-                              <div className="text-sm leading-relaxed">
-                                <MarkdownRenderer content={message.content} />
-                              </div>
-                            </>
-                          ) : message.sender === "bot" && message.id.startsWith("temp-") && !message.content ? (
-                            <div className="h-5 flex items-center gap-1">
-                              <motion.span
-                                className="inline-block w-2 h-2 rounded-full bg-cyan-400"
-                                animate={{ opacity: [0.3, 1, 0.3] }}
-                                transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
-                              />
-                              <motion.span
-                                className="inline-block w-2 h-2 rounded-full bg-cyan-400"
-                                animate={{ opacity: [0.3, 1, 0.3] }}
-                                transition={{
-                                  duration: 1,
-                                  repeat: Number.POSITIVE_INFINITY,
-                                  delay: 0.2,
-                                }}
-                              />
-                              <motion.span
-                                className="inline-block w-2 h-2 rounded-full bg-cyan-400"
-                                animate={{ opacity: [0.3, 1, 0.3] }}
-                                transition={{
-                                  duration: 1,
-                                  repeat: Number.POSITIVE_INFINITY,
-                                  delay: 0.4,
-                                }}
-                              />
-                            </div>
-                          ) : (
-                            <div className={`text-sm leading-relaxed ${message.sender === "user" ? "text-white" : "text-gray-800 dark:text-white"}`}>
-                              <MarkdownRenderer content={message.content} variant={message.sender === "bot" ? "patient" : "user"} />
-                            </div>
+            <div className="flex-1 flex flex-col min-w-0">
+              <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 max-h-[calc(100vh-220px)] overflow-y-auto">
+                <div className="max-w-3xl mx-auto space-y-6 px-2">
+                  <AnimatePresence initial={false}>
+                    {messages.map((message) => (
+                      <motion.div
+                        key={message.id}
+                        initial="hidden"
+                        animate="visible"
+                        exit={{ opacity: 0, y: 4, filter: "blur(3px)" }}
+                        variants={messageVariants}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                        className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+                      >
+                        <div className="flex items-start gap-4 max-w-lg group">
+                          {message.sender === "bot" && (
+                            <motion.div
+                              initial={{ scale: 0.9, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              transition={{ duration: 0.2 }}
+                              className="w-8 h-8 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm"
+                            >
+                              <Heart className="w-4 h-4 text-teal-400" strokeWidth={2} />
+                            </motion.div>
                           )}
 
-                          <div className="flex items-center justify-between mt-2">
-                            <p
-                              className={`text-xs ${message.sender === "user" ? "text-blue-100/70" : "text-blue-300/60"
-                                }`}
-                            >
-                              {formatTime(message.timestamp)}
-                            </p>
-                            {message.sender === "bot" && (
-                              <CopyButton
-                                text={message.content}
-                                size="sm"
-                                variant="ghost"
-                                className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-300 hover:text-cyan-300"
-                              />
-                            )}
-                          </div>
-                        </div>
-
-                        {message.sender === "user" && (
-                          <motion.div
-                            className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm"
-                            whileHover={{ rotate: 360 }}
-                            transition={{ duration: 0.5 }}
+                          <div
+                            className={`px-5 py-4 rounded-2xl shadow-sm min-w-[80px] border ${message.sender === "user"
+                              ? "bg-teal-600 text-white border-teal-500 rounded-br-sm"
+                              : "bg-slate-800 text-slate-200 border-slate-700 rounded-bl-sm"
+                              }`}
                           >
-                            <User className="w-4 h-4 text-white" strokeWidth={2} />
-                          </motion.div>
+                            {message.type === "health-tip" ? (
+                              <>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <motion.div
+                                    animate={{
+                                      scale: [1, 1.2, 1],
+                                    }}
+                                    transition={{
+                                      duration: 2,
+                                      repeat: Infinity,
+                                      repeatType: "loop",
+                                    }}
+                                  >
+                                    <Zap className="w-3 h-3 text-amber-400" />
+                                  </motion.div>
+                                  <span className="text-xs font-bold text-amber-400 uppercase tracking-wide">Health Tip</span>
+                                </div>
+                                <div className="text-sm leading-relaxed">
+                                  <MarkdownRenderer content={message.content} />
+                                </div>
+                              </>
+                            ) : message.sender === "bot" && message.id.startsWith("temp-") && !message.content ? (
+                              <div className="h-5 flex items-center gap-1">
+                                <motion.span
+                                  className="inline-block w-2 h-2 rounded-full bg-teal-400"
+                                  animate={{ opacity: [0.3, 1, 0.3] }}
+                                  transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
+                                />
+                                <motion.span
+                                  className="inline-block w-2 h-2 rounded-full bg-teal-400"
+                                  animate={{ opacity: [0.3, 1, 0.3] }}
+                                  transition={{
+                                    duration: 1,
+                                    repeat: Number.POSITIVE_INFINITY,
+                                    delay: 0.2,
+                                  }}
+                                />
+                                <motion.span
+                                  className="inline-block w-2 h-2 rounded-full bg-teal-400"
+                                  animate={{ opacity: [0.3, 1, 0.3] }}
+                                  transition={{
+                                    duration: 1,
+                                    repeat: Number.POSITIVE_INFINITY,
+                                    delay: 0.4,
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              <div className={`text-sm leading-relaxed ${message.sender === "user" ? "text-white" : "text-slate-200"}`}>
+                                <MarkdownRenderer content={message.content} variant={message.sender === "bot" ? "patient" : "user"} />
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between mt-2">
+                              <p
+                                className={`text-[10px] ${message.sender === "user" ? "text-teal-100/70" : "text-slate-500"
+                                  }`}
+                              >
+                                {formatTime(message.timestamp)}
+                              </p>
+                              {message.sender === "bot" && (
+                                <CopyButton
+                                  text={message.content}
+                                  size="sm"
+                                  variant="ghost"
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-teal-400 h-6 w-6"
+                                />
+                              )}
+                            </div>
+                          </div>
+
+                          {message.sender === "user" && (
+                            <motion.div
+                              className="w-8 h-8 bg-teal-900/50 border border-teal-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1"
+                              whileHover={{ rotate: 360 }}
+                              transition={{ duration: 0.5 }}
+                            >
+                              <User className="w-4 h-4 text-teal-400" strokeWidth={2} />
+                            </motion.div>
+                          )}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </ScrollArea>
+
+              <motion.div
+                className="sticky bottom-0 left-0 w-full bg-slate-900/90 backdrop-blur-md border-t border-slate-800 p-4 z-20"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{
+                  type: "spring",
+                  damping: 25,
+                  stiffness: 300,
+                  delay: 0.2
+                }}
+              >
+                <div className="max-w-3xl mx-auto">
+                  <motion.div
+                    className="flex gap-3 items-center"
+                    whileHover={{
+                      scale: 1.005,
+                      transition: { duration: 0.2 },
+                    }}
+                  >
+                    <Input
+                      value={inputMessage}
+                      onChange={(e) => setInputMessage(e.target.value)}
+                      placeholder="Ask CLARA about symptoms, wellness, or health topics..."
+                      onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                      className="bg-slate-800 border-slate-700 rounded-xl px-5 py-5 text-slate-200 placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-0 shadow-lg"
+                    />
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <Button
+                        onClick={() => handleSendMessage()}
+                        disabled={!inputMessage.trim() || isLoading}
+                        className={`relative overflow-hidden rounded-xl px-6 h-12 font-medium shadow-lg transition-all duration-200 ${inputMessage.trim()
+                          ? "bg-teal-500 text-white hover:bg-teal-600 shadow-teal-500/20"
+                          : "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                          }`}
+                      >
+                        {isLoading ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Zap className="w-4 h-4 mr-2" strokeWidth={2} />
                         )}
-                      </div>
+                        Send
+                      </Button>
                     </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            </ScrollArea>
-
-            <motion.div
-              className="sticky bottom-0 left-0 w-full bg-white/80 backdrop-blur-md border-t border-blue-100 p-4 z-20 shadow-[0_-4px_20px_-8px_rgba(30,64,175,0.1)] dark:bg-slate-800/90 dark:border-slate-700"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{
-                type: "spring",
-                damping: 25,
-                stiffness: 300,
-                delay: 0.2
-              }}
-            >
-              <div className="max-w-3xl mx-auto">
-                <motion.div
-                  className="flex gap-3 items-center"
-                  whileHover={{
-                    scale: 1.005,
-                    transition: { duration: 0.2 },
-                  }}
-                >
-                  <Input
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    placeholder="Ask about heart health, symptoms, or wellness..."
-                    onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                    className="bg-white/90 border-blue-200 rounded-xl px-5 py-5 text-gray-800 placeholder:text-gray-400 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-0 shadow-sm transition-all duration-200 dark:bg-slate-800/90 dark:border-slate-600 dark:text-white dark:placeholder:text-gray-400"
-                  />
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button
-                      onClick={() => handleSendMessage()}
-                      disabled={!inputMessage.trim() || isLoading}
-                      className={`relative overflow-hidden rounded-xl px-6 h-12 font-medium shadow-lg transition-all duration-200 ${inputMessage.trim()
-                        ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-700 hover:to-cyan-600"
-                        : "bg-slate-700/50 text-slate-400 cursor-not-allowed"
-                        }`}
-                    >
-                      {isLoading ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <Zap className="w-4 h-4 mr-2" strokeWidth={2} />
-                      )}
-                      Send
-                      {!isLoading && (
-                        <motion.span
-                          className="absolute inset-0 bg-white/10"
-                          initial={{ opacity: 0, width: 0 }}
-                          whileHover={{ opacity: 1, width: "100%" }}
-                          transition={{ duration: 0.3 }}
-                        />
-                      )}
-                    </Button>
                   </motion.div>
-                </motion.div>
 
-                <motion.div
-                  className="flex items-center justify-center mt-3"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <div className="bg-blue-900/40 border border-blue-700/50 rounded-xl px-4 py-2 shadow-md backdrop-blur-sm">
-                    <p className="text-xs text-center text-blue-700 dark:text-blue-200">
-                      <span className="font-semibold">⚕️ Medical Disclaimer:</span> For educational purposes only. Always
-                      consult your healthcare provider.
-                    </p>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
+                  <motion.div
+                    className="flex items-center justify-center mt-3"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                      <span className="w-2 h-2 rounded-full bg-teal-500/50 animate-pulse"></span>
+                      <span>AI-generated content. Always verify with a healthcare professional.</span>
+                    </div>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </div>
           </TabsContent>
 
           {/* Blog Tab */}
@@ -541,10 +713,10 @@ export function PatientChatInterface() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4 }}
                 >
-                  <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 mb-2">
-                    Cardiology Insights
+                  <h2 className="text-3xl font-bold text-white mb-2">
+                    Health Insights
                   </h2>
-                  <p className="text-blue-300">Expert medical articles and health information</p>
+                  <p className="text-slate-400">Expert articles curated for your wellness</p>
                 </motion.div>
 
                 {blogPosts.length > 0 ? (
@@ -565,72 +737,43 @@ export function PatientChatInterface() {
                           <motion.div
                             whileHover={{
                               y: -2,
-                              boxShadow: "0 10px 25px -5px rgba(6, 182, 212, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.3)",
                               transition: { duration: 0.2 },
                             }}
                             className="h-full"
                           >
-                            <Card className="group bg-white/95 border border-blue-100 hover:border-blue-200 transition-all duration-300 h-full overflow-hidden shadow-sm hover:shadow-md hover:bg-white dark:bg-slate-800/90 dark:border-slate-700 dark:hover:border-blue-500/50 dark:hover:bg-slate-800/95">
+                            <Card className="group bg-slate-800/50 border border-slate-700 hover:border-teal-500/30 transition-all duration-300 h-full overflow-hidden shadow-sm hover:shadow-lg hover:shadow-teal-900/10">
                               <CardHeader className="pb-3">
                                 <div className="flex items-start justify-between">
                                   <div className="space-y-2">
                                     <CardTitle
-                                      className="text-xl font-bold text-gray-800 group-hover:text-blue-700 transition-colors cursor-pointer line-clamp-2 dark:text-white dark:group-hover:text-blue-200"
+                                      className="text-xl font-bold text-slate-200 group-hover:text-teal-400 transition-colors cursor-pointer line-clamp-2"
                                       onClick={() => handleReadMore(post)}
                                     >
                                       {post.title}
                                     </CardTitle>
-                                    <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                                      <div className="flex items-center gap-1 bg-blue-50 group-hover:bg-blue-100 px-2 py-1 rounded-md transition-colors dark:bg-slate-700/50 dark:group-hover:bg-slate-600/70">
-                                        <User className="w-3.5 h-3.5 text-blue-700 group-hover:text-blue-800 dark:text-blue-300 dark:group-hover:text-blue-200" />
-                                        <span className="text-xs text-blue-800 group-hover:text-blue-900 dark:text-blue-200 dark:group-hover:text-blue-100">{post.author || "Admin"}</span>
+                                    <div className="flex flex-wrap items-center gap-2 text-sm text-slate-400">
+                                      <div className="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-md">
+                                        <Calendar className="w-3.5 h-3.5 text-teal-500" />
+                                        <span className="text-xs text-slate-300">{new Date(post.created_at).toLocaleDateString()}</span>
                                       </div>
-                                      <div className="flex items-center gap-1 bg-blue-50 group-hover:bg-blue-100 px-2 py-1 rounded-md transition-colors dark:bg-slate-700/50 dark:group-hover:bg-slate-600/70">
-                                        <Calendar className="w-3.5 h-3.5 text-blue-700 group-hover:text-blue-800 dark:text-blue-300 dark:group-hover:text-blue-200" />
-                                        <span className="text-xs text-blue-800 group-hover:text-blue-900 dark:text-blue-200 dark:group-hover:text-blue-100">{post.date || "No date"}</span>
-                                      </div>
-                                      <Badge
-                                        variant="secondary"
-                                        className={`ml-0 text-xs ${post.status === "published"
-                                          ? "bg-green-100 text-green-800 border-green-200 group-hover:bg-green-200 dark:bg-green-900/40 dark:text-green-300 dark:border-green-700/50 dark:group-hover:bg-green-800/60"
-                                          : "bg-amber-100 text-amber-800 border-amber-200 group-hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700/50 dark:group-hover:bg-amber-800/60"
-                                          }`}
-                                      >
-                                        {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
-                                      </Badge>
                                     </div>
                                   </div>
-                                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-blue-200 transition-transform hover:scale-105 dark:from-blue-900/30 dark:to-blue-800/30 dark:border-blue-700/50">
-                                    <BookOpen className="w-5 h-5 text-blue-700 dark:text-blue-300" strokeWidth={2} />
+                                  <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-slate-700 transition-transform group-hover:scale-105">
+                                    <BookOpen className="w-5 h-5 text-teal-500" strokeWidth={2} />
                                   </div>
                                 </div>
                               </CardHeader>
                               <CardContent className="pt-0">
-                                <p className="text-gray-700 leading-relaxed line-clamp-3 mb-4 dark:text-gray-300">
+                                <p className="text-slate-400 leading-relaxed line-clamp-3 mb-4">
                                   {post.content.length > 200 ? `${post.content.substring(0, 200)}...` : post.content}
                                 </p>
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="text-blue-800 dark:text-blue-100 bg-blue-50 hover:bg-blue-100 hover:text-blue-800 transition-colors dark:text-blue-200 dark:border-blue-700/50 dark:bg-blue-900/40 dark:hover:bg-blue-800/50"
+                                  className="text-teal-400 border-teal-500/30 bg-teal-500/5 hover:bg-teal-500/10 hover:text-teal-300 transition-colors"
                                   onClick={() => handleReadMore(post)}
                                 >
                                   Read more
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="16"
-                                    height="16"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    className="ml-1.5"
-                                  >
-                                    <path d="M5 12h14"></path>
-                                    <path d="m12 5 7 7-7 7"></path>
-                                  </svg>
                                 </Button>
                               </CardContent>
                             </Card>
@@ -640,14 +783,12 @@ export function PatientChatInterface() {
                     </AnimatePresence>
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 dark:bg-blue-900/30">
-                      <BookOpen className="w-8 h-8 text-blue-600 dark:text-blue-300" strokeWidth={1.5} />
+                  <div className="text-center py-20 bg-slate-800/30 rounded-3xl border border-slate-800 border-dashed">
+                    <div className="mx-auto w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                      <BookOpen className="w-8 h-8 text-slate-600" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-800 mb-2 dark:text-white">No Articles Yet</h3>
-                    <p className="text-gray-600 dark:text-gray-300">
-                      Our cardiology team is preparing comprehensive health articles. Check back soon!
-                    </p>
+                    <h3 className="text-lg font-medium text-slate-300">No articles found</h3>
+                    <p className="text-slate-500">Check back later for health insights.</p>
                   </div>
                 )}
               </div>
@@ -658,93 +799,30 @@ export function PatientChatInterface() {
 
       {/* Article Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-800/95 border-blue-700/40 backdrop-blur-sm">
+        <DialogContent className="max-w-2xl bg-slate-900 border-slate-800 text-slate-200">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-semibold text-blue-50 mb-2">{selectedArticle?.title}</DialogTitle>
-            <div className="flex items-center gap-4 text-sm text-blue-300 mb-4">
-              <div className="flex items-center gap-1">
-                <User className="w-4 h-4" strokeWidth={1.5} />
-                <span>By {selectedArticle?.author}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" strokeWidth={1.5} />
-                <span>{selectedArticle?.date}</span>
-              </div>
-              <Badge variant="secondary" className="bg-blue-600/40 text-cyan-300 border border-blue-600/50">
-                {selectedArticle?.status}
-              </Badge>
+            <DialogTitle className="text-2xl font-bold text-white mb-2">{selectedArticle?.title}</DialogTitle>
+            <div className="flex items-center gap-4 text-sm text-slate-400">
+              {selectedArticle?.created_at && (
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" /> {new Date(selectedArticle.created_at).toLocaleDateString()}
+                </span>
+              )}
             </div>
           </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="prose prose-invert max-w-none">
-              <p className="text-blue-100 leading-relaxed whitespace-pre-wrap">{selectedArticle?.content}</p>
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t border-blue-700/40">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-cyan-500/20 rounded-full flex items-center justify-center">
-                  <Heart className="w-4 h-4 text-cyan-400" strokeWidth={1.5} />
+          <ScrollArea className="max-h-[70vh] pr-4">
+            <div className="text-slate-300 leading-relaxed space-y-4">
+              {isLoadingArticle ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-8 h-8 text-teal-500 animate-spin" />
                 </div>
-                <span className="text-sm text-blue-300">Cardiology Article</span>
-              </div>
-              <CopyButton text={selectedArticle?.content || ""} size="sm" variant="outline" showText={true} />
+              ) : (
+                <MarkdownRenderer content={selectedArticle?.content || ""} />
+              )}
             </div>
-          </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
-
-      {/* Global styles */}
-      <style jsx global>{`
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-          background: #f1f5ff;
-          border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-          background: #bfd4ff;
-          border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-          background: #93c5fd;
-        }
-        
-        /* Smooth scrolling */
-        html {
-          scroll-behavior: smooth;
-        }
-        
-        /* Animation for page transitions */
-        .page-transition-enter {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        
-        .page-transition-enter-active {
-          opacity: 1;
-          transform: translateY(0);
-          transition: opacity 300ms, transform 300ms;
-        }
-        
-        .page-transition-exit {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        
-        .page-transition-exit-active {
-          opacity: 0;
-          transform: translateY(-10px);
-          transition: opacity 300ms, transform 300ms;
-        }
-      `}</style>
     </div>
   )
 }
-

@@ -11,7 +11,7 @@ interface MarkdownRendererProps {
 
 export function MarkdownRenderer({ content, className, variant = "patient" }: MarkdownRendererProps) {
     const variantClasses = {
-        patient: "prose-p:text-blue-100 prose-headings:text-white prose-strong:text-white prose-code:text-cyan-300 text-blue-100",
+        patient: "prose-p:text-slate-200 prose-headings:text-white prose-strong:text-white prose-code:text-teal-300 text-slate-200",
         doctor: "dark:prose-invert text-gray-700 dark:text-gray-300",
         user: "text-white prose-p:text-white prose-headings:text-white prose-strong:text-white prose-code:text-white"
     }
@@ -29,16 +29,30 @@ export function MarkdownRenderer({ content, className, variant = "patient" }: Ma
                     h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-2 mb-1" {...props} />,
                     h3: ({ node, ...props }) => <h3 className="text-lg font-semibold mt-1 mb-0" {...props} />,
                     h4: ({ node, ...props }) => <h4 className="text-base font-semibold mt-1 mb-0" {...props} />,
-                    ul: ({ node, ...props }) => <ul className="my-2 pl-4 space-y-1 list-disc" {...props} />,
-                    ol: ({ node, ...props }) => <ol className="my-2 pl-4 space-y-1 list-decimal" {...props} />,
+                    ul: ({ node, ...props }) => <ul className="my-2 pl-4 space-y-1 list-disc marker:text-teal-500" {...props} />,
+                    ol: ({ node, ...props }) => <ol className="my-2 pl-4 space-y-1 list-decimal marker:text-teal-500" {...props} />,
                     li: ({ node, ...props }) => <li className="pl-1" {...props} />,
                     blockquote: ({ node, ...props }) => (
-                        <blockquote className="border-l-4 border-blue-600/40 pl-4 italic my-2" {...props} />
+                        <blockquote className="border-l-4 border-teal-500/40 pl-4 italic my-2 text-slate-400" {...props} />
                     ),
                     code: ({ node, inline, ...props }: any) => (
-                        <code className="bg-slate-700/60 border border-blue-600/40 px-1 rounded font-mono text-xs" {...props} />
+                        <code className="bg-slate-900 border border-teal-500/30 px-1 py-0.5 rounded font-mono text-xs text-teal-300" {...props} />
                     ),
-                    hr: ({ node, ...props }) => <hr className="my-4 border-blue-700/40" {...props} />,
+                    hr: ({ node, ...props }) => <hr className="my-4 border-slate-700" {...props} />,
+                    table: ({ node, ...props }) => (
+                        <div className="overflow-x-auto my-4 rounded-lg border border-slate-700">
+                            <table className="w-full text-left text-sm" {...props} />
+                        </div>
+                    ),
+                    th: ({ node, ...props }) => (
+                        <th className="bg-slate-800 p-2 font-semibold text-teal-400 border-b border-slate-700" {...props} />
+                    ),
+                    td: ({ node, ...props }) => (
+                        <td className="p-2 border-b border-slate-700/50 text-slate-300" {...props} />
+                    ),
+                    a: ({ node, ...props }) => (
+                        <a className="text-teal-400 hover:text-teal-300 underline underline-offset-2" {...props} />
+                    ),
                 }}
             >
                 {content}
