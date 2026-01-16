@@ -41,7 +41,7 @@ export function Footer() {
           <div>
             <h4 className="font-bold text-white mb-6">Company</h4>
             <ul className="space-y-4 text-sm">
-              <li><Link href="/#about" className="hover:text-teal-400 transition-colors">About CLARA</Link></li>
+              <li><Link href="/about" className="hover:text-teal-400 transition-colors">About CLARA</Link></li>
               <li><Link href="/philosophy" className="hover:text-teal-400 transition-colors">Clinical Philosophy</Link></li>
               <li><Link href="/research" className="hover:text-teal-400 transition-colors">Research</Link></li>
               <li><Link href="/contact" className="hover:text-teal-400 transition-colors">Contact</Link></li>

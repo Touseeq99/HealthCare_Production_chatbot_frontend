@@ -112,16 +112,22 @@ export default function LandingPage() {
           </div>
 
           <div className="hidden md:flex items-center space-x-8">
-            {["Platform", "Evidence", "Use Cases", "About"].map((item) => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase().replace(" ", "-")}`}
-                className={`text-sm font-medium transition-colors hover:text-teal-400 ${isScrolled ? "text-slate-600" : "text-slate-300"
-                  }`}
-              >
-                {item}
-              </a>
-            ))}
+            {["Platform", "Evidence", "Use Cases", "About"].map((item) => {
+              const isAbout = item === "About";
+              const href = isAbout ? "/about" : `/#${item.toLowerCase().replace(" ", "-")}`;
+              const LinkComponent = isAbout ? Link : "a";
+
+              return (
+                <LinkComponent
+                  key={item}
+                  href={href as any}
+                  className={`text-sm font-medium transition-colors hover:text-teal-400 ${isScrolled ? "text-slate-600" : "text-slate-300"
+                    }`}
+                >
+                  {item}
+                </LinkComponent>
+              );
+            })}
           </div>
 
           <div className="flex items-center space-x-4">

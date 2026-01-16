@@ -24,7 +24,16 @@ interface StructuredResponseProps {
     content: string
 }
 
-const SECTION_CONFIG = {
+interface SectionConfig {
+    icon: any
+    color: string
+    darkColor: string
+    iconColor: string
+    colSpan: string
+    contentClass?: string
+}
+
+const SECTION_CONFIG: Record<string, SectionConfig> = {
     "Clinical Takeaway": {
         icon: ClipboardList,
         color: "bg-teal-50 border-teal-200 text-teal-900",

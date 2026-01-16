@@ -1,186 +1,259 @@
 'use client';
 
-import Link from 'next/link';
+import { motion } from "framer-motion";
+import {
+  Lock,
+  EyeOff,
+  ShieldCheck,
+  UserPlus,
+  Database,
+  FileCheck,
+  ArrowLeft,
+  ChevronRight,
+  Fingerprint,
+  Users
+} from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+
+const sectionVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" as const }
+  }
+};
 
 export default function PrivacyPage() {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <div className="container mx-auto px-4 py-16 max-w-4xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 mb-4 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-            Privacy Policy
-          </h1>
-          <p className="text-slate-500 text-lg">Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+          ? "bg-white/90 backdrop-blur-md shadow-sm py-4 border-b border-slate-100"
+          : "bg-white/50 backdrop-blur-sm py-6"
+          }`}
+      >
+        <div className="container mx-auto px-6 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative w-10 h-10 transition-transform group-hover:scale-105">
+              <Image
+                src="/MetamedMDlogo (2).png"
+                alt="MetaMedMD Logo"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-lg leading-none text-slate-900">
+                CLARA
+              </span>
+              <span className="text-[10px] leading-none text-slate-500">
+                by MetaMedMD
+              </span>
+            </div>
+          </Link>
+
+          <div className="hidden md:flex items-center space-x-8">
+            {["Platform", "Evidence", "Use Cases", "About"].map((item) => (
+              <Link
+                key={item}
+                href={item === "About" ? "/about" : `/#${item.toLowerCase().replace(" ", "-")}`}
+                className="text-sm font-medium text-slate-600 transition-colors hover:text-teal-600"
+              >
+                {item}
+              </Link>
+            ))}
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <Link href="/signup">
+              <Button className="bg-teal-500 hover:bg-teal-600 text-white border-0 shadow-lg shadow-teal-500/20">
+                Get Started
+              </Button>
+            </Link>
+          </div>
         </div>
-        
-        <div className="bg-white rounded-xl shadow-sm p-8 md:p-10 border border-slate-100">
-          <div className="prose prose-slate max-w-none">
-            <p className="text-slate-700 text-lg leading-relaxed mb-8">
-              MetaMed ("the Application", "the App", "we", "our", or "us") respects your privacy and is committed to protecting your personal and clinical information. This Privacy Policy explains how we collect, use, store, and protect data when you use MetaMed. By using the App, you agree to this Privacy Policy.
-            </p>
-            
-            <div className="space-y-10">
-              <section>
-                <h2 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">1. Information We Collect</h2>
-                <ul className="space-y-4 text-slate-700">
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Personal information such as your name, email address, and phone number.</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Health-related information and clinical data you provide.</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Usage data and analytics to improve our services.</span>
-                  </li>
-                </ul>
-              </section>
+      </nav>
 
-              <section>
-                <h2 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">2. How We Use Your Information</h2>
-                <ul className="space-y-4 text-slate-700">
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Provide decision support outputs (risk scores, recommendations, summaries).</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Improve the accuracy, safety, and performance of the App.</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Ensure compliance with medical guidelines.</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Communicate with you regarding updates, support, or policy changes.</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>We do not use personal or clinical data for advertising or marketing.</span>
-                  </li>
-                </ul>
-              </section>
+      {/* Hero Section */}
+      <section className="pt-40 pb-20 bg-[#0F172A] text-white relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(20,184,166,0.1),transparent)] pointer-events-none" />
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-sm font-semibold mb-6"
+            >
+              <Lock className="h-4 w-4" />
+              Privacy-First Healthcare
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-4xl md:text-6xl font-bold mb-8 leading-tight"
+            >
+              Data Privacy & <br />
+              <span className="text-teal-400">Confidentiality.</span>
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-xl text-slate-400 leading-relaxed mb-4"
+            >
+              At CLARA™, we treat data protection as a clinical necessity, not just a legal requirement. We are committed to securing your professional and clinical information.
+            </motion.p>
+            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-6">Updated: January 2026</p>
+          </div>
+        </div>
+      </section>
 
-              <section>
-                <h2 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">3. Data Security</h2>
-                <ul className="space-y-4 text-slate-700">
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>We do not sell or rent your data.</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>We may share data only in specific, limited cases:</span>
-                    <ul className="mt-2 space-y-2">
-                      <li className="flex items-start ml-4">
-                        <span className="text-blue-500 mr-2">-</span>
-                        <span>Legal Compliance: When required by law or regulatory authorities.</span>
-                      </li>
-                      <li className="flex items-start ml-4">
-                        <span className="text-blue-500 mr-2">-</span>
-                        <span>Service Providers: With trusted vendors that support App hosting or security (bound by confidentiality agreements).</span>
-                      </li>
-                      <li className="flex items-start ml-4">
-                        <span className="text-blue-500 mr-2">-</span>
-                        <span>Research and Development: Only anonymized, aggregated data may be used to improve medical AI performance.</span>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-              </section>
+      {/* Main Content Grid */}
+      <section className="py-24 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-16 items-start">
 
-              <section>
-                <h2 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">4. Data Storage and Security</h2>
-                <ul className="space-y-4 text-slate-700">
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Data is encrypted in transit and at rest using industry-standard encryption protocols.</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Access to data is strictly limited to authorized healthcare professionals who require it to provide services.</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>We implement robust security measures including firewalls, intrusion detection, and regular security audits.</span>
-                  </li>
-                </ul>
-              </section>
+            {/* Left Column: Data Principles */}
+            <div className="space-y-12">
+              <h2 className="text-3xl font-bold text-slate-900 border-b border-slate-100 pb-6">Information Flow</h2>
 
-              <section>
-                <h2 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">5. User Responsibilities</h2>
-                <ul className="space-y-4 text-slate-700">
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>You are responsible for ensuring that any clinical data entered into MetaMed is accurate and provided lawfully.</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>If you input identifiable patient data, you must ensure you have appropriate consent and comply with GDPR or equivalent laws in your jurisdiction.</span>
-                  </li>
-                </ul>
-              </section>
+              {[
+                {
+                  title: "Clinical Data Protection",
+                  desc: "We process health-related information and clinical entries exclusively to provide decision support. We do not use clinical data for advertising or sales.",
+                  icon: ShieldCheck
+                },
+                {
+                  title: "Professional Identity",
+                  desc: "Personal information such as your name, registration number, and hospital affiliation is collected strictly for identity verification and audit purposes.",
+                  icon: Fingerprint
+                },
+                {
+                  title: "Purpose Limitation",
+                  desc: "Data usage is restricted to improving the accuracy, safety, and clinical performance of CLARA™. We follow the principle of data minimisation.",
+                  icon: EyeOff
+                }
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  variants={sectionVariants}
+                  className="flex gap-6 group"
+                >
+                  <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-teal-500 group-hover:text-white transition-all duration-300">
+                    <item.icon className="h-7 w-7" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
+                    <p className="text-slate-600 leading-relaxed text-sm">{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
 
-              <section>
-                <h2 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">6. Your Rights</h2>
-                <p className="text-slate-700 mb-4">
-                  Depending on your jurisdiction (e.g., GDPR in the EU/EEA), you may have the following rights:
-                </p>
-                <ul className="space-y-2 text-slate-700 mb-4">
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Access your personal data</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Request correction or deletion of your data</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Restrict or object to processing of your data</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-500 mr-2 mt-1">•</span>
-                    <span>Request data portability</span>
-                  </li>
-                </ul>
-                <p className="text-slate-700">
-                  To exercise any of these rights, please contact us at{' '}
-                  <a href="mailto:info@metamed.com" className="text-blue-600 hover:underline">info@metamed.com</a>.
-                </p>
-              </section>
+            {/* Right Column: Technical & Institutional */}
+            <div className="space-y-12 bg-slate-50 p-10 md:p-12 rounded-[40px] border border-slate-100">
+              <h2 className="text-3xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+                <Database className="h-8 w-8 text-teal-600" />
+                Infrastructure
+              </h2>
 
-              <section>
-                <h2 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">7. Changes to This Policy</h2>
-                <p className="text-slate-700">
-                  We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date at the top of this document.
-                </p>
-              </section>
+              <ul className="space-y-8">
+                <li className="flex items-start gap-4">
+                  <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 flex-shrink-0 mt-1">
+                    <FileCheck className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 mb-1">Advanced Encryption</h4>
+                    <p className="text-slate-600 text-sm leading-relaxed">Advanced AES-256 encryption for data at rest and TLS 1.3 for data in transit across all environments.</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-4">
+                  <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 flex-shrink-0 mt-1">
+                    <Lock className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 mb-1">Access Control</h4>
+                    <p className="text-slate-600 text-sm leading-relaxed">Strict role-based access controls and identity verification to ensure only authorized personnel interact with system logs.</p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-4">
+                  <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 flex-shrink-0 mt-1">
+                    <Users className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 mb-1">Patient Rights</h4>
+                    <p className="text-slate-600 text-sm leading-relaxed">Fully aligned with GDPR (EU/EEA) and equivalent data protection legislation, including rights of access, deletion, and portability.</p>
+                  </div>
+                </li>
+              </ul>
 
-              <section>
-                <h2 className="text-2xl font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">8. Contact Us</h2>
-                <p className="text-slate-700">
-                  If you have any questions about this Privacy Policy, please contact us at{' '}
-                  <a href="mailto:info@metamed.com" className="text-blue-600 hover:underline">info@metamed.com</a>.<br />
-                  28 Upper Pembroke St, Dublin 2, Ireland
-                </p>
-              </section>
+              <div className="pt-8 mt-8 border-t border-slate-200">
+                <div className="flex items-center gap-4 text-slate-500 text-sm italic">
+                  <span className="font-bold text-teal-600 not-italic">Institutional Users:</span>
+                  Please refer to your organisation's Data Processing Agreement (DPA) for local specifics.
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <div className="mt-12 pt-6 border-t border-gray-200 text-center">
-        <Link 
-          href="/" 
-          className="text-blue-600 hover:underline"
-        >
-          &larr; Back to Home
-        </Link>
-      </div>
+      </section>
+
+      {/* Professional Contact Side */}
+      <section className="py-24 bg-[#0F172A] text-white">
+        <div className="container mx-auto px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-8">Exercising your privacy rights</h2>
+            <p className="text-slate-400 text-lg mb-12">
+              If you wish to exercise your rights under the GDPR, or have questions regarding our clinical data handling, please contact our Data Protection Officer.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <a href="mailto:privacy@metamedmd.com" className="w-full sm:w-auto">
+                <Button className="bg-teal-500 hover:bg-teal-600 text-white font-bold h-16 px-10 rounded-2xl w-full">
+                  Contact DPO
+                </Button>
+              </a>
+              <Link href="/contact" className="w-full sm:w-auto">
+                <Button variant="ghost" className="text-slate-300 hover:bg-white/5 h-16 px-10 rounded-2xl w-full">
+                  General Inquiries
+                </Button>
+              </Link>
+            </div>
+            <p className="mt-12 text-slate-500 text-xs uppercase tracking-widest">
+              28 Upper Pembroke Street, Dublin 2, Ireland
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Back to Home CTA */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-6 text-center">
+          <Link href="/">
+            <Button variant="ghost" className="gap-2 text-slate-600 hover:text-teal-600">
+              <ArrowLeft className="h-4 w-4" /> Back to Home
+            </Button>
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
