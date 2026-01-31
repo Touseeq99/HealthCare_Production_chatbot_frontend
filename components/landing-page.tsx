@@ -28,6 +28,7 @@ import {
   Lightbulb,
   Building2
 } from "lucide-react";
+import { AuthHashHandler } from "@/components/auth/auth-hash-handler";
 
 // Animation variants for smooth section transitions
 const sectionVariants = {
@@ -83,6 +84,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-teal-100 selection:text-teal-900">
+      <AuthHashHandler />
       {/* Navigation */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled

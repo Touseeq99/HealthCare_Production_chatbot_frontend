@@ -8,7 +8,7 @@ export async function POST(request: Request) {
         // 1. Missing Required Fields
         if (!email || !password || !role) {
             return NextResponse.json(
-                { success: false, message: 'Missing required fields: email, password, and role are required.' },
+                { success: false, message: 'Invalid request. Please provide all required information.' },
                 { status: 400 }
             )
         }
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
         // 2. Validate Role
         if (!['patient', 'doctor', 'admin'].includes(role)) {
             return NextResponse.json(
-                { success: false, message: 'Invalid role. Must be patient, doctor, or admin.' },
+                { success: false, message: 'Invalid account type selected.' },
                 { status: 400 }
             )
         }
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
         if (!emailRegex.test(email)) {
             return NextResponse.json(
-                { success: false, message: 'Invalid email format' },
+                { success: false, message: 'Please enter a valid email address.' },
                 { status: 400 }
             )
         }
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         const sqlInjectionPattern = /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER)\b)|(--|\#|\/\*)|(' OR '1'='1)/i
         if (sqlInjectionPattern.test(email) || sqlInjectionPattern.test(role)) {
             return NextResponse.json(
-                { success: false, message: 'Invalid characters detection.' },
+                { success: false, message: 'Invalid input detected.' },
                 { status: 400 }
             )
         }
@@ -58,12 +58,6 @@ export async function POST(request: Request) {
                 { status: response.status }
             )
         }
-
-        // Log the response to see what fields we're getting
-        console.log('Backend login response fields:', Object.keys(data))
-        console.log('Has token:', !!data.token)
-        console.log('Has refreshToken:', !!data.refreshToken)
-        console.log('Has refresh_token:', !!data.refresh_token)
 
         // Backend might use different field names
         const { token, refreshToken, refresh_token, user } = data
@@ -122,13 +116,10 @@ export async function POST(request: Request) {
 
 
         if (actualRefreshToken) {
-            console.log('Setting refresh token cookie')
             nextResponse.cookies.set('refreshToken', actualRefreshToken, {
                 ...secureCookieOptions,
                 maxAge: 604800, // 7 days
             })
-        } else {
-            console.warn('No refresh token received from backend!')
         }
 
         nextResponse.cookies.set('userRole', role, {
@@ -138,9 +129,8 @@ export async function POST(request: Request) {
 
         return nextResponse
     } catch (error) {
-        console.error('Login error:', error)
         return NextResponse.json(
-            { success: false, message: 'Internal server error' },
+            { success: false, message: 'System error. Please try again later.' },
             { status: 500 }
         )
     }

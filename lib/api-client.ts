@@ -63,6 +63,14 @@ apiClient.interceptors.response.use(
 
         // Handle 401 Unauthorized - Auto Refresh
         if (error.response?.status === 401 && !originalRequest._retry) {
+            // 1. Don't refresh if we're already on an auth page or it's an auth request
+            const isAuthRequest = originalRequest.url?.includes('/auth/');
+            const isLoginPage = typeof window !== 'undefined' && window.location.pathname === '/login';
+
+            if (isAuthRequest || isLoginPage) {
+                return Promise.reject(error);
+            }
+
             if (isRefreshing) {
                 return new Promise(function (resolve, reject) {
                     failedQueue.push({ resolve, reject, config: originalRequest });
@@ -90,12 +98,17 @@ apiClient.interceptors.response.use(
                 processQueue(refreshError, null);
                 isRefreshing = false;
 
-                // Refresh failed - redirect to login
-                // We'll let the caller handle the redirect or do it here
+                // Refresh failed - clear everything and redirect to login
                 if (typeof window !== 'undefined') {
-                    // Clear any client-side auth state if needed
-                    localStorage.removeItem('userName');
-                    localStorage.removeItem('userSurname');
+                    // Clear all client-side auth state
+                    localStorage.clear();
+                    sessionStorage.clear();
+
+                    // Clear cookies server-side
+                    try {
+                        import('axios').then(ax => ax.default.post('/api/auth/logout')).catch(() => { });
+                    } catch (e) { }
+
                     window.location.href = '/login?error=session_expired';
                 }
                 return Promise.reject(refreshError);

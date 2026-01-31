@@ -41,7 +41,8 @@ export async function POST() {
             clearResponse.cookies.set('userToken', '', cookieOptions)
             clearResponse.cookies.set('refreshToken', '', cookieOptions)
             clearResponse.cookies.set('tokenExpires', '', { ...cookieOptions, httpOnly: false })
-            clearResponse.cookies.set('userRole', '', { ...cookieOptions, httpOnly: false })
+            clearResponse.cookies.set('userRole', '', cookieOptions)
+            clearResponse.cookies.set('clientRole', '', { ...cookieOptions, httpOnly: false })
 
             return clearResponse
         }

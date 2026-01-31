@@ -9,21 +9,35 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { Loader2, ArrowLeft, Mail, CheckCircle2 } from "lucide-react"
+import { supabase } from "@/lib/supabase"
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
     setIsLoading(true)
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/update-password`,
+      })
 
-    setIsLoading(false)
-    setIsSubmitted(true)
+      if (error) {
+        setError(error.message)
+      } else {
+        setIsSubmitted(true)
+      }
+    } catch (error) {
+      console.error("Reset password error:", error)
+      setError("An unexpected error occurred. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (isSubmitted) {
@@ -86,6 +100,17 @@ export function ForgotPasswordForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2"
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+            {error}
+          </motion.div>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">Email Address</Label>
           <div className="relative">

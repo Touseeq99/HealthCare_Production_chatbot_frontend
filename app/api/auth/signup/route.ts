@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     } catch (error) {
         console.error('Signup error:', error)
         return NextResponse.json(
-            { success: false, message: 'Internal server error' },
+            { success: false, message: 'System error. Please try again later.' },
             { status: 500 }
         )
     }

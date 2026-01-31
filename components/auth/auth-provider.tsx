@@ -2,9 +2,9 @@
 
 import { useEffect, useCallback, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import axios from "axios";
+import { supabase } from "@/lib/supabase";
 
-// Helper to read cookie by name
+// Helper to read cookie by name (Keeping it for now if needed, though Supabase might not need it)
 const getCookie = (name: string) => {
     if (typeof document === "undefined") return null;
     const value = `; ${document.cookie}`;
@@ -15,7 +15,6 @@ const getCookie = (name: string) => {
 
 const INACTIVITY_LIMIT_MS = 15 * 60 * 1000; // 15 minutes
 const CHECK_INTERVAL_MS = 30 * 1000; // 30 seconds
-const REFRESH_THRESHOLD_MS = 1 * 60 * 1000; // 1 minute
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -24,13 +23,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const handleLogout = useCallback(async () => {
         try {
-            await axios.post("/api/auth/logout");
+            await supabase.auth.signOut();
         } catch (e) {
             console.error("Logout failed", e);
         } finally {
             // Clear all client-side storage
             localStorage.clear();
             sessionStorage.clear();
+
+            // Clear cookies server-side (Secure HttpOnly)
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+            } catch (e) {
+                console.error("Server-side logout failed", e);
+            }
 
             // Broadcast logout to other tabs
             try {
@@ -45,31 +51,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const checkToken = useCallback(async () => {
-        const expiresStr = getCookie("tokenExpires");
-        if (!expiresStr) return;
+        const { data: { session }, error } = await supabase.auth.getSession();
 
-        const expiresAt = new Date(expiresStr).getTime();
-        const now = Date.now();
-        const timeLeft = expiresAt - now;
+        if (error || !session) {
+            // If we are on a protected route and have no session, log out
+            const protectedRoutes = ['/doctor', '/admin', '/patient'];
+            const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
-        if (timeLeft <= 0) {
-            // Expired
-            console.log("Token expired, logging out");
-            handleLogout();
-        } else if (timeLeft < REFRESH_THRESHOLD_MS) {
-            // Refresh needed
-            try {
-                console.log("Token expiring soon, refreshing...");
-                await axios.post("/api/auth/refresh");
-                console.log("Token refreshed");
-            } catch (e) {
-                console.error("Auto-refresh failed", e);
-                // If refresh fails due to 401, it likely means refresh token is invalid
-                // logic is handled in api-client usually, but this is a direct call
+            if (isProtectedRoute) {
+                console.log("No Supabase session on protected route, logging out");
                 handleLogout();
             }
         }
-    }, [handleLogout]);
+    }, [handleLogout, pathname]);
 
     // Activity Monitor
     useEffect(() => {
@@ -83,11 +77,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Initial token check
         checkToken();
 
-        const interval = setInterval(() => {
+        const interval = setInterval(async () => {
             // Check inactivity
             if (Date.now() - lastActivity > INACTIVITY_LIMIT_MS) {
-                // Only if we have a session (tokenExpires exists)
-                if (getCookie("tokenExpires")) {
+                // Only if we have a session
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
                     console.log("Inactivity timeout");
                     handleLogout();
                 }

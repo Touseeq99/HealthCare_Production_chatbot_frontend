@@ -71,8 +71,8 @@ export default function AdminDashboard() {
 
 
   useEffect(() => {
-    // Check for auth via userRole in cookies
-    const userRole = getCookie('userRole');
+    // Check for auth via clientRole in cookies (Non-HttpOnly)
+    const userRole = getCookie('clientRole');
 
     if (userRole !== 'admin') {
       router.push('/login');
