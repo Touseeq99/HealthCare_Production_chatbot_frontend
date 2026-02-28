@@ -9,7 +9,7 @@ import { formatTime } from "@/lib/date-utils"
 import {
   LogOut, Send, Bot, User, Loader2,
   MessageSquare, Plus, Menu, Shield, Brain, X, Trash2, Clock, History, Edit2, Check,
-  Stethoscope, Activity
+  Stethoscope, Activity, ClipboardList, Microscope
 } from "lucide-react"
 import { useChatSessions } from "@/hooks/use-chat-sessions"
 import { useToast } from "@/hooks/use-toast"
@@ -26,6 +26,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { StructuredResponse } from "./structured-response"
 import { memo } from "react"
 import { ChatSessionsSidebar } from "./chat-sessions-sidebar"
+import { AIClinicalNote } from "@/components/ai-clinical-note/ai-clinical-note"
+import { DifferentialDiagnosis } from "@/components/differential-diagnosis/differential-diagnosis"
 
 interface Message {
   id: string
@@ -439,6 +441,20 @@ export function DoctorChatInterface() {
                   <Shield className="w-4 h-4" />
                   Evidence Base
                 </TabsTrigger>
+                <TabsTrigger
+                  value="note"
+                  className="px-4 py-1.5 rounded-md text-sm font-medium text-slate-400 data-[state=active]:bg-teal-600 data-[state=active]:text-white transition-all flex items-center gap-2"
+                >
+                  <ClipboardList className="w-4 h-4" />
+                  Clinical Note
+                </TabsTrigger>
+                <TabsTrigger
+                  value="diff-dx"
+                  className="px-4 py-1.5 rounded-md text-sm font-medium text-slate-400 data-[state=active]:bg-teal-600 data-[state=active]:text-white transition-all flex items-center gap-2"
+                >
+                  <Microscope className="w-4 h-4" />
+                  Differential Dx
+                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -480,17 +496,18 @@ export function DoctorChatInterface() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
                       {[
-                        { icon: Brain, title: "Clinical Assessment", desc: "Differential diagnosis & symptoms" },
-                        { icon: Shield, title: "Evidence Review", desc: "Guidelines & research protocols" },
-                        { icon: Activity, title: "Patient Monitoring", desc: "Vitals analysis & trending" },
-                        { icon: MessageSquare, title: "Documentation", desc: "Generate clinical notes" },
+                        { icon: Brain, title: "Clinical Assessment", desc: "Differential diagnosis & symptoms", action: () => setInputMessage("Clinical Assessment") },
+                        { icon: Shield, title: "Evidence Review", desc: "Guidelines & research protocols", action: () => setInputMessage("Evidence Review") },
+                        { icon: Activity, title: "Patient Monitoring", desc: "Vitals analysis & trending", action: () => setInputMessage("Patient Monitoring") },
+                        { icon: ClipboardList, title: "Documentation", desc: "Generate clinical notes", action: () => setActiveTab("note") },
+                        { icon: Microscope, title: "Differential Dx", desc: "Decision support & DDx ranking", action: () => setActiveTab("diff-dx") },
                       ].map((item, i) => (
                         <motion.button
                           key={i}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.2 + (i * 0.1) }}
-                          onClick={() => setInputMessage(item.title)}
+                          onClick={item.action}
                           className="flex items-start gap-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-teal-500/50 hover:bg-slate-800 transition-all group text-left"
                         >
                           <div className="p-2.5 rounded-lg bg-slate-900 group-hover:bg-teal-500/10 transition-colors">
@@ -585,6 +602,18 @@ export function DoctorChatInterface() {
                   <EvidenceEngine />
                 </div>
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="note" className="h-full overflow-hidden m-0 bg-slate-900">
+            <div className="h-full overflow-y-auto">
+              <AIClinicalNote />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="diff-dx" className="h-full overflow-hidden m-0 bg-[#0B1523]">
+            <div className="h-full overflow-y-auto">
+              <DifferentialDiagnosis />
             </div>
           </TabsContent>
         </div>

@@ -3,7 +3,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 // Create axios instance
 const apiClient = axios.create({
     baseURL: '/api', // Proxies to backend via Next.js API routes
-    timeout: 30000, // 30 seconds timeout
+    timeout: 300000, // 300 seconds timeout (5 minutes)
     headers: {
         'Content-Type': 'application/json',
     },

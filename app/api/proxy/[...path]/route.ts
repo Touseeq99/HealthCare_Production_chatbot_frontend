@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+export const maxDuration = 300 // 5 minutes
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
     const { path } = await params
@@ -41,15 +42,27 @@ async function handleRequest(request: NextRequest, pathArray: string[], method: 
     }
 
     const headers = new Headers()
-    headers.set('Content-Type', 'application/json')
+    const contentType = request.headers.get('content-type')
+    if (contentType) {
+        // If it's multipart, we don't set it explicitly to let fetch set the boundary
+        if (!contentType.includes('multipart/form-data')) {
+            headers.set('Content-Type', contentType)
+        }
+    }
     headers.set('Authorization', `Bearer ${token}`)
 
-    let body = undefined
+    let body: BodyInit | undefined = undefined
     if (['POST', 'PUT', 'PATCH'].includes(method)) {
-        try {
-            body = JSON.stringify(await request.json())
-        } catch (e) {
-            // Handle empty body
+        if (contentType?.includes('application/json')) {
+            try {
+                body = JSON.stringify(await request.json())
+            } catch (e) {
+                // Handle empty body
+            }
+        } else if (contentType?.includes('multipart/form-data')) {
+            body = await request.formData()
+        } else {
+            body = await request.blob()
         }
     }
 
