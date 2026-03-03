@@ -496,11 +496,10 @@ export function DoctorChatInterface() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
                       {[
-                        { icon: Brain, title: "Clinical Assessment", desc: "Differential diagnosis & symptoms", action: () => setInputMessage("Clinical Assessment") },
+                        { icon: MessageSquare, title: "Clinical Chat", desc: "Evidence-based clinical dialogue", action: () => setInputMessage("Clinical Chat") },
                         { icon: Shield, title: "Evidence Review", desc: "Guidelines & research protocols", action: () => setInputMessage("Evidence Review") },
-                        { icon: Activity, title: "Patient Monitoring", desc: "Vitals analysis & trending", action: () => setInputMessage("Patient Monitoring") },
-                        { icon: ClipboardList, title: "Documentation", desc: "Generate clinical notes", action: () => setActiveTab("note") },
                         { icon: Microscope, title: "Differential Dx", desc: "Decision support & DDx ranking", action: () => setActiveTab("diff-dx") },
+                        { icon: ClipboardList, title: "Clinical Notes", desc: "Generate professional documentation", action: () => setActiveTab("note") },
                       ].map((item, i) => (
                         <motion.button
                           key={i}
