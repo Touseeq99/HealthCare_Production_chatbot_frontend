@@ -176,10 +176,10 @@ function detectUploadType(file: File): "ecg" | "labs" | "other" {
 }
 
 const LIKELIHOOD_CONFIG: Record<string, { bar: string; badge: string; label: string }> = {
-    High: { bar: "bg-red-500", badge: "bg-red-900/60 text-red-300 border border-red-700", label: "High" },
-    Moderate: { bar: "bg-amber-500", badge: "bg-amber-900/60 text-amber-300 border border-amber-700", label: "Moderate" },
-    "Low-Moderate": { bar: "bg-yellow-600", badge: "bg-yellow-900/60 text-yellow-300 border border-yellow-700", label: "Low–Moderate" },
-    Low: { bar: "bg-slate-500", badge: "bg-slate-700 text-slate-300 border border-slate-600", label: "Low" },
+    High: { bar: "bg-rose-500", badge: "bg-rose-50 text-rose-600 border border-rose-100", label: "High" },
+    Moderate: { bar: "bg-amber-500", badge: "bg-amber-50 text-amber-600 border border-amber-100", label: "Moderate" },
+    "Low-Moderate": { bar: "bg-yellow-500", badge: "bg-yellow-50 text-yellow-600 border border-yellow-100", label: "Low–Moderate" },
+    Low: { bar: "bg-slate-400", badge: "bg-slate-50 text-slate-500 border border-slate-100", label: "Low" },
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -188,18 +188,18 @@ const LIKELIHOOD_CONFIG: Record<string, { bar: string; badge: string; label: str
 
 function LockedToggle({ id, label, description }: { id: string; label: string; description?: string }) {
     return (
-        <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-700/60 bg-slate-800/40 px-4 py-3">
-            <div className="flex items-center gap-3 min-w-0">
-                <Lock className="size-3.5 shrink-0 text-amber-500" />
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-rose-50 bg-rose-50/20 px-5 py-4">
+            <div className="flex items-center gap-4 min-w-0">
+                <Lock className="size-4 shrink-0 text-rose-400" />
                 <div>
-                    <p className="text-sm font-medium text-slate-300">{label}</p>
-                    {description && <p className="text-xs text-slate-500">{description}</p>}
+                    <p className="text-sm font-black text-slate-900 uppercase tracking-tight">{label}</p>
+                    {description && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{description}</p>}
                 </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-                <span className="text-[10px] text-amber-600 font-semibold uppercase tracking-wider">Always Active</span>
-                <div className="h-5 w-9 rounded-full bg-amber-600/70 relative flex items-center cursor-not-allowed">
-                    <span className="absolute right-0.5 block size-4 rounded-full bg-white shadow-sm" />
+            <div className="flex items-center gap-3 shrink-0">
+                <span className="text-[9px] text-rose-500 font-black uppercase tracking-[0.2em]">Mandatory</span>
+                <div className="h-6 w-10 rounded-full bg-rose-500/80 relative flex items-center cursor-not-allowed">
+                    <span className="absolute right-0.5 block size-5 rounded-full bg-white shadow-sm" />
                 </div>
             </div>
         </div>
@@ -214,16 +214,18 @@ function Toggle({
 }) {
     return (
         <div className={cn(
-            "flex items-center justify-between gap-3 rounded-lg border px-4 py-3 transition-colors",
+            "flex items-center justify-between gap-4 rounded-2xl border px-5 py-4 transition-all duration-300",
             disabled
-                ? "border-slate-700/40 bg-slate-800/20 opacity-40 cursor-not-allowed"
-                : "border-slate-700 bg-slate-800/50 hover:border-slate-600"
+                ? "border-slate-100 bg-slate-50/50 opacity-50 cursor-not-allowed"
+                : checked
+                    ? "border-rose-200 bg-rose-50/30"
+                    : "border-slate-100 bg-white hover:border-rose-100"
         )}>
-            <div className="flex items-center gap-3 min-w-0">
-                {icon && <span className="shrink-0 text-slate-400">{icon}</span>}
+            <div className="flex items-center gap-4 min-w-0">
+                {icon && <span className={cn("shrink-0", checked ? "text-rose-500" : "text-slate-400")}>{icon}</span>}
                 <div>
-                    <p className="text-sm font-medium text-slate-300">{label}</p>
-                    {description && <p className="text-xs text-slate-500 truncate">{description}</p>}
+                    <p className="text-sm font-black text-slate-800 uppercase tracking-tight">{label}</p>
+                    {description && <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 truncate">{description}</p>}
                 </div>
             </div>
             <button
@@ -231,14 +233,14 @@ function Toggle({
                 disabled={disabled}
                 onClick={() => !disabled && onChange?.(!checked)}
                 className={cn(
-                    "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent transition-colors",
-                    checked ? "bg-blue-600" : "bg-slate-600",
-                    disabled ? "cursor-not-allowed" : "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border-2 border-transparent transition-colors",
+                    checked ? "bg-rose-500" : "bg-slate-200",
+                    disabled ? "cursor-not-allowed" : "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                 )}
             >
                 <span className={cn(
-                    "pointer-events-none block size-4 rounded-full bg-white shadow-sm ring-0 transition-transform",
-                    checked ? "translate-x-4" : "translate-x-0"
+                    "pointer-events-none block size-5 rounded-full bg-white shadow-lg ring-0 transition-transform",
+                    checked ? "translate-x-5" : "translate-x-0"
                 )} />
             </button>
         </div>
@@ -253,7 +255,7 @@ function DifferentialCard({ diff }: { diff: Differential }) {
         return parts.map((p, i) => {
             if (p.startsWith("**") && p.endsWith("**")) {
                 return (
-                    <strong key={i} className="font-bold text-white">
+                    <strong key={i} className="font-black text-slate-900">
                         {p.slice(2, -2)}
                     </strong>
                 )
@@ -263,83 +265,83 @@ function DifferentialCard({ diff }: { diff: Differential }) {
     }
 
     return (
-        <div className="rounded-xl border border-slate-700 bg-slate-800/70 overflow-hidden shadow-lg animate-in fade-in duration-300">
+        <div className="rounded-[2.5rem] border border-rose-50 bg-white overflow-hidden shadow-xl shadow-rose-500/5 transition-all duration-500 hover:shadow-2xl hover:shadow-rose-500/10">
             {/* Card Header */}
-            <div className="flex items-start justify-between gap-4 px-5 py-4 border-b border-slate-700/60">
-                <div className="flex items-start gap-3">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-700 text-xs font-bold text-slate-300">
-                        #{diff.rank}
+            <div className="flex items-start justify-between gap-6 px-8 py-6 border-b border-rose-50">
+                <div className="flex items-start gap-4">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-[10px] font-black text-white uppercase tracking-widest">
+                        {diff.rank}
                     </span>
                     <div>
-                        <h3 className="font-semibold text-white text-base leading-tight">
+                        <h3 className="font-black text-slate-900 text-xl leading-tight uppercase tracking-tight">
                             {diff.condition}
                         </h3>
                         {diff.icdCode && (
-                            <span className="text-[10px] font-mono text-slate-500 mt-0.5 block">
-                                ICD-10: {diff.icdCode}
+                            <span className="text-[10px] font-black text-rose-400 mt-1 uppercase tracking-widest block">
+                                ICD-10 Assets: {diff.icdCode}
                             </span>
                         )}
                     </div>
                 </div>
-                <span className={cn("shrink-0 rounded-md px-2.5 py-1 text-xs font-semibold", config.badge)}>
+                <span className={cn("shrink-0 rounded-full px-5 py-2 text-[10px] font-black uppercase tracking-[0.2em] border-2", config.badge)}>
                     {config.label}
                 </span>
             </div>
 
             {/* Likelihood Bar */}
-            <div className="px-5 pt-4 pb-3">
-                <div className="flex items-center gap-3">
-                    <span className="text-xs text-slate-500 w-20 shrink-0">Likelihood</span>
-                    <div className="flex-1 h-2 rounded-full bg-slate-700 overflow-hidden">
+            <div className="px-8 pt-6 pb-4">
+                <div className="flex items-center gap-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 w-24 shrink-0">Discovery Path</span>
+                    <div className="flex-1 h-3 rounded-full bg-slate-50 overflow-hidden border border-slate-100 p-0.5">
                         <div
-                            className={cn("h-full rounded-full transition-all duration-700", config.bar)}
+                            className={cn("h-full rounded-full transition-all duration-1000 ease-out", config.bar)}
                             style={{ width: `${diff.likelihoodPct}%` }}
                         />
                     </div>
-                    <span className="text-xs font-mono text-slate-400 w-8 text-right">
+                    <span className="text-[10px] font-black text-slate-900 w-10 text-right uppercase tracking-widest">
                         {diff.likelihoodPct}%
                     </span>
                 </div>
             </div>
 
             {/* Evidence Grid */}
-            <div className="grid grid-cols-2 gap-px bg-slate-700/30 border-t border-slate-700/60">
-                <div className="px-4 py-3 bg-slate-800/50">
-                    <p className="text-[11px] font-semibold uppercase tracking-widest text-emerald-500 mb-2">
-                        ✓ Supports
+            <div className="grid grid-cols-2 gap-px bg-rose-50 border-t border-rose-50">
+                <div className="px-8 py-6 bg-white">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 mb-4 flex items-center gap-2">
+                        <CheckCircle2 className="size-3" /> Supporting
                     </p>
-                    <ul className="space-y-1">
+                    <ul className="space-y-3">
                         {diff.supports.map((s, i) => (
-                            <li key={i} className="flex items-start gap-1.5 text-xs text-slate-300">
-                                <span className="mt-1.5 h-1 w-1 rounded-full bg-emerald-500 shrink-0" />
+                            <li key={i} className="flex items-start gap-3 text-[11px] font-bold text-slate-600 leading-relaxed">
+                                <span className="mt-1 size-1.5 rounded-full bg-emerald-500 shrink-0" />
                                 <span>{renderBold(s)}</span>
                             </li>
                         ))}
                     </ul>
                 </div>
-                <div className="px-4 py-3 bg-slate-800/50">
-                    <p className="text-[11px] font-semibold uppercase tracking-widest text-red-400 mb-2">
-                        ✗ Against
+                <div className="px-8 py-6 bg-white">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-500 mb-4 flex items-center gap-2">
+                        <AlertTriangle className="size-3" /> Contradicting
                     </p>
-                    <ul className="space-y-1">
+                    <ul className="space-y-3">
                         {diff.against.length > 0 ? (
                             diff.against.map((a, i) => (
-                                <li key={i} className="flex items-start gap-1.5 text-xs text-slate-400">
-                                    <span className="mt-1.5 h-1 w-1 rounded-full bg-red-500/60 shrink-0" />
+                                <li key={i} className="flex items-start gap-3 text-[11px] font-bold text-slate-500 leading-relaxed">
+                                    <span className="mt-1 size-1.5 rounded-full bg-rose-400 shrink-0" />
                                     <span>{renderBold(a)}</span>
                                 </li>
                             ))
                         ) : (
-                            <li className="text-[10px] text-slate-500 italic">No significant findings</li>
+                            <li className="text-[10px] font-bold text-rose-300 italic uppercase tracking-widest">Pure Discovery Path</li>
                         )}
                     </ul>
                 </div>
             </div>
 
             {/* Guideline Footer */}
-            <div className="px-5 py-3 border-t border-slate-700/60 bg-slate-900/40">
-                <p className="text-[11px] italic text-slate-500">
-                    <span className="text-blue-400 not-italic font-semibold">📋 Guideline Note: </span>
+            <div className="px-8 py-4 border-t border-rose-50 bg-rose-50/10">
+                <p className="text-[11px] font-bold text-slate-400 leading-relaxed">
+                    <span className="text-rose-500 font-black uppercase tracking-widest mr-2 underline decoration-rose-200 underline-offset-4">Protocol:</span>
                     {diff.guidelineNote}
                 </p>
             </div>
@@ -758,35 +760,37 @@ export function DifferentialDiagnosis() {
 
     // ── Render ───────────────────────────────────────────────────────────────────
     return (
-        <div className="min-h-screen bg-[#0B1523] text-slate-200 font-sans">
+        <div className="min-h-screen bg-white text-slate-900 font-sans">
 
             {/* ── Persistent Disclaimer Bar ─────────────────────────────────────────── */}
-            <div className="sticky top-0 z-50 border-l-4 border-amber-500 bg-amber-950/90 backdrop-blur-md px-6 py-3 flex items-center gap-4 shadow-md">
-                <Stethoscope className="size-5 shrink-0 text-amber-400" />
+            <div className="sticky top-0 z-50 border-b border-rose-100 bg-rose-50/95 backdrop-blur-md px-8 py-4 flex items-center gap-6 shadow-xl shadow-rose-500/5">
+                <div className="w-12 h-12 rounded-2xl bg-rose-500 flex items-center justify-center shadow-lg shadow-rose-500/20 rotate-3 shrink-0">
+                    <Stethoscope className="size-6 text-white" />
+                </div>
                 <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-amber-200">Differential Diagnosis Assistant &nbsp;·&nbsp; Clinical Decision Support</p>
-                    <p className="text-xs text-amber-400/80">
-                        This tool supports clinical reasoning and does not provide diagnoses or treatment decisions.
-                        Physician use only — not for patient viewing.
+                    <p className="text-xs font-black text-rose-600 uppercase tracking-[0.2em] mb-1">Clinical Decision Intelligence · Active Session</p>
+                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
+                        Precision analytical support. Internal physician use only.
+                        Do not disclose diagnostic probabilities without clinical verification.
                     </p>
                 </div>
-                <div className="flex gap-2 shrink-0">
-                    <span className="rounded-md bg-amber-900 border border-amber-700 px-2.5 py-0.5 text-[10px] font-bold text-amber-300 uppercase tracking-wider">Not for Patient Use</span>
-                    <span className="rounded-md bg-red-950 border border-red-800 px-2.5 py-0.5 text-[10px] font-bold text-red-400 uppercase tracking-wider">Physician Access Only</span>
+                <div className="flex gap-3 shrink-0">
+                    <span className="rounded-full bg-slate-900 px-5 py-2 text-[9px] font-black text-white uppercase tracking-[0.2em]">Restricted Access</span>
+                    <span className="rounded-full bg-rose-100 border border-rose-200 px-5 py-2 text-[9px] font-black text-rose-600 uppercase tracking-[0.2em]">Verified Clinician</span>
                 </div>
             </div>
 
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 
                 {/* ── Page Title ──────────────────────────────────────────────────────── */}
-                <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600/20 border border-blue-500/30">
-                            <ClipboardList className="size-6 text-blue-400" />
+                <div className="mb-12">
+                    <div className="flex items-center gap-6">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-[1.5rem] bg-rose-50 border-2 border-rose-100 shadow-xl shadow-rose-500/5 -rotate-6">
+                            <ClipboardList className="size-8 text-rose-500" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-white tracking-tight">Differential Diagnosis Assistant</h1>
-                            <p className="text-sm text-slate-400">Decision Support · Reduce Anchoring Bias · Second Checklist</p>
+                            <h1 className="text-4xl font-black text-slate-900 tracking-tight uppercase">Differential <span className="text-rose-500 text-3xl block md:inline md:text-4xl italic font-serif lowercase tracking-normal font-medium">Intelligence</span></h1>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">Precision Decision Support · Anchoring Mitigation · Digital Checklist</p>
                         </div>
                     </div>
                 </div>
@@ -799,98 +803,98 @@ export function DifferentialDiagnosis() {
                     <div className="space-y-4">
 
                         {/* Metadata Input */}
-                        <section className="rounded-xl border border-slate-700 bg-slate-800/50 p-5 shadow-lg">
-                            <h2 className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Metadata</h2>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label htmlFor="patient-name" className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Patient Name / ID</label>
+                        <section className="rounded-[2rem] border border-rose-50 bg-white p-7 shadow-xl shadow-rose-500/5">
+                            <h2 className="mb-5 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Metadata assets</h2>
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label htmlFor="patient-name" className="text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Patient ID / Reference</label>
                                     <input
                                         id="patient-name"
                                         type="text"
                                         value={patientName}
                                         onChange={(e) => setPatientName(e.target.value)}
-                                        placeholder="e.g. John Doe"
-                                        className="w-full rounded-lg border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all"
+                                        placeholder="E.G. JOHN DOE"
+                                        className="w-full rounded-2xl border border-rose-50 bg-rose-50/20 px-4 py-3 text-sm font-bold text-slate-900 placeholder:text-rose-200 focus:border-rose-300 focus:outline-none focus:ring-4 focus:ring-rose-500/5 transition-all outline-none"
                                     />
                                 </div>
-                                <div className="space-y-1">
-                                    <label htmlFor="doctor-name" className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">Ordering Doctor</label>
+                                <div className="space-y-2">
+                                    <label htmlFor="doctor-name" className="text-[10px] font-black text-rose-500 uppercase tracking-widest ml-1">Clinician Authority</label>
                                     <input
                                         id="doctor-name"
                                         type="text"
                                         value={doctorName}
                                         onChange={(e) => setDoctorName(e.target.value)}
-                                        placeholder="e.g. Dr. House"
-                                        className="w-full rounded-lg border border-slate-700 bg-slate-900/50 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/20 transition-all"
+                                        placeholder="E.G. DR. HOUSE"
+                                        className="w-full rounded-2xl border border-rose-50 bg-rose-50/20 px-4 py-3 text-sm font-bold text-slate-900 placeholder:text-rose-200 focus:border-rose-300 focus:outline-none focus:ring-4 focus:ring-rose-500/5 transition-all outline-none"
                                     />
                                 </div>
                             </div>
                         </section>
 
                         {/* Core Input */}
-                        <section className="rounded-xl border border-slate-700 bg-slate-800/50 p-5 shadow-lg">
-                            <label htmlFor="case-summary" className="block mb-2 text-xs font-semibold uppercase tracking-widest text-slate-400">
-                                Case Summary <span className="text-red-400">*</span>
+                        <section className="rounded-[2.5rem] border border-rose-50 bg-white p-7 shadow-xl shadow-rose-500/5">
+                            <label htmlFor="case-summary" className="block mb-3 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
+                                Case Matrix Data <span className="text-rose-500">*</span>
                             </label>
-                            <p className="text-xs text-slate-500 mb-3">Age, Sex, Chief Complaint, Duration — free text, no rigid fields</p>
+                            <p className="text-[10px] font-bold text-rose-300 uppercase tracking-widest mb-4 ml-1">Synthesis: Age, Sex, Symptoms, Vitals, Duration</p>
                             <textarea
                                 id="case-summary"
                                 value={caseText}
                                 onChange={(e) => setCaseText(e.target.value)}
-                                placeholder={"e.g. 45M, chest pain for 2 hours, sweating, nausea, pain radiates to left arm. History of HTN. BP 150/90, HR 105 irregular on palpation."}
-                                rows={6}
-                                className="w-full resize-none rounded-lg border border-slate-600 bg-slate-900/70 px-4 py-3 font-mono text-sm text-slate-200 placeholder:text-slate-600 placeholder:font-sans focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors leading-relaxed"
+                                placeholder={"E.G. 45M, CHEST PAIN FOR 2 HOURS, SWEATING, NAUSEA, PAIN RADIATES TO LEFT ARM. HISTORY OF HTN. BP 150/90, HR 105 IRREGULAR ON PALPATION."}
+                                rows={8}
+                                className="w-full resize-none rounded-[2rem] border border-rose-50 bg-rose-50/10 px-6 py-5 font-black text-sm text-slate-900 placeholder:text-rose-200 placeholder:font-black placeholder:uppercase placeholder:tracking-widest focus:border-rose-300 focus:outline-none focus:ring-4 focus:ring-rose-500/5 transition-all outline-none leading-loose"
                             />
                         </section>
 
                         {/* Optional Inputs */}
-                        <section className="rounded-xl border border-slate-700 bg-slate-800/50 shadow-lg overflow-hidden">
+                        <section className="rounded-[2rem] border border-rose-50 bg-white shadow-xl shadow-rose-500/5 overflow-hidden">
                             <button
                                 onClick={() => setOptOpen(!optOpen)}
-                                className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-medium text-slate-300 hover:bg-slate-700/40 transition-colors"
+                                className="w-full flex items-center justify-between px-7 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hover:bg-rose-50/30 transition-all"
                             >
-                                <span className="flex items-center gap-2">
-                                    <Plus className="size-4 text-blue-400" />
-                                    Add More Context (Optional)
+                                <span className="flex items-center gap-3">
+                                    <Plus className="size-4 text-rose-500" />
+                                    Inject Extended Context
                                 </span>
-                                {optOpen ? <ChevronUp className="size-4 text-slate-500" /> : <ChevronDown className="size-4 text-slate-500" />}
+                                {optOpen ? <ChevronUp className="size-4 text-rose-400" /> : <ChevronDown className="size-4 text-rose-400" />}
                             </button>
 
                             {optOpen && (
-                                <div className="px-5 pb-5 space-y-3 border-t border-slate-700/60 pt-4">
+                                <div className="px-7 pb-6 space-y-4 border-t border-rose-50 pt-5">
                                     {([
-                                        { key: "symptoms", label: "Symptoms" },
-                                        { key: "vitals", label: "Vital Signs" },
-                                        { key: "history", label: "Past Medical History / PMH" },
-                                        { key: "riskFactors", label: "Risk Factors" },
-                                        { key: "ecgData", label: "ECG Findings (Text)" },
-                                        { key: "labData", label: "Lab Results (Text)" },
+                                        { key: "symptoms", label: "Symptom Cluster" },
+                                        { key: "vitals", label: "Vital Assets" },
+                                        { key: "history", label: "PMH Matrix" },
+                                        { key: "riskFactors", label: "Risk Vectors" },
+                                        { key: "ecgData", label: "ECG Findings (TEXT)" },
+                                        { key: "labData", label: "Lab Data (TEXT)" },
                                     ] as { key: keyof OptionalFields; label: string }[]).map(({ key, label }) => (
                                         <div key={key}>
                                             {!fieldOpen[key] ? (
                                                 <button
                                                     onClick={() => setFieldOpen((p) => ({ ...p, [key]: true }))}
-                                                    className="flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                                                    className="flex items-center gap-2 text-[10px] font-black text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-widest bg-rose-50 px-3 py-2 rounded-full border border-rose-100/50"
                                                 >
                                                     <Plus className="size-3.5" /> {label}
                                                 </button>
                                             ) : (
-                                                <div>
-                                                    <div className="flex items-center justify-between mb-1.5">
-                                                        <label className="text-xs font-medium text-slate-400">{label}</label>
+                                                <div className="animate-in slide-in-from-top-2 duration-300">
+                                                    <div className="flex items-center justify-between mb-2 px-1">
+                                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</label>
                                                         <button
                                                             onClick={() => { setFieldOpen((p) => ({ ...p, [key]: false })); setOptFields((p) => ({ ...p, [key]: "" })) }}
-                                                            className="text-slate-500 hover:text-red-400"
+                                                            className="text-rose-200 hover:text-rose-500 transition-colors"
                                                         >
-                                                            <X className="size-3.5" />
+                                                            <X className="size-4" />
                                                         </button>
                                                     </div>
                                                     <textarea
                                                         value={optFields[key]}
                                                         onChange={(e) => setOptFields((p) => ({ ...p, [key]: e.target.value }))}
                                                         rows={2}
-                                                        placeholder={`Enter ${label.toLowerCase()}…`}
-                                                        className="w-full resize-none rounded-lg border border-slate-600 bg-slate-900/70 px-3 py-2 text-sm font-mono text-slate-300 placeholder:text-slate-600 placeholder:font-sans focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/20"
+                                                        placeholder={`INJECT ${label.toUpperCase()}...`}
+                                                        className="w-full resize-none rounded-2xl border border-rose-50 bg-rose-50/10 px-4 py-3 text-sm font-black text-slate-900 placeholder:text-rose-200 placeholder:font-black placeholder:uppercase placeholder:tracking-widest focus:border-rose-300 focus:outline-none focus:ring-4 focus:ring-rose-500/5 transition-all outline-none"
                                                     />
                                                 </div>
                                             )}
@@ -901,39 +905,43 @@ export function DifferentialDiagnosis() {
                         </section>
 
                         {/* File Upload */}
-                        <section className="rounded-xl border border-slate-700 bg-slate-800/50 p-5 shadow-lg">
-                            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">Upload Investigations</h2>
+                        <section className="rounded-[2.5rem] border border-rose-50 bg-white p-7 shadow-xl shadow-rose-500/5">
+                            <h2 className="mb-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Investigations Payload</h2>
                             <div
                                 onDrop={(e) => { e.preventDefault(); setIsDragging(false); addFiles(e.dataTransfer.files) }}
                                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
                                 onDragLeave={() => setIsDragging(false)}
                                 onClick={() => fileInputRef.current?.click()}
                                 className={cn(
-                                    "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-5 text-center transition-colors",
+                                    "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-[2rem] border-2 border-dashed px-6 py-8 text-center transition-all duration-500 group",
                                     isDragging
-                                        ? "border-blue-500 bg-blue-900/20"
-                                        : "border-slate-600 hover:border-slate-500 hover:bg-slate-700/20"
+                                        ? "border-rose-500 bg-rose-50 shadow-inner"
+                                        : "border-rose-100 bg-rose-50/10 hover:border-rose-300 hover:bg-rose-50/30"
                                 )}
                             >
-                                <Upload className={cn("size-5", isDragging ? "text-blue-400" : "text-slate-500")} />
-                                <p className="text-sm font-medium text-slate-400">Upload ECG or Lab files</p>
-                                <p className="text-xs text-slate-600">PDF · PNG · JPG · TXT — auto-categorised</p>
+                                <div className="w-14 h-14 rounded-2xl bg-white border border-rose-100 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500 shadow-rose-500/5">
+                                    <Upload className={cn("size-6", isDragging ? "text-rose-500" : "text-rose-300")} />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Transmit ECG or Lab Assets</p>
+                                    <p className="text-[9px] font-bold text-rose-300 uppercase tracking-[0.15em] mt-1">PDF · PNG · JPG · TXT — AUTO-SORTING ACTIVE</p>
+                                </div>
                                 <input ref={fileInputRef} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.txt" className="hidden"
                                     onChange={(e) => e.target.files && addFiles(e.target.files)} />
                             </div>
                             {uploadedFiles.length > 0 && (
-                                <div className="mt-3 flex flex-wrap gap-2">
+                                <div className="mt-5 flex flex-wrap gap-2">
                                     {uploadedFiles.map((f) => (
                                         <span key={f.id} className={cn(
-                                            "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium",
-                                            f.type === "ecg" ? "border-violet-600/60 bg-violet-900/30 text-violet-300"
-                                                : f.type === "labs" ? "border-emerald-600/60 bg-emerald-900/30 text-emerald-300"
-                                                    : "border-slate-600 bg-slate-700 text-slate-300"
+                                            "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-widest shadow-sm transition-all animate-in zoom-in-50 duration-300",
+                                            f.type === "ecg" ? "border-rose-200 bg-rose-500 text-white"
+                                                : f.type === "labs" ? "border-emerald-200 bg-emerald-500 text-white"
+                                                    : "border-slate-200 bg-slate-900 text-white"
                                         )}>
                                             {f.type === "ecg" ? <Activity className="size-3" /> : f.type === "labs" ? <FlaskConical className="size-3" /> : <FileText className="size-3" />}
                                             <span className="max-w-[120px] truncate">{f.name}</span>
                                             <CheckCircle2 className="size-3 opacity-70" />
-                                            <button onClick={() => removeFile(f.id)} className="hover:opacity-60"><X className="size-3" /></button>
+                                            <button onClick={(e) => { e.stopPropagation(); removeFile(f.id) }} className="hover:scale-125 transition-transform"><X className="size-3" /></button>
                                         </span>
                                     ))}
                                 </div>
@@ -941,49 +949,52 @@ export function DifferentialDiagnosis() {
                         </section>
 
                         {/* Context Toggles */}
-                        <section className="rounded-xl border border-slate-700 bg-slate-800/50 p-5 shadow-lg">
-                            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">Context Switches</h2>
-                            <div className="space-y-2">
+                        <section className="rounded-[2.5rem] border border-rose-50 bg-white p-7 shadow-xl shadow-rose-500/5">
+                            <h2 className="mb-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Intelligence Matrix Switches</h2>
+                            <div className="space-y-3">
                                 <Toggle id="t-ecg" checked={toggles.ecg} disabled={!hasECG}
-                                    label="Include ECG Analysis" description={hasECG ? "ECG file detected" : "Upload ECG to enable"}
-                                    icon={<Activity className="size-4" />}
+                                    label="Activate ECG Synthesis" description={hasECG ? "Asset Synchronized" : "Transmit ECG to Activate"}
+                                    icon={<Activity className="size-5" />}
                                     onChange={(v) => setToggles((p) => ({ ...p, ecg: v }))} />
                                 <Toggle id="t-labs" checked={toggles.labs} disabled={!hasLabs}
-                                    label="Include Lab Results" description={hasLabs ? "Lab file detected" : "Upload labs to enable"}
-                                    icon={<FlaskConical className="size-4" />}
+                                    label="Activate Lab Core" description={hasLabs ? "Asset Synchronized" : "Transmit Labs to Activate"}
+                                    icon={<FlaskConical className="size-5" />}
                                     onChange={(v) => setToggles((p) => ({ ...p, labs: v }))} />
-                                <LockedToggle id="t-conservative" label="Conservative Reasoning" description="Always active for safety" />
-                                <LockedToggle id="t-guidelines" label="Use Clinical Guidelines" description="ESC / WHO / NICE protocols" />
-                                <LockedToggle id="t-redflags" label="Include Red Flags" description="Always surfaced — cannot be suppressed" />
+                                <LockedToggle id="t-conservative" label="High-Fidelity Reasoning" description="Always Active for Clinical Safety" />
+                                <LockedToggle id="t-guidelines" label="Protocol Alignment" description="ESC / WHO / NICE Frameworks Active" />
+                                <LockedToggle id="t-redflags" label="Lethal Pattern Detection" description="Cannot be Suppressed — 100% Surface Rate" />
                             </div>
                         </section>
 
                         {/* Generate CTA */}
-                        <button
-                            id="generate-differential-btn"
-                            onClick={handleGenerate}
-                            disabled={!caseText.trim() || isGenerating}
-                            className={cn(
-                                "w-full rounded-xl px-6 py-4 text-sm font-bold tracking-wide transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
-                                caseText.trim() && !isGenerating
-                                    ? "bg-blue-600 text-white shadow-lg shadow-blue-900/40 hover:bg-blue-500 active:scale-[0.99]"
-                                    : "bg-slate-700 text-slate-500 cursor-not-allowed"
-                            )}
-                        >
-                            {isGenerating ? (
-                                <span className="inline-flex items-center gap-2 justify-center">
-                                    <Loader2 className="size-4 animate-spin" />
-                                    Reasoning through differentials…
-                                </span>
-                            ) : (
-                                <span className="inline-flex items-center gap-2 justify-center">
-                                    <ClipboardList className="size-4" />
-                                    Generate Differential
-                                </span>
-                            )}
-                        </button>
+                        <div className="relative group">
+                            <div className="absolute -inset-1 bg-gradient-to-r from-rose-500 to-rose-600 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                            <button
+                                id="generate-differential-btn"
+                                onClick={handleGenerate}
+                                disabled={!caseText.trim() || isGenerating}
+                                className={cn(
+                                    "relative w-full rounded-[2rem] px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 focus:outline-none focus:ring-4 focus:ring-rose-500/20",
+                                    caseText.trim() && !isGenerating
+                                        ? "bg-slate-900 text-white shadow-2xl hover:bg-rose-600 hover:scale-[1.02] active:scale-[0.98]"
+                                        : "bg-slate-100 text-slate-300 cursor-not-allowed border border-slate-200"
+                                )}
+                            >
+                                {isGenerating ? (
+                                    <span className="inline-flex items-center gap-3 justify-center">
+                                        <Loader2 className="size-5 animate-spin" />
+                                        Synthesizing Differential Matrix...
+                                    </span>
+                                ) : (
+                                    <span className="inline-flex items-center gap-3 justify-center">
+                                        <RefreshCw className="size-5" />
+                                        Execute Diagnostic Probe
+                                    </span>
+                                )}
+                            </button>
+                        </div>
                         {!caseText.trim() && (
-                            <p className="text-center text-xs text-slate-600">Enter a case summary to continue</p>
+                            <p className="text-center text-[9px] font-black text-rose-300 uppercase tracking-widest animate-pulse">Enter Matrix Data to Execute</p>
                         )}
                     </div>
 
@@ -995,23 +1006,25 @@ export function DifferentialDiagnosis() {
                             <div className="space-y-4">
 
                                 {/* Disclaimer Banner */}
-                                <div className="flex items-start gap-3 rounded-xl border border-amber-700/40 bg-amber-950/50 px-4 py-3">
-                                    <AlertTriangle className="size-4 mt-0.5 shrink-0 text-amber-500" />
+                                <div className="flex items-start gap-5 rounded-[2rem] border border-rose-100 bg-rose-50/50 px-8 py-6 shadow-xl shadow-rose-500/5">
+                                    <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-lg shadow-rose-500/10 shrink-0">
+                                        <AlertTriangle className="size-6 text-rose-500" />
+                                    </div>
                                     <div>
-                                        <p className="text-sm font-semibold text-amber-300">Differential Diagnosis Assistant — Decision Support Only</p>
-                                        <p className="text-xs text-amber-500/80 mt-0.5">
-                                            Review all differentials critically. No diagnosis is confirmed by this tool.
-                                            Clinical gestalt and direct patient evaluation remain paramount.
+                                        <p className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] mb-1">Intelligence Matrix Output · Purely Advisory</p>
+                                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed">
+                                            Synthesized probabilities based on ingested data. Review all condition paths critically.
+                                            Final diagnostic authority resides with the human clinician.
                                         </p>
                                     </div>
                                 </div>
 
                                 {/* Ranked Differentials */}
                                 <div>
-                                    <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                                        <ClipboardList className="size-3.5" /> Ranked Differentials
+                                    <h2 className="mb-5 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 flex items-center gap-3 ml-1">
+                                        <ClipboardList className="size-4 text-rose-500" /> RANKED CONDITION MATRIX
                                     </h2>
-                                    <div className="space-y-3">
+                                    <div className="space-y-6">
                                         {output.differentials.map((d) => (
                                             <DifferentialCard key={d.rank} diff={d} />
                                         ))}
@@ -1019,15 +1032,20 @@ export function DifferentialDiagnosis() {
                                 </div>
 
                                 {/* Red Flags */}
-                                <div className="rounded-xl border-l-4 border-red-600 bg-red-950/40 border border-red-800/30 px-5 py-4">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <ShieldAlert className="size-5 text-red-400" />
-                                        <h2 className="text-sm font-bold text-red-300 uppercase tracking-wider">Red Flags Identified</h2>
+                                <div className="rounded-[2.5rem] border-2 border-rose-500 bg-rose-50 p-8 shadow-2xl shadow-rose-500/10">
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <div className="w-12 h-12 rounded-2xl bg-rose-500 flex items-center justify-center shadow-lg shadow-rose-500/20">
+                                            <ShieldAlert className="size-6 text-white" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-[10px] font-black text-rose-600 uppercase tracking-[0.3em]">Lethal Patterns Detected</h2>
+                                            <p className="text-lg font-black text-slate-900 uppercase tracking-tight mt-0.5">Urgent Clinical Alerts</p>
+                                        </div>
                                     </div>
-                                    <ul className="space-y-1.5">
+                                    <ul className="space-y-4">
                                         {output.redFlags.map((rf, i) => (
-                                            <li key={i} className="flex items-start gap-2 text-sm text-red-300/90">
-                                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-red-500 shrink-0" />
+                                            <li key={i} className="flex items-start gap-4 text-[11px] font-black text-slate-800 uppercase tracking-widest leading-loose bg-white/50 p-4 rounded-2xl border border-rose-100">
+                                                <AlertTriangle className="size-4 text-rose-500 shrink-0" />
                                                 {rf}
                                             </li>
                                         ))}
@@ -1035,18 +1053,18 @@ export function DifferentialDiagnosis() {
                                 </div>
 
                                 {/* Suggested Next Steps */}
-                                <div className="rounded-xl border border-slate-700 bg-slate-800/50 px-5 py-4">
-                                    <h2 className="text-sm font-bold text-slate-300 mb-1 flex items-center gap-2">
-                                        <Activity className="size-4 text-blue-400" />
-                                        Suggested Next Steps
+                                <div className="rounded-[2.5rem] border border-rose-50 bg-white p-8 shadow-xl shadow-rose-500/5">
+                                    <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.3em] mb-2 flex items-center gap-3">
+                                        <Activity className="size-4 text-rose-500" />
+                                        Inquiry Trajectory
                                     </h2>
-                                    <p className="text-[11px] text-slate-500 italic mb-3">
-                                        Non-prescriptive suggestions for clinical consideration. Never: Start, Diagnose, Give.
+                                    <p className="text-[10px] font-bold text-rose-300 uppercase tracking-widest mb-6 ml-7 leading-relaxed">
+                                        Non-prescriptive trajectory for clinical verification only.
                                     </p>
-                                    <ul className="space-y-1.5">
+                                    <ul className="space-y-3 ml-1">
                                         {output.nextSteps.map((s, i) => (
-                                            <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                                                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                                            <li key={i} className="flex items-start gap-4 text-[11px] font-bold text-slate-600 leading-relaxed group">
+                                                <div className="mt-1 size-2 rounded-full bg-rose-100 group-hover:bg-rose-500 transition-colors shrink-0" />
                                                 {s}
                                             </li>
                                         ))}
@@ -1054,57 +1072,57 @@ export function DifferentialDiagnosis() {
                                 </div>
 
                                 {/* Uncertainty Statement */}
-                                <div className="rounded-xl border border-slate-700/60 bg-slate-900/40 px-5 py-4">
-                                    <p className="text-xs italic text-slate-500">
-                                        <span className="text-amber-500 not-italic font-semibold">⚠ Reasoning Limitations: </span>
+                                <div className="rounded-[2rem] border border-rose-50 bg-rose-50/20 px-8 py-6">
+                                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-loose">
+                                        <span className="text-rose-500 font-black mr-2">⚠ Precision Limitations:</span>
                                         {output.uncertainty}
                                     </p>
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="flex flex-wrap gap-2 pt-1">
+                                <div className="flex flex-wrap gap-4 pt-4">
                                     <button id="copy-ddx-btn" onClick={handleCopy}
                                         className={cn(
-                                            "inline-flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                                            "inline-flex flex-1 items-center justify-center gap-3 rounded-[1.5rem] border-2 px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 focus:outline-none focus:ring-4",
                                             copySuccess
-                                                ? "border-emerald-700 bg-emerald-900/40 text-emerald-300"
-                                                : "border-slate-600 bg-slate-800 text-slate-300 hover:border-slate-500 hover:bg-slate-700"
+                                                ? "border-emerald-500 bg-emerald-50 text-emerald-600 focus:ring-emerald-500/20"
+                                                : "border-rose-100 bg-white text-rose-500 hover:border-rose-300 hover:bg-rose-50 shadow-xl shadow-rose-500/5 focus:ring-rose-500/10"
                                         )}>
-                                        {copySuccess ? <><CheckCircle2 className="size-4" /> Copied!</> : <><Copy className="size-4" /> Copy to Clipboard</>}
+                                        {copySuccess ? <><CheckCircle2 className="size-4" /> Assets Copied</> : <><Copy className="size-4" /> Copy To Nexus</>}
                                     </button>
                                     <button id="download-ddx-pdf-btn" onClick={() => exportPDF(caseText, output, patientName, doctorName)}
-                                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-slate-600 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-300 transition-all hover:border-slate-500 hover:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-                                        <Download className="size-4" /> Export PDF (EU A4)
+                                        className="inline-flex flex-1 items-center justify-center gap-3 rounded-[1.5rem] border-2 border-slate-900 bg-slate-900 px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-white transition-all duration-500 hover:bg-rose-600 hover:border-rose-600 shadow-xl shadow-rose-500/10 focus:outline-none focus:ring-4 focus:ring-rose-500/20">
+                                        <Download className="size-4" /> Export Report (A4)
                                     </button>
                                     <button id="reset-ddx-btn" onClick={handleReset}
-                                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-400 transition-all hover:border-red-800 hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
-                                        <RefreshCw className="size-4" /> New Case
+                                        className="inline-flex items-center justify-center gap-3 rounded-[1.5rem] border-2 border-rose-50 bg-rose-50/50 px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-rose-300 transition-all duration-500 hover:text-rose-600 hover:border-rose-100 focus:outline-none focus:ring-4 focus:ring-rose-500/10">
+                                        <RefreshCw className="size-4" /> Clear Matrix
                                     </button>
                                 </div>
                             </div>
                         ) : (
                             /* Empty / Loading State */
-                            <div className="flex h-full min-h-[500px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-700 bg-slate-800/20 p-10 text-center">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-800 border border-slate-700">
-                                    <ClipboardList className="size-8 text-slate-600" />
+                            <div className="flex h-full min-h-[600px] flex-col items-center justify-center rounded-[3rem] border-2 border-dashed border-rose-100 bg-rose-50/10 p-12 text-center animate-in fade-in duration-1000">
+                                <div className="flex h-20 w-20 items-center justify-center rounded-[1.5rem] bg-white border border-rose-50 shadow-2xl shadow-rose-500/10 rotate-6 mb-8">
+                                    <ClipboardList className="size-10 text-rose-200" />
                                 </div>
-                                <h3 className="mt-5 text-base font-semibold text-slate-500">Differentials will appear here</h3>
+                                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-slate-800">Knowledge Waiting Area</h3>
                                 {isGenerating ? (
-                                    <div className="mt-4 space-y-3">
-                                        <p className="text-sm text-blue-400 flex items-center gap-2 justify-center">
-                                            <Loader2 className="size-4 animate-spin" />
-                                            Reasoning through differentials…
+                                    <div className="mt-6 space-y-4">
+                                        <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] flex items-center gap-3 justify-center">
+                                            <Loader2 className="size-5 animate-spin" />
+                                            Synthesizing Differential Matrix...
                                         </p>
-                                        <div className="flex gap-1.5 justify-center">
+                                        <div className="flex gap-2 justify-center">
                                             {[0, 1, 2].map((i) => (
-                                                <div key={i} className="h-2 w-2 rounded-full bg-blue-500/60"
+                                                <div key={i} className="h-2 w-2 rounded-full bg-rose-500/40"
                                                     style={{ animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
                                             ))}
                                         </div>
                                     </div>
                                 ) : (
-                                    <p className="mt-2 max-w-xs text-sm text-slate-600">
-                                        Enter a case summary and click "Generate Differential" to begin.
+                                    <p className="mt-4 max-w-xs text-[10px] font-bold text-rose-300 uppercase tracking-widest leading-loose">
+                                        Transmit matrix data and execute diagnostic probe to surface clinical differentials.
                                     </p>
                                 )}
                             </div>

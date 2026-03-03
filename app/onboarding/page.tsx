@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, User, Stethoscope } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { supabase } from "@/lib/supabase"
 
 export default function OnboardingPage() {
@@ -65,24 +66,26 @@ export default function OnboardingPage() {
         setIsLoading(true)
 
         try {
-            const updateData: any = {
-                role: role,
-                name: name,
-                surname: surname,
-                updated_at: new Date().toISOString()
+            const response = await fetch('/api/auth/complete-profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    role,
+                    name,
+                    surname,
+                    specialization: role === 'doctor' ? specialization : undefined,
+                    doctor_register_number: role === 'doctor' ? license : undefined
+                })
+            })
+
+            const data = await response.json()
+
+            if (!data.success) {
+                throw new Error(data.message || "Failed to save profile")
             }
 
-            if (role === 'doctor') {
-                updateData.specialization = specialization
-                updateData.doctor_register_number = license
-            }
-
-            const { error } = await supabase
-                .from('users')
-                .update(updateData)
-                .eq('id', userId)
-
-            if (error) throw error
+            // Success! Update local storage
+            localStorage.setItem("userRole", role)
 
             localStorage.setItem("userName", name)
             localStorage.setItem("userSurname", surname)
@@ -94,7 +97,8 @@ export default function OnboardingPage() {
                 router.push('/patient/chat')
             }
         } catch (error: any) {
-            alert("We couldn't save your profile. Please try again later.")
+            console.error("Onboarding error:", error)
+            alert(`We couldn't save your profile: ${error.message || "Unknown error"}. Please check your connection and try again.`)
         } finally {
             setIsLoading(false)
         }
@@ -102,117 +106,169 @@ export default function OnboardingPage() {
 
     if (isVerifying) {
         return (
-            <div className="min-h-screen bg-[#0F172A] flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-teal-500 animate-spin" />
+            <div className="min-h-screen bg-white flex flex-col items-center justify-center font-sans">
+                {/* Subtle background elements */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-100/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
+                    <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-rose-50 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+                </div>
+
+                <div className="relative flex flex-col items-center z-10">
+                    <motion.div
+                        animate={{
+                            scale: [1, 1.05, 1],
+                            rotate: [0, 5, -5, 0]
+                        }}
+                        transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                        className="relative mb-12"
+                    >
+                        <div className="absolute inset-0 bg-rose-500/10 rounded-full blur-xl animate-pulse" />
+                        <Loader2 className="w-16 h-16 text-rose-500 animate-spin relative z-10" strokeWidth={1.5} />
+                    </motion.div>
+                    <div className="text-center space-y-3">
+                        <h2 className="text-2xl font-black text-rose-950 tracking-tighter uppercase leading-none">CLARA</h2>
+                        <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.4em] mt-4 animate-pulse">Verifying Clinical Identity</p>
+                    </div>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-4">
+        <div className="min-h-screen bg-white flex items-center justify-center p-4 relative overflow-hidden">
+            {/* Background Decorations */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-200/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-rose-200/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+
             <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="max-w-xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden"
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="max-w-xl w-full bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(244,63,94,0.1)] border border-rose-100 overflow-hidden relative z-10"
             >
-                <div className="p-8 md:p-12">
-                    <div className="text-center mb-10">
-                        <h1 className="text-3xl font-bold text-slate-900 mb-2">Complete Your Profile</h1>
-                        <p className="text-slate-500">To provide the best experience, we need a few more details.</p>
+                <div className="p-10 md:p-14">
+                    <div className="text-center mb-12">
+                        <div className="w-20 h-20 bg-rose-500 rounded-[2rem] flex items-center justify-center shadow-xl shadow-rose-500/20 mx-auto mb-8 rotate-3">
+                            <User className="w-10 h-10 text-white" />
+                        </div>
+                        <h1 className="text-4xl font-black text-rose-950 mb-3 tracking-tighter uppercase">Identity <span className="text-rose-500 italic font-serif lowercase tracking-normal font-medium">Verification</span></h1>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Clinical Onboarding Protocol · Step 01</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="name" className="text-slate-700">First Name</Label>
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        <div className="grid grid-cols-2 gap-5">
+                            <div className="space-y-3">
+                                <Label htmlFor="name" className="text-[10px] font-black text-rose-950 uppercase tracking-widest ml-1">First Name</Label>
                                 <Input
                                     id="name"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    placeholder="John"
-                                    className="bg-slate-50 border-slate-200"
+                                    placeholder="Enter first name"
+                                    className="h-14 bg-rose-50/10 border-rose-100 focus:ring-rose-500/10 focus:border-rose-300 rounded-2xl px-5 text-sm font-medium"
                                     required
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="surname" className="text-slate-700">Last Name</Label>
+                            <div className="space-y-3">
+                                <Label htmlFor="surname" className="text-[10px] font-black text-rose-950 uppercase tracking-widest ml-1">Last Name</Label>
                                 <Input
                                     id="surname"
                                     value={surname}
                                     onChange={(e) => setSurname(e.target.value)}
-                                    placeholder="Doe"
-                                    className="bg-slate-50 border-slate-200"
+                                    placeholder="Enter last name"
+                                    className="h-14 bg-rose-50/10 border-rose-100 focus:ring-rose-500/10 focus:border-rose-300 rounded-2xl px-5 text-sm font-medium"
                                     required
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <Label className="text-slate-700">I am a...</Label>
-                            <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-4">
+                            <Label className="text-[10px] font-black text-rose-950 uppercase tracking-widest ml-1">Credential Path</Label>
+                            <div className="grid grid-cols-2 gap-5">
                                 <button
                                     type="button"
                                     onClick={() => setRole("patient")}
-                                    className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${role === "patient"
-                                        ? "border-teal-500 bg-teal-50 text-teal-700"
-                                        : "border-slate-100 bg-slate-50 text-slate-500 hover:border-slate-200"
+                                    className={`flex flex-col items-center justify-center p-8 rounded-3xl border-2 transition-all duration-300 ${role === "patient"
+                                        ? "border-rose-500 bg-rose-50 text-rose-600 shadow-lg shadow-rose-500/10 scale-[1.02]"
+                                        : "border-rose-50 bg-white text-slate-400 hover:border-rose-200 hover:bg-rose-50/30"
                                         }`}
                                 >
-                                    <User className={`w-8 h-8 mb-2 ${role === "patient" ? "text-teal-600" : "text-slate-400"}`} />
-                                    <span className="font-semibold">Patient</span>
+                                    <div className={cn(
+                                        "w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-colors",
+                                        role === "patient" ? "bg-rose-500 text-white" : "bg-rose-50 text-rose-200"
+                                    )}>
+                                        <User className="w-6 h-6" />
+                                    </div>
+                                    <span className="font-black text-xs uppercase tracking-widest">Patient</span>
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setRole("doctor")}
-                                    className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all ${role === "doctor"
-                                        ? "border-teal-500 bg-teal-50 text-teal-700"
-                                        : "border-slate-100 bg-slate-50 text-slate-500 hover:border-slate-200"
+                                    className={`flex flex-col items-center justify-center p-8 rounded-3xl border-2 transition-all duration-300 ${role === "doctor"
+                                        ? "border-rose-500 bg-rose-50 text-rose-600 shadow-lg shadow-rose-500/10 scale-[1.02]"
+                                        : "border-rose-50 bg-white text-slate-400 hover:border-rose-200 hover:bg-rose-50/30"
                                         }`}
                                 >
-                                    <Stethoscope className={`w-8 h-8 mb-2 ${role === "doctor" ? "text-teal-600" : "text-slate-400"}`} />
-                                    <span className="font-semibold">Doctor</span>
+                                    <div className={cn(
+                                        "w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-colors",
+                                        role === "doctor" ? "bg-rose-500 text-white" : "bg-rose-50 text-rose-200"
+                                    )}>
+                                        <Stethoscope className="w-6 h-6" />
+                                    </div>
+                                    <span className="font-black text-xs uppercase tracking-widest">Clinician</span>
                                 </button>
                             </div>
                         </div>
 
-                        {role === "doctor" && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                className="space-y-4 pt-4 border-t border-slate-100"
-                            >
-                                <div className="space-y-2">
-                                    <Label htmlFor="specialization" className="text-slate-700">Specialization</Label>
-                                    <Input
-                                        id="specialization"
-                                        value={specialization}
-                                        onChange={(e) => setSpecialization(e.target.value)}
-                                        placeholder="e.g. Cardiology"
-                                        className="bg-slate-50 border-slate-200"
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="license" className="text-slate-700">Medical License Number</Label>
-                                    <Input
-                                        id="license"
-                                        value={license}
-                                        onChange={(e) => setLicense(e.target.value)}
-                                        placeholder="e.g. MD123456"
-                                        className="bg-slate-50 border-slate-200"
-                                        required
-                                    />
-                                </div>
-                            </motion.div>
-                        )}
+                        <AnimatePresence>
+                            {role === "doctor" && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0, y: 10 }}
+                                    animate={{ opacity: 1, height: "auto", y: 0 }}
+                                    exit={{ opacity: 0, height: 0, y: 10 }}
+                                    className="space-y-5 pt-8 border-t border-rose-50"
+                                >
+                                    <div className="space-y-3">
+                                        <Label htmlFor="specialization" className="text-[10px] font-black text-rose-950 uppercase tracking-widest ml-1">Specialization</Label>
+                                        <Input
+                                            id="specialization"
+                                            value={specialization}
+                                            onChange={(e) => setSpecialization(e.target.value)}
+                                            placeholder="e.g. Cardiology"
+                                            className="h-14 bg-rose-50/10 border-rose-100 focus:ring-rose-500/10 focus:border-rose-300 rounded-2xl px-5 text-sm font-medium"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <Label htmlFor="license" className="text-[10px] font-black text-rose-950 uppercase tracking-widest ml-1">Medical Registration Number</Label>
+                                        <Input
+                                            id="license"
+                                            value={license}
+                                            onChange={(e) => setLicense(e.target.value)}
+                                            placeholder="e.g. MD123456"
+                                            className="h-14 bg-rose-50/10 border-rose-100 focus:ring-rose-500/10 focus:border-rose-300 rounded-2xl px-5 text-sm font-medium"
+                                            required
+                                        />
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
 
-                        <Button
-                            type="submit"
-                            disabled={isLoading || !role || !name || !surname}
-                            className="w-full bg-teal-500 hover:bg-teal-600 text-white h-12 text-lg font-bold rounded-xl shadow-lg shadow-teal-500/20"
-                        >
-                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Complete Setup"}
-                        </Button>
+                        <div className="pt-4">
+                            <Button
+                                type="submit"
+                                disabled={isLoading || !role || !name || !surname}
+                                className="w-full bg-rose-500 hover:bg-rose-600 text-white h-16 text-xs font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-rose-500/20 active:scale-[0.98] transition-all disabled:opacity-50"
+                            >
+                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Authorize Profile & Continue"}
+                            </Button>
+                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-center mt-6">
+                                Secure clinical credentialing protocol active
+                            </p>
+                        </div>
                     </form>
                 </div>
             </motion.div>

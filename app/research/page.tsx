@@ -43,7 +43,7 @@ export default function ResearchPage() {
             {/* Navigation */}
             <nav
                 className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? "bg-white/90 backdrop-blur-md shadow-sm py-4 border-b border-slate-100"
+                    ? "bg-white/90 backdrop-blur-md shadow-sm py-4 border-b border-rose-100"
                     : "bg-white/50 backdrop-blur-sm py-6"
                     }`}
             >
@@ -59,21 +59,21 @@ export default function ResearchPage() {
                             />
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-bold text-lg leading-none text-slate-900">
+                            <span className="font-bold text-lg leading-none text-rose-950">
                                 CLARA
                             </span>
-                            <span className="text-[10px] leading-none text-slate-500">
+                            <span className="text-[10px] leading-none text-rose-500">
                                 by MetaMedMD
                             </span>
                         </div>
                     </Link>
 
                     <div className="hidden md:flex items-center space-x-8">
-                        {["Platform", "Evidence", "Use Cases", "About"].map((item) => (
+                        {["How It Works", "Clinical Evidence", "Use Cases", "About"].map((item) => (
                             <Link
                                 key={item}
-                                href={item === "About" ? "/about" : `/#${item.toLowerCase().replace(" ", "-")}`}
-                                className="text-sm font-medium text-slate-600 transition-colors hover:text-teal-600"
+                                href={item === "About" ? "/about" : `/#${item.toLowerCase().replace(/\s+/g, "-")}`}
+                                className="text-sm font-medium text-slate-600 transition-colors hover:text-rose-600"
                             >
                                 {item}
                             </Link>
@@ -82,7 +82,7 @@ export default function ResearchPage() {
 
                     <div className="flex items-center space-x-4">
                         <Link href="/signup">
-                            <Button className="bg-teal-500 hover:bg-teal-600 text-white border-0 shadow-lg shadow-teal-500/20">
+                            <Button className="bg-rose-500 hover:bg-rose-600 text-white border-0 shadow-lg shadow-rose-500/20 rounded-full font-bold">
                                 Get Started
                             </Button>
                         </Link>
@@ -91,14 +91,14 @@ export default function ResearchPage() {
             </nav>
 
             {/* Hero Section */}
-            <section className="pt-40 pb-20 bg-slate-900 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-teal-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+            <section className="pt-40 pb-20 bg-[#1A0A0E] text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-rose-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
                 <div className="container mx-auto px-6 relative z-10">
                     <div className="max-w-3xl">
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-sm font-semibold mb-6"
+                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-black uppercase tracking-[0.2em] mb-6"
                         >
                             <Search className="h-4 w-4" />
                             Research Foundations
@@ -106,16 +106,16 @@ export default function ResearchPage() {
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-4xl md:text-6xl font-bold mb-8 leading-tight"
+                            className="text-4xl md:text-6xl font-extrabold mb-8 leading-tight font-primary tracking-tight"
                         >
                             Methodologically rigorous. <br />
-                            <span className="text-teal-400">Clinically meaningful.</span>
+                            <span className="text-rose-500">Clinically meaningful.</span>
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="text-xl text-slate-400 leading-relaxed mb-8"
+                            className="text-xl text-slate-400 leading-relaxed mb-8 font-secondary"
                         >
                             CLARA™ is grounded in the principle that high-quality clinical research must reflect real-world complexity while maintaining scientific validity and transparency.
                         </motion.p>
@@ -124,36 +124,36 @@ export default function ResearchPage() {
             </section>
 
             {/* Research Principles Grid */}
-            <section className="py-24 bg-white">
+            <section className="py-32 bg-white">
                 <div className="container mx-auto px-6">
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {[
                             {
-                                title: "Research driven by clinical reality",
+                                title: "Research driven by reality",
                                 desc: "Designed to support pragmatic, clinically embedded research, capturing the heterogeneity, comorbidity, and longitudinal trajectories that characterise real-world care.",
                                 icon: Microscope,
-                                color: "teal"
+                                color: "rose"
                             },
                             {
                                 title: "Structure before scale",
                                 desc: "Prioritising structured data capture and standardised clinical definitions. Consistent data models and validated scores support reproducibility and comparability.",
                                 icon: Database,
-                                color: "blue"
+                                color: "rose"
                             },
                             {
-                                title: "Transparency and interpretability",
+                                title: "Transparency",
                                 desc: "Analytical outputs are traceable back to clearly defined inputs, supporting methodological transparency, peer review, and regulatory scrutiny.",
                                 icon: FileSearch,
-                                color: "indigo"
+                                color: "rose"
                             },
                             {
                                 title: "Longitudinal insight",
                                 desc: "Capturing repeated measures of physiology, symptoms, and functional status enables investigation of disease progression and treatment response over time.",
                                 icon: BarChart3,
-                                color: "emerald"
+                                color: "rose"
                             },
                             {
-                                title: "Integration of patient perspective",
+                                title: "Patient perspective",
                                 desc: "Incorporating patient-reported outcomes and functional measures to support research that reflects both clinical and experiential dimensions of health.",
                                 icon: Users2,
                                 color: "rose"
@@ -162,13 +162,13 @@ export default function ResearchPage() {
                                 title: "Ethical use of data",
                                 desc: "Guided by principles of data minimisation, proportionality, and respect for patient autonomy, aligning with GDPR and ethical approximations.",
                                 icon: ShieldCheck,
-                                color: "slate"
+                                color: "rose"
                             },
                             {
-                                title: "Collaboration & Reproducibility",
+                                title: "Collaboration",
                                 desc: "Standardised data structures and transparent methodologies facilitate data sharing, meta-analysis, and replication across institutions.",
                                 icon: Globe2,
-                                color: "cyan"
+                                color: "rose"
                             }
                         ].map((item, i) => (
                             <motion.div
@@ -178,13 +178,13 @@ export default function ResearchPage() {
                                 viewport={{ once: true }}
                                 variants={sectionVariants}
                                 transition={{ delay: i * 0.1 }}
-                                className="p-8 rounded-2xl border border-slate-100 bg-white hover:border-teal-100 hover:shadow-xl hover:shadow-teal-500/5 transition-all group"
+                                className="p-10 rounded-[40px] border border-rose-50 bg-white hover:border-rose-200 hover:shadow-[0_30px_60px_rgba(244,63,94,0.06)] transition-all group lg:min-h-[320px]"
                             >
-                                <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-teal-50 transition-all">
-                                    <item.icon className="h-6 w-6 text-slate-600 group-hover:text-teal-600" />
+                                <div className="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center mb-8 group-hover:bg-rose-500 group-hover:rotate-6 transition-all duration-500 ease-out">
+                                    <item.icon className="h-7 w-7 text-rose-500 group-hover:text-white transition-colors" />
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-4">{item.title}</h3>
-                                <p className="text-slate-600 leading-relaxed text-sm">{item.desc}</p>
+                                <h3 className="text-2xl font-extrabold text-slate-800 mb-4 tracking-tight group-hover:text-rose-600 transition-colors">{item.title}</h3>
+                                <p className="text-slate-500 leading-relaxed text-sm font-medium">{item.desc}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -192,24 +192,24 @@ export default function ResearchPage() {
             </section>
 
             {/* Discovery Section */}
-            <section className="py-24 bg-slate-50 relative overflow-hidden">
+            <section className="py-32 bg-rose-50/20 relative overflow-hidden">
                 <div className="container mx-auto px-6 relative z-10">
-                    <div className="max-w-4xl mx-auto bg-white p-12 rounded-[40px] border border-slate-200 shadow-xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                    <div className="max-w-6xl mx-auto bg-white p-16 rounded-[60px] border border-rose-100 shadow-[0_40px_100px_rgba(244,63,94,0.08)] relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-80 h-80 bg-rose-500/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
 
-                        <div className="flex flex-col md:flex-row gap-12 items-center">
+                        <div className="flex flex-col md:flex-row gap-20 items-center">
                             <div className="flex-1">
-                                <h2 className="text-3xl font-bold text-slate-900 mb-6">Supporting discovery without overclaiming</h2>
-                                <p className="text-slate-600 leading-relaxed mb-6">
+                                <h2 className="text-4xl font-extrabold text-slate-800 mb-8 tracking-tight">Supporting discovery <br />without overclaiming</h2>
+                                <p className="text-slate-600 text-lg leading-relaxed mb-8 font-medium">
                                     CLARA™ is designed to support hypothesis generation, observational research, and evaluation of clinical processes and outcomes.
                                 </p>
-                                <p className="text-slate-600 leading-relaxed">
+                                <p className="text-slate-600 text-lg leading-relaxed font-medium">
                                     The platform does not presuppose causal inference where it cannot be justified, and is intended to complement—rather than replace—traditional experimental and clinical trial methodologies.
                                 </p>
                             </div>
-                            <div className="w-full md:w-64 aspect-square bg-slate-900 rounded-3xl flex items-center justify-center relative group">
-                                <div className="absolute inset-0 bg-teal-500/20 rounded-3xl blur opacity-0 group-hover:opacity-100 transition-opacity" />
-                                <BarChart3 className="h-20 w-20 text-teal-400 relative z-10" />
+                            <div className="w-full md:w-80 aspect-square bg-[#1A0A0E] rounded-[60px] flex items-center justify-center relative group shadow-2xl">
+                                <div className="absolute inset-0 bg-rose-500/20 rounded-[60px] blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                <BarChart3 className="h-24 w-24 text-rose-500 relative z-10 group-hover:scale-110 transition-transform duration-500" />
                             </div>
                         </div>
                     </div>
@@ -220,7 +220,7 @@ export default function ResearchPage() {
             <section className="py-20 bg-white">
                 <div className="container mx-auto px-6 text-center">
                     <Link href="/">
-                        <Button variant="ghost" className="gap-2 text-slate-600 hover:text-teal-600">
+                        <Button variant="ghost" className="gap-2 text-slate-600 hover:text-rose-600 font-extrabold h-12 px-8 rounded-full">
                             <ArrowLeft className="h-4 w-4" /> Back to Home
                         </Button>
                     </Link>

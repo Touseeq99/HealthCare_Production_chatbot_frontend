@@ -144,17 +144,17 @@ export function LoginForm() {
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-1.5">
+            <Label htmlFor="email" className="block text-sm font-black text-slate-800 mb-2 tracking-tight">
               Email Address
             </Label>
-            <div className="relative">
+            <div className="relative group">
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-slate-900 placeholder:text-slate-400"
+                className="w-full px-5 py-3.5 bg-rose-50/10 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-300 transition-all text-slate-900 placeholder:text-slate-400 font-medium"
                 disabled={isLoading}
                 required
               />
@@ -163,29 +163,29 @@ export function LoginForm() {
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <Label htmlFor="password" className="block text-sm font-semibold text-slate-700">
+              <Label htmlFor="password" className="block text-sm font-black text-slate-800 tracking-tight">
                 Password
               </Label>
-              <a href="/forgot-password" className="text-sm font-medium text-teal-600 hover:text-teal-500 transition-colors">
+              <a href="/forgot-password" university-link="" className="text-sm font-bold text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-wider">
                 Forgot password?
               </a>
             </div>
             <div className="relative">
-              <div className="relative">
+              <div className="relative group">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-slate-900 placeholder:text-slate-400 pr-10"
+                  className="w-full px-5 py-3.5 bg-rose-50/10 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-rose-500/10 focus:border-rose-300 transition-all text-slate-900 placeholder:text-slate-400 pr-12 font-medium"
                   disabled={isLoading}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-rose-500 transition-colors"
                   disabled={isLoading}
                 >
                   {showPassword ? (
@@ -202,12 +202,12 @@ export function LoginForm() {
         <div>
           <Button
             type="submit"
-            className={`w-full flex justify-center py-6 px-4 border border-transparent rounded-xl shadow-lg shadow-teal-500/20 text-sm font-bold text-white bg-teal-500 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all duration-200 ${isLoading ? 'opacity-80 scale-[0.98]' : 'hover:scale-[1.02]'}`}
+            className={`w-full flex justify-center py-5 px-4 border border-transparent rounded-2xl shadow-[0_15px_30px_rgba(244,63,94,0.15)] text-base font-black text-white bg-rose-500 hover:bg-rose-600 focus:outline-none focus:ring-4 focus:ring-rose-500/20 transition-all duration-300 tracking-tight ${isLoading ? 'opacity-80 scale-[0.98]' : 'hover:scale-[1.02] active:scale-[0.98]'}`}
             disabled={isLoading}
           >
             {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="flex items-center gap-3">
+                <div className="h-5 w-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                 <span>Signing in...</span>
               </div>
             ) : (
@@ -217,12 +217,12 @@ export function LoginForm() {
         </div>
       </form>
 
-      <div className="relative my-8">
+      <div className="relative my-7">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-slate-200" />
+          <span className="w-full border-t border-slate-100" />
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-slate-500 font-medium tracking-wider">Or continue with</span>
+        <div className="relative flex justify-center text-xs">
+          <span className="bg-white px-4 text-slate-400 font-bold uppercase tracking-[0.2em]">Or continue with</span>
         </div>
       </div>
 
@@ -230,7 +230,7 @@ export function LoginForm() {
         type="button"
         variant="outline"
         onClick={handleGoogleLogin}
-        className="w-full py-6 border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl transition-all flex items-center justify-center gap-3"
+        className="w-full py-5 border-slate-200 hover:bg-rose-50 hover:border-rose-200 text-slate-700 font-bold rounded-2xl transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path

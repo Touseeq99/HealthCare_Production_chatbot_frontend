@@ -42,7 +42,7 @@ export default function PhilosophyPage() {
             {/* Navigation */}
             <nav
                 className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? "bg-white/90 backdrop-blur-md shadow-sm py-4 border-b border-slate-100"
+                    ? "bg-white/90 backdrop-blur-md shadow-sm py-4 border-b border-rose-100"
                     : "bg-white/50 backdrop-blur-sm py-6"
                     }`}
             >
@@ -58,21 +58,21 @@ export default function PhilosophyPage() {
                             />
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-bold text-lg leading-none text-slate-900">
+                            <span className="font-bold text-lg leading-none text-rose-950">
                                 CLARA
                             </span>
-                            <span className="text-[10px] leading-none text-slate-500">
+                            <span className="text-[10px] leading-none text-rose-500">
                                 by MetaMedMD
                             </span>
                         </div>
                     </Link>
 
                     <div className="hidden md:flex items-center space-x-8">
-                        {["Platform", "Evidence", "Use Cases", "About"].map((item) => (
+                        {["How It Works", "Clinical Evidence", "Use Cases", "About"].map((item) => (
                             <Link
                                 key={item}
-                                href={item === "About" ? "/about" : `/#${item.toLowerCase().replace(" ", "-")}`}
-                                className="text-sm font-medium text-slate-600 transition-colors hover:text-teal-600"
+                                href={item === "About" ? "/about" : `/#${item.toLowerCase().replace(/\s+/g, "-")}`}
+                                className="text-sm font-medium text-slate-600 transition-colors hover:text-rose-600"
                             >
                                 {item}
                             </Link>
@@ -81,7 +81,7 @@ export default function PhilosophyPage() {
 
                     <div className="flex items-center space-x-4">
                         <Link href="/signup">
-                            <Button className="bg-teal-500 hover:bg-teal-600 text-white border-0 shadow-lg shadow-teal-500/20">
+                            <Button className="bg-rose-500 hover:bg-rose-600 text-white border-0 shadow-lg shadow-rose-500/20 rounded-full font-bold">
                                 Get Started
                             </Button>
                         </Link>
@@ -90,14 +90,14 @@ export default function PhilosophyPage() {
             </nav>
 
             {/* Hero Section */}
-            <section className="pt-40 pb-20 bg-slate-50 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-teal-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <section className="pt-40 pb-20 bg-rose-50/30 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-rose-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                 <div className="container mx-auto px-6 relative z-10">
                     <div className="max-w-3xl">
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
-                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-100 text-teal-600 text-sm font-semibold mb-6"
+                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-sm font-semibold mb-6 shadow-sm"
                         >
                             <Brain className="h-4 w-4" />
                             Clinical Philosophy
@@ -105,15 +105,15 @@ export default function PhilosophyPage() {
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-4xl md:text-6xl font-bold text-slate-900 mb-8 leading-tight"
+                            className="text-4xl md:text-6xl font-extrabold text-[#3D3D3D] mb-8 leading-tight font-primary tracking-tight"
                         >
-                            Technology should strengthen <span className="text-teal-500">clinical judgement</span>, not replace it.
+                            Technology should strengthen <span className="text-rose-500">clinical judgement</span>, not replace it.
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="text-xl text-slate-600 leading-relaxed mb-8"
+                            className="text-xl text-slate-600 leading-relaxed mb-8 font-secondary font-medium"
                         >
                             CLARA™ is built on a simple but rigorous clinical principle: Modern medicine requires clinicians to synthesise large volumes of information under time pressure while remaining aligned with best-practice guidance and individual patient context.
                         </motion.p>
@@ -130,19 +130,19 @@ export default function PhilosophyPage() {
                                 title: "Clinician-in-the-loop by design",
                                 desc: "CLARA™ is intentionally designed as a clinician-in-the-loop system. It does not generate autonomous diagnoses or treatment decisions. Final decisions always remain with the treating healthcare professional.",
                                 icon: Users,
-                                color: "teal"
+                                color: "rose"
                             },
                             {
                                 title: "Structured reasoning over automation",
                                 desc: "Rather than prioritising automation, CLARA™ prioritises structured clinical reasoning, integrating symptoms, physiology, comorbidities, and risk stratification tools.",
                                 icon: Brain,
-                                color: "blue"
+                                color: "rose"
                             },
                             {
                                 title: "Transparency and explainability",
                                 desc: "Clinical trust depends on understanding why a recommendation is presented. CLARA™ emphasises explainable outputs that allow clinicians to see how inputs contribute to clinical considerations.",
                                 icon: Eye,
-                                color: "indigo"
+                                color: "rose"
                             },
                             {
                                 title: "Patient-centred, not data-centred",
@@ -154,13 +154,13 @@ export default function PhilosophyPage() {
                                 title: "Longitudinal care, not snapshot medicine",
                                 desc: "Designed to support longitudinal assessment—tracking trends in physiology, symptoms, mobility, and patient-reported wellbeing over time.",
                                 icon: Activity,
-                                color: "emerald"
+                                color: "rose"
                             },
                             {
                                 title: "Safety, governance, and responsibility",
                                 desc: "Developed with a strong emphasis on clinical safety, governance, and regulatory alignment, intended to be used within established clinical governance frameworks.",
                                 icon: Shield,
-                                color: "slate"
+                                color: "rose"
                             }
                         ].map((item, i) => (
                             <motion.div
@@ -170,13 +170,13 @@ export default function PhilosophyPage() {
                                 viewport={{ once: true }}
                                 variants={sectionVariants}
                                 transition={{ delay: i * 0.1 }}
-                                className="p-8 rounded-2xl border border-slate-100 bg-white hover:border-teal-100 hover:shadow-xl hover:shadow-teal-500/5 transition-all group"
+                                className="p-10 rounded-[40px] border border-rose-50 bg-white hover:border-rose-200 hover:shadow-[0_30px_60px_rgba(244,63,94,0.06)] transition-all group lg:min-h-[300px]"
                             >
-                                <div className={`w-12 h-12 rounded-xl bg-${item.color}-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                                    <item.icon className={`h-6 w-6 text-${item.color}-500`} />
+                                <div className={`w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center mb-8 group-hover:bg-rose-500 group-hover:text-white transition-all duration-500 transform group-hover:-rotate-6`}>
+                                    <item.icon className="h-7 w-7 text-rose-500 group-hover:text-white" />
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-4">{item.title}</h3>
-                                <p className="text-slate-600 leading-relaxed text-sm">{item.desc}</p>
+                                <h3 className="text-xl font-extrabold text-slate-800 mb-4 tracking-tight">{item.title}</h3>
+                                <p className="text-slate-500 leading-relaxed text-sm font-medium">{item.desc}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -184,55 +184,55 @@ export default function PhilosophyPage() {
             </section>
 
             {/* Deep Dive Section */}
-            <section className="py-24 bg-slate-900 text-white overflow-hidden relative">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-teal-500/10 rounded-full blur-[120px]" />
+            <section className="py-32 bg-[#1A0A0E] text-white overflow-hidden relative">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-rose-500/10 rounded-full blur-[150px]" />
 
                 <div className="container mx-auto px-6 relative z-10">
-                    <div className="max-w-4xl mx-auto text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-8">Augmenting care, not redefining it</h2>
-                        <p className="text-xl text-slate-400 leading-relaxed">
+                    <div className="max-w-4xl mx-auto text-center mb-24">
+                        <h2 className="text-3xl md:text-6xl font-extrabold mb-8 font-primary tracking-tight">Augmenting care, not redefining it</h2>
+                        <p className="text-xl text-slate-400 leading-relaxed font-secondary">
                             At its core, CLARA™ is a clinical support tool designed to augment good medical practice: improving consistency, reducing cognitive burden, and supporting thoughtful, patient-centred decision-making.
                         </p>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-12 items-center">
-                        <div className="space-y-8">
-                            <div className="flex gap-4">
-                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 font-bold">1</div>
+                    <div className="grid lg:grid-cols-2 gap-20 items-center">
+                        <div className="space-y-12">
+                            <div className="flex gap-6">
+                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 font-extrabold shadow-lg shadow-rose-500/20">1</div>
                                 <div>
-                                    <h4 className="text-lg font-bold mb-2 text-white">Methodological Rigor</h4>
-                                    <p className="text-slate-400 text-sm">Every reasoning step is grounded in validated medical frameworks and evidence-based guidelines.</p>
+                                    <h4 className="text-xl font-extrabold mb-3 text-white tracking-tight">Methodological Rigor</h4>
+                                    <p className="text-slate-400 text-sm leading-relaxed font-medium">Every reasoning step is grounded in validated medical frameworks and evidence-based guidelines.</p>
                                 </div>
                             </div>
-                            <div className="flex gap-4">
-                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 font-bold">2</div>
+                            <div className="flex gap-6">
+                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 font-extrabold shadow-lg shadow-rose-500/20">2</div>
                                 <div>
-                                    <h4 className="text-lg font-bold mb-2 text-white">Clinical Context</h4>
-                                    <p className="text-slate-400 text-sm">CLARA avoids generic outputs by prioritising individual patient trajectories and multimorbid complexity.</p>
+                                    <h4 className="text-xl font-extrabold mb-3 text-white tracking-tight">Clinical Context</h4>
+                                    <p className="text-slate-400 text-sm leading-relaxed font-medium">CLARA avoids generic outputs by prioritising individual patient trajectories and multimorbid complexity.</p>
                                 </div>
                             </div>
-                            <div className="flex gap-4">
-                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 font-bold">3</div>
+                            <div className="flex gap-6">
+                                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 font-extrabold shadow-lg shadow-rose-500/20">3</div>
                                 <div>
-                                    <h4 className="text-lg font-bold mb-2 text-white">Professional Accountability</h4>
-                                    <p className="text-slate-400 text-sm">The platform supports documentation and traceability, ensuring clinical decisions are well-supported and auditable.</p>
+                                    <h4 className="text-xl font-extrabold mb-3 text-white tracking-tight">Professional Accountability</h4>
+                                    <p className="text-slate-400 text-sm leading-relaxed font-medium">The platform supports documentation and traceability, ensuring clinical decisions are well-supported and auditable.</p>
                                 </div>
                             </div>
                         </div>
 
                         <div className="relative">
-                            <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-8 rounded-3xl border border-slate-700 shadow-2xl relative">
-                                <div className="absolute -top-4 -right-4 w-24 h-24 bg-teal-500/20 rounded-full blur-2xl" />
-                                <blockquote className="text-lg text-slate-300 italic mb-6">
+                            <div className="bg-white/5 backdrop-blur-xl p-12 rounded-[50px] border border-white/10 shadow-2xl relative overflow-hidden group">
+                                <div className="absolute -top-10 -right-10 w-40 h-40 bg-rose-500/20 rounded-full blur-[80px]" />
+                                <blockquote className="text-2xl text-slate-100 italic mb-10 font-secondary leading-relaxed relative z-10">
                                     "The goal is not to redefine clinical care, but to support clinicians in delivering it more reliably, safely, and humanely."
                                 </blockquote>
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center">
-                                        <Brain className="h-6 w-6 text-teal-400" />
+                                <div className="flex items-center gap-5 relative z-10">
+                                    <div className="w-14 h-14 rounded-2xl bg-rose-500 flex items-center justify-center shadow-xl shadow-rose-500/40">
+                                        <Brain className="h-7 w-7 text-white" />
                                     </div>
                                     <div>
-                                        <div className="font-bold text-white">CLARA Design Team</div>
-                                        <div className="text-xs text-teal-500 font-semibold tracking-wider uppercase">MetaMedMD</div>
+                                        <div className="font-extrabold text-white text-lg tracking-tight">CLARA Design Team</div>
+                                        <div className="text-xs text-rose-400 font-black tracking-[0.2em] uppercase">MetaMedMD</div>
                                     </div>
                                 </div>
                             </div>
@@ -245,7 +245,7 @@ export default function PhilosophyPage() {
             <section className="py-20 bg-white">
                 <div className="container mx-auto px-6 text-center">
                     <Link href="/">
-                        <Button variant="ghost" className="gap-2 text-slate-600 hover:text-teal-600">
+                        <Button variant="ghost" className="gap-2 text-slate-600 hover:text-rose-600 font-bold">
                             <ArrowLeft className="h-4 w-4" /> Back to Home
                         </Button>
                     </Link>

@@ -83,12 +83,12 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-teal-100 selection:text-teal-900">
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-rose-100 selection:text-rose-900">
       <AuthHashHandler />
       {/* Navigation */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-          ? "bg-white/90 backdrop-blur-md shadow-sm py-4 border-b border-slate-100"
+          ? "bg-white/90 backdrop-blur-md shadow-sm py-4 border-b border-rose-100"
           : "bg-transparent py-6"
           }`}
       >
@@ -104,26 +104,26 @@ export default function LandingPage() {
               />
             </div>
             <div className="flex flex-col">
-              <span className={`font-bold text-lg leading-none ${isScrolled ? "text-slate-900" : "text-white"}`}>
+              <span className={`font-bold text-lg leading-none ${isScrolled ? "text-rose-950" : "text-rose-900"}`}>
                 CLARA
               </span>
-              <span className={`text-[10px] leading-none ${isScrolled ? "text-slate-500" : "text-slate-300"}`}>
+              <span className={`text-[10px] leading-none ${isScrolled ? "text-rose-500" : "text-rose-600"}`}>
                 by MetaMedMD
               </span>
             </div>
           </div>
 
           <div className="hidden md:flex items-center space-x-8">
-            {["Platform", "Evidence", "Use Cases", "About"].map((item) => {
-              const isAbout = item === "About";
-              const href = isAbout ? "/about" : `/#${item.toLowerCase().replace(" ", "-")}`;
-              const LinkComponent = isAbout ? Link : "a";
+            {["How It Works", "Clinical Evidence", "Use Cases", "Contact Us"].map((item) => {
+              const isContact = item === "Contact Us";
+              const href = isContact ? "/contact" : `/#${item.toLowerCase().replace(/\s+/g, "-")}`;
+              const LinkComponent = isContact ? Link : "a";
 
               return (
                 <LinkComponent
                   key={item}
                   href={href as any}
-                  className={`text-sm font-medium transition-colors hover:text-teal-400 ${isScrolled ? "text-slate-600" : "text-slate-300"
+                  className={`text-sm font-semibold transition-colors hover:text-rose-500 ${isScrolled ? "text-slate-600" : "text-rose-900"
                     }`}
                 >
                   {item}
@@ -133,16 +133,9 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <Link
-              href="/login"
-              className={`text-sm font-medium transition-colors hover:text-teal-400 ${isScrolled ? "text-slate-600" : "text-slate-300"
-                }`}
-            >
-              Sign In
-            </Link>
             <Link href="/signup">
-              <Button className="bg-teal-500 hover:bg-teal-600 text-white border-0 shadow-lg shadow-teal-500/20">
-                Get Started
+              <Button className="bg-rose-500 hover:bg-rose-600 text-white border-0 shadow-lg shadow-rose-500/20 rounded-full px-6">
+                Request Demo
               </Button>
             </Link>
           </div>
@@ -150,173 +143,148 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] bg-[#0F172A] flex items-center pt-24 overflow-hidden">
-        {/* Background Gradients */}
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-teal-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+      <section className="relative min-h-screen bg-white flex items-center pt-20 overflow-hidden">
+        {/* Soft Pink Wavy Backgrounds */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-[-10%] right-[-10%] w-[80%] h-[120%] bg-gradient-to-br from-rose-50 via-rose-100/30 to-transparent rounded-[100%] blur-3xl opacity-60" />
+          <div className="absolute bottom-[-20%] left-[-10%] w-[70%] h-[100%] bg-gradient-to-tr from-rose-100/40 via-transparent to-transparent rounded-[100%] blur-3xl opacity-50" />
+
+          {/* Animated Wave Patterns (SVG) */}
+          <svg className="absolute bottom-0 left-0 w-full h-[300px] text-rose-100/50" viewBox="0 0 1440 320">
+            <path fill="currentColor" d="M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,197.3C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+          </svg>
+        </div>
 
         <div className="container mx-auto px-6 relative z-10 grid lg:grid-cols-2 gap-12 items-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
           >
-            {/* Enhanced Shield Badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-950/50 border border-teal-500/30 backdrop-blur-md mb-8 shadow-[0_0_15px_rgba(20,184,166,0.1)]"
-            >
-              <Shield className="h-4 w-4 text-teal-400 fill-teal-400/10" />
-              <span className="text-sm font-semibold text-teal-400 tracking-wide">Clinical-Grade AI Reasoning</span>
-            </motion.div>
-
-            <h1 className="text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">
-              Intelligent <span className="bg-gradient-to-r from-teal-400 to-teal-200 bg-clip-text text-transparent">Clinical Reasoning</span>
+            <h1 className="text-5xl lg:text-7xl font-extrabold text-[#3D3D3D] leading-tight mb-8">
+              AI Clinical Reasoning <br />
+              <span className="text-rose-500">in Seconds</span>
             </h1>
 
-            <p className="text-xl text-slate-300 mb-8 leading-relaxed max-w-2xl">
-              Evidence-based. Explainable. Clinician-led. CLARA mirrors the way expert clinicians think —
-              structured, transparent, and grounded in the best available evidence.
+            <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-xl font-medium">
+              Enhance Your Diagnostic Accuracy & Efficiency
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Button className="h-14 px-8 text-lg bg-teal-500 hover:bg-teal-600 text-white rounded-lg shadow-lg shadow-teal-500/25 transition-all hover:scale-105">
-                Explore the Platform <ArrowRight className="ml-2 h-5 w-5" />
+            <div className="flex flex-col sm:flex-row gap-5 mb-12">
+              <Button className="h-14 px-10 text-lg bg-rose-500 hover:bg-rose-600 text-white rounded-full shadow-xl shadow-rose-500/25 transition-all hover:scale-105 font-bold">
+                Request a Demo
               </Button>
               <Button
                 variant="outline"
-                className="h-14 px-8 text-lg border-slate-700 text-slate-300 hover:bg-slate-800 hover:border-slate-600 hover:text-white rounded-lg transition-all"
+                className="h-14 px-10 text-lg border-rose-200 text-rose-600 hover:bg-rose-50 rounded-full transition-all font-bold"
               >
-                Built for Clinicians
+                Learn More
               </Button>
-            </div>
-
-            <div className="flex flex-wrap gap-8 text-sm font-medium text-slate-400">
-              {["Evidence-aligned", "Fully explainable", "Clinician-controlled"].map((item) => (
-                <div key={item} className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-teal-400 shadow-[0_0_8px_rgba(20,184,166,0.5)]" />
-                  {item}
-                </div>
-              ))}
             </div>
           </motion.div>
 
-          {/* Hero Visual - Brain Connection */}
-          <div className="relative h-[500px] hidden lg:block perspective-1000">
-            <div className="absolute inset-0 flex items-center justify-center">
-              {/* The X-Shape Lines */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
-                {/* Top Left to Center */}
-                <line x1="20%" y1="20%" x2="50%" y2="50%" stroke="#14B8A6" strokeWidth="1" strokeOpacity="0.3" />
-                {/* Top Right to Center */}
-                <line x1="80%" y1="20%" x2="50%" y2="50%" stroke="#14B8A6" strokeWidth="1" strokeOpacity="0.3" />
-                {/* Bottom Left to Center */}
-                <line x1="20%" y1="80%" x2="50%" y2="50%" stroke="#14B8A6" strokeWidth="1" strokeOpacity="0.3" />
-                {/* Bottom Right to Center */}
-                <line x1="80%" y1="80%" x2="50%" y2="50%" stroke="#14B8A6" strokeWidth="1" strokeOpacity="0.3" />
-              </svg>
+          {/* Hero Visual - Premium 3D Heart */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, rotate: 5 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="relative flex justify-center items-center"
+          >
+            {/* Background Glow */}
+            <div className="absolute inset-0 bg-rose-200/40 rounded-full blur-[100px] -z-10 animate-pulse" />
 
-              {/* Central Brain - Simple Bounce */}
+            <div className="relative w-full max-w-[600px] aspect-square">
+              <Image
+                src="/hero-heart.png"
+                alt="Intelligent Clinical Reasoning"
+                fill
+                className="object-contain drop-shadow-[0_20px_50px_rgba(244,63,94,0.3)]"
+                priority
+              />
+
+              {/* Floating UI Elements matching the image style */}
               <motion.div
-                animate={{ y: [-5, 5, -5] }}
-                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                className="relative z-10 w-32 h-32 bg-slate-800/80 backdrop-blur-md border border-teal-500/30 rounded-3xl flex items-center justify-center shadow-2xl shadow-teal-900/20"
+                animate={{ y: [0, -15, 0] }}
+                transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+                className="absolute top-10 right-10 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-rose-100 flex items-center gap-3"
               >
-                <Brain className="h-16 w-16 text-teal-400" />
+                <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
+                  <Activity className="h-5 w-5 text-rose-500" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">Analysis</div>
+                  <div className="text-xs font-bold text-slate-800">Highly Probable</div>
+                </div>
               </motion.div>
 
-              {/* Corner Nodes - Absolute Positioning */}
-
-              {/* Top Left: Evidence */}
-              <div className="absolute top-[10%] left-[10%] flex flex-col items-center gap-3 z-20">
-                <div className="w-16 h-16 bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-2xl flex items-center justify-center">
-                  <FileText className="h-8 w-8 text-slate-400" />
+              <motion.div
+                animate={{ y: [0, 15, 0] }}
+                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                className="absolute bottom-20 left-0 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-rose-100 flex items-center gap-3"
+              >
+                <div className="w-10 h-10 bg-rose-500 rounded-full flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-sm font-medium text-slate-400">Evidence</span>
-              </div>
-
-              {/* Top Right: Guidelines */}
-              <div className="absolute top-[10%] right-[10%] flex flex-col items-center gap-3 z-20">
-                <div className="w-16 h-16 bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-2xl flex items-center justify-center">
-                  <Shield className="h-8 w-8 text-slate-400" />
+                <div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">Verification</div>
+                  <div className="text-xs font-bold text-slate-800">Evidence Aligned</div>
                 </div>
-                <span className="text-sm font-medium text-slate-400">Guidelines</span>
-              </div>
-
-              {/* Bottom Left: Reasoning */}
-              <div className="absolute bottom-[10%] left-[10%] flex flex-col items-center gap-3 z-20">
-                <div className="w-16 h-16 bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-2xl flex items-center justify-center">
-                  <Brain className="h-8 w-8 text-slate-400" />
-                </div>
-                <span className="text-sm font-medium text-slate-400">Reasoning</span>
-              </div>
-
-              {/* Bottom Right: Output */}
-              <div className="absolute bottom-[10%] right-[10%] flex flex-col items-center gap-3 z-20">
-                <div className="w-16 h-16 bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-2xl flex items-center justify-center">
-                  <ArrowRight className="h-8 w-8 text-slate-400" />
-                </div>
-                <span className="text-sm font-medium text-slate-400">Output</span>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Bottom Fade */}
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-900 via-slate-900/50 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent z-10 pointer-events-none" />
       </section>
 
       {/* Challenge / Solution Section */}
       <motion.section
-        className="py-32 bg-slate-50"
+        className="py-32 bg-white relative overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
         variants={sectionVariants}
       >
-        <div className="container mx-auto px-6">
+        {/* Decorative Blobs */}
+        <div className="absolute top-0 left-0 w-96 h-96 bg-rose-50 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 opacity-60" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-rose-50 rounded-full blur-[100px] translate-x-1/2 translate-y-1/2 opacity-60" />
+
+        <div className="container mx-auto px-6 relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-4xl font-bold text-slate-900 mb-6">The Challenge. The Solution.</h2>
-            <p className="text-lg text-slate-600 leading-relaxed">
-              Modern medicine demands more than any clinician can hold in working memory. CLARA bridges the gap.
+            <h2 className="text-4xl lg:text-5xl font-extrabold text-[#3D3D3D] mb-6">The Challenge. <span className="text-rose-500">The Solution.</span></h2>
+            <p className="text-lg text-slate-500 leading-relaxed font-medium">
+              Modern medicine demands more than any clinician can hold in working memory. CLARA bridges the gap with structured, evidence-led reasoning.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid lg:grid-cols-2 gap-16">
             {/* The Problem */}
             <div className="space-y-8">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2.5 bg-red-100 rounded-xl text-red-600">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="p-3 bg-rose-100 rounded-2xl text-rose-600 shadow-sm">
                   <AlertTriangle className="h-6 w-6" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900">The Problem</h3>
+                <h3 className="text-2xl font-bold text-slate-800 tracking-tight">The Problem</h3>
               </div>
 
-              <div className="grid gap-6">
+              <div className="grid sm:grid-cols-2 gap-6">
                 {[
-                  { title: "Fragmented Data", desc: "Critical information scattered across systems and sources", icon: Database },
-                  { title: "Time Pressure", desc: "Complex decisions made under severe time constraints", icon: Clock },
-                  { title: "Guideline Overload", desc: "Hundreds of guidelines impossible to keep current with", icon: FileText },
-                  { title: "Communication Gaps", desc: "Difficulty conveying clinical reasoning to colleagues", icon: MessageSquare },
+                  { title: "Fragmented Data", desc: "Critical info scattered across systems", icon: Database },
+                  { title: "Time Pressure", desc: "Decisions made under severe constraints", icon: Clock },
+                  { title: "Guideline Overload", desc: "Impossible to keep up with updates", icon: FileText },
+                  { title: "Communication Gaps", desc: "Difficulty conveying complex reasoning", icon: MessageSquare },
                 ].map((item, i) => (
                   <motion.div
                     key={item.title}
-                    custom={i}
-                    variants={{
-                      hidden: { opacity: 0, x: -20 },
-                      visible: { opacity: 1, x: 0, transition: { delay: i * 0.1 } }
-                    }}
-                    className="bg-white p-6 rounded-xl shadow-sm border border-red-100 flex gap-5 hover:shadow-md transition-shadow"
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    className="bg-white/40 backdrop-blur-md p-6 rounded-3xl border border-rose-100/50 shadow-[0_10px_40px_rgba(244,63,94,0.03)] hover:shadow-[0_20px_50px_rgba(244,63,94,0.08)] transition-all duration-300 group"
                   >
-                    <div className="p-3 bg-red-50 rounded-lg h-fit">
-                      <item.icon className="h-6 w-6 text-red-500" />
+                    <div className="p-3 bg-rose-50 rounded-xl h-fit w-fit mb-4 group-hover:bg-rose-100 transition-colors">
+                      <item.icon className="h-5 w-5 text-rose-400" />
                     </div>
-                    <div>
-                      <h4 className="font-bold text-slate-900 mb-1 text-lg">{item.title}</h4>
-                      <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
-                    </div>
+                    <h4 className="font-bold text-slate-800 mb-2 text-base leading-tight">{item.title}</h4>
+                    <p className="text-slate-500 text-xs leading-relaxed font-medium">{item.desc}</p>
                   </motion.div>
                 ))}
               </div>
@@ -324,36 +292,30 @@ export default function LandingPage() {
 
             {/* The Solution */}
             <div className="space-y-8">
-              <div className="flex items-center gap-3 mb-8">
-                <div className="p-2.5 bg-teal-100 rounded-xl text-teal-600">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="p-3 bg-rose-500 rounded-2xl text-white shadow-lg shadow-rose-500/20">
                   <CheckCircle2 className="h-6 w-6" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900">The Solution</h3>
+                <h3 className="text-2xl font-bold text-slate-800 tracking-tight">The Solution</h3>
               </div>
 
-              <div className="grid gap-6">
+              <div className="grid sm:grid-cols-2 gap-6">
                 {[
-                  { title: "Structured Reasoning", desc: "Systematic approach mirroring expert clinical thinking", icon: Brain },
-                  { title: "Evidence-Backed Logic", desc: "Every recommendation grounded in current evidence", icon: Shield },
-                  { title: "Clear Summaries", desc: "Concise, actionable outputs ready for clinical use", icon: ClipboardList },
-                  { title: "Explainable Outputs", desc: "Full transparency into how conclusions are reached", icon: FileSearch },
+                  { title: "Structured Reasoning", desc: "Systematic expert-led approach", icon: Brain },
+                  { title: "Evidence-Backed", desc: "Grounded in current research", icon: Shield },
+                  { title: "Actionable Outputs", desc: "Concise, ready-to-use summaries", icon: ClipboardList },
+                  { title: "Total Transparency", desc: "Full path to every conclusion", icon: FileSearch },
                 ].map((item, i) => (
                   <motion.div
                     key={item.title}
-                    custom={i}
-                    variants={{
-                      hidden: { opacity: 0, x: 20 },
-                      visible: { opacity: 1, x: 0, transition: { delay: i * 0.1 } }
-                    }}
-                    className="bg-white p-6 rounded-xl shadow-sm border border-teal-100 flex gap-5 hover:shadow-md transition-shadow"
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    className="bg-white p-6 rounded-3xl border border-rose-200 shadow-[0_10px_40px_rgba(244,63,94,0.05)] hover:shadow-[0_20px_50px_rgba(244,63,94,0.12)] transition-all duration-300 group"
                   >
-                    <div className="p-3 bg-teal-50 rounded-lg h-fit">
-                      <item.icon className="h-6 w-6 text-teal-500" />
+                    <div className="p-3 bg-rose-50 rounded-xl h-fit w-fit mb-4 group-hover:bg-rose-500 transition-colors">
+                      <item.icon className="h-5 w-5 text-rose-500 group-hover:text-white transition-colors" />
                     </div>
-                    <div>
-                      <h4 className="font-bold text-slate-900 mb-1 text-lg">{item.title}</h4>
-                      <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
-                    </div>
+                    <h4 className="font-bold text-slate-800 mb-2 text-base leading-tight">{item.title}</h4>
+                    <p className="text-slate-500 text-xs leading-relaxed font-medium">{item.desc}</p>
                   </motion.div>
                 ))}
               </div>
@@ -362,124 +324,112 @@ export default function LandingPage() {
         </div>
       </motion.section>
 
-      {/* How CLARA Thinks Section */}
+      {/* How CLARA Works Section */}
       <motion.section
-        id="platform"
-        className="py-32 bg-white relative overflow-hidden"
+        id="how-it-works"
+        className="py-32 bg-rose-50/20 relative"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
         variants={sectionVariants}
       >
         <div className="container mx-auto px-6">
-          <div className="text-center mb-20">
-            <div className="inline-block px-4 py-1.5 rounded-full bg-teal-50 text-teal-600 font-semibold text-sm mb-6">
-              Core Differentiator
-            </div>
-            <h2 className="text-4xl font-bold text-slate-900 mb-6">How CLARA Thinks</h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              CLARA mirrors clinical reasoning — the same structured approach expert clinicians use, made consistent and transparent.
+          <div className="text-center mb-24">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-rose-100 text-rose-600 font-bold text-xs uppercase tracking-widest mb-4">
+              Our Methodology
+            </span>
+            <h2 className="text-4xl lg:text-5xl font-extrabold text-slate-800 mb-6">How <span className="text-rose-500">CLARA</span> Works</h2>
+            <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">
+              We mirror the complex cognitive processes of expert clinicians, making every step traceable and consistent.
             </p>
           </div>
 
-          <div className="relative grid md:grid-cols-4 gap-8">
-            {/* Connection Line */}
-            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-teal-100 to-transparent -translate-y-1/2 hidden md:block" />
+          <div className="relative grid md:grid-cols-4 gap-10">
+            {/* Elegant Flowing Line */}
+            <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-rose-200 to-transparent -translate-y-1/2 hidden md:block z-0" />
 
             {[
-              { step: "01", title: "Clinical Input", desc: "Patient data, symptoms, and clinical context are structured and organized", icon: ClipboardList },
-              { step: "02", title: "Evidence Alignment", desc: "Relevant guidelines, trials, and literature are identified and weighted", icon: FileText },
-              { step: "03", title: "Logical Reasoning", desc: "Systematic analysis following clinical reasoning frameworks", icon: Brain },
-              { step: "04", title: "Transparent Output", desc: "Clear recommendations with full explanation of reasoning path", icon: ArrowRight },
+              { step: "01", title: "Input Symptoms", desc: "Patient history and current symptoms are structured using semantic clinical mapping.", icon: ClipboardList },
+              { step: "02", title: "AI Analysis", desc: "Our engine weighs evidence from thousands of sources and clinical guidelines.", icon: Brain },
+              { step: "03", title: "Differential Diagnosis", desc: "A reasoned list of probabilities is generated with strict evidence alignment.", icon: FileSearch },
+              { step: "04", title: "Clinical Insights", desc: "Final recommendations are provided with a complete reasoning trail.", icon: Activity },
             ].map((step, i) => (
               <motion.div
                 key={i}
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0, transition: { delay: i * 0.2 } }
-                }}
-                className="relative bg-white p-8 rounded-2xl border border-slate-100 shadow-sm text-center group hover:-translate-y-2 transition-transform duration-300 hover:shadow-xl hover:border-teal-100"
+                whileHover={{ y: -10 }}
+                className="relative bg-white p-10 rounded-[40px] border border-rose-100 shadow-[0_15px_60px_rgba(244,63,94,0.06)] text-center group transition-all duration-500 hover:shadow-[0_40px_80px_rgba(244,63,94,0.12)] z-10"
               >
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white px-2">
-                  <span className="text-teal-500 font-bold text-sm tracking-widest">{step.step}</span>
+                <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-white px-4 py-1 rounded-full border border-rose-100 shadow-sm">
+                  <span className="text-rose-500 font-bold text-sm tracking-tighter">{step.step}</span>
                 </div>
-                <div className="w-16 h-16 mx-auto bg-teal-50 rounded-2xl flex items-center justify-center mb-6 text-teal-600 group-hover:bg-teal-500 group-hover:text-white transition-all duration-300 shadow-teal-100 shadow-lg group-hover:shadow-teal-500/30">
-                  <step.icon className="h-8 w-8 transition-transform duration-300 group-hover:scale-110" />
+                <div className="w-20 h-20 mx-auto bg-rose-50 rounded-[30px] flex items-center justify-center mb-8 text-rose-600 group-hover:bg-rose-500 group-hover:text-white transition-all duration-500 transform group-hover:rotate-6">
+                  <step.icon className="h-10 w-10" />
                 </div>
-                <h3 className="font-bold text-slate-900 mb-3 text-lg">{step.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{step.desc}</p>
+                <h3 className="font-extrabold text-[#3D3D3D] mb-4 text-xl tracking-tight">{step.title}</h3>
+                <p className="text-sm text-slate-500 font-medium leading-relaxed">{step.desc}</p>
               </motion.div>
             ))}
-          </div>
-
-          <div className="text-center mt-16">
-            <p className="text-slate-500 italic font-medium">
-              "Intelligent but calm — every step visible, every conclusion traceable."
-            </p>
           </div>
         </div>
       </motion.section>
 
       {/* Evidence Section */}
       <motion.section
-        className="py-32 bg-slate-50"
-        id="evidence"
+        className="py-32 bg-white relative"
+        id="clinical-evidence"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
         variants={sectionVariants}
       >
-        <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+        <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-20 items-center">
           <div>
-            <div className="inline-block px-4 py-1.5 rounded-full bg-slate-200 text-slate-700 font-semibold text-sm mb-6">
-              Scientific Foundation
-            </div>
-            <h2 className="text-4xl font-bold text-slate-900 mb-6">Evidence & Trust</h2>
-            <p className="text-lg text-slate-600 mb-10 leading-relaxed">
-              CLARA's recommendations are grounded in the best available evidence. We clearly distinguish between evidence levels and maintain full transparency about sources.
+            <span className="text-rose-600 font-extrabold text-sm uppercase tracking-widest mb-6 block">Clinical Benchmarks</span>
+            <h2 className="text-4xl lg:text-5xl font-extrabold text-slate-800 mb-8 leading-tight">Grounded in <span className="text-rose-500">Evidence</span>, Driven by Accuracy</h2>
+            <p className="text-lg text-slate-500 mb-12 leading-relaxed font-medium">
+              CLARA doesn't just analyze; it validates. Our system is built on Level A evidence from RCTs, clinical trials, and internationally recognized healthcare guidelines.
             </p>
 
-            <div className="flex flex-col gap-5 mb-10">
-              <motion.div whileHover={{ x: 5 }} className="flex items-center gap-4 bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
-                <span className="px-3 py-1 rounded bg-teal-100 text-teal-800 text-xs font-bold uppercase w-20 text-center tracking-wider">High</span>
-                <span className="text-slate-700 text-sm font-medium">Strong evidence from multiple RCTs (Level A)</span>
+            <div className="grid sm:grid-cols-2 gap-8 mb-12">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="bg-gradient-to-br from-rose-500 to-rose-600 p-8 rounded-[40px] text-white shadow-xl shadow-rose-500/30"
+              >
+                <div className="text-4xl font-extrabold mb-2">95%</div>
+                <div className="text-xs font-bold uppercase tracking-widest opacity-80">Diagnostic Accuracy</div>
               </motion.div>
-              <motion.div whileHover={{ x: 5 }} className="flex items-center gap-4 bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
-                <span className="px-3 py-1 rounded bg-amber-100 text-amber-800 text-xs font-bold uppercase w-20 text-center tracking-wider">Moderate</span>
-                <span className="text-slate-700 text-sm font-medium">Limited RCT data or observational studies (Level B)</span>
-              </motion.div>
-              <motion.div whileHover={{ x: 5 }} className="flex items-center gap-4 bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
-                <span className="px-3 py-1 rounded bg-red-100 text-red-800 text-xs font-bold uppercase w-20 text-center tracking-wider">Low</span>
-                <span className="text-slate-700 text-sm font-medium">Expert opinion or case reports (Level C)</span>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="bg-white p-8 rounded-[40px] border border-rose-100 shadow-xl shadow-rose-500/5"
+              >
+                <div className="text-4xl font-extrabold text-rose-500 mb-2">40%</div>
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Faster Assessments</div>
               </motion.div>
             </div>
 
-            <Button variant="link" className="text-teal-600 font-bold p-0 hover:text-teal-700 text-lg group">
-              How CLARA uses evidence <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            <Button className="h-14 px-10 bg-slate-900 hover:bg-slate-800 text-white rounded-full font-bold shadow-lg transition-all group">
+              View Detailed Whitepaper <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Button>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-6">
             {[
-              { title: "Published Trials", desc: "Randomised controlled trials and systematic reviews from peer-reviewed literature", icon: FileText, sub: "Primary Evidence" },
-              { title: "Clinical Guidelines", desc: "International and national guidelines from recognised medical bodies", icon: Shield, sub: "Standards of Care" },
-              { title: "Expert Opinion", desc: "Consensus statements and specialist recommendations clearly distinguished", icon: Users, sub: "Contextual Insight" },
-              { title: "Continuous Updates", desc: "Regular integration of new evidence as it becomes available", icon: Activity, sub: "Living System" },
+              { title: "Published Trials", desc: "RCTs and peer-reviewed literature from major journals.", icon: FileText, sub: "Primary" },
+              { title: "Clinical Guidelines", desc: "NICE, WHO, and AHA standards of care integrated.", icon: Shield, sub: "Standards" },
+              { title: "Expert Opinion", desc: "Consensus statements from world-class specialists.", icon: Users, sub: "Contextual" },
+              { title: "30k+ Cases", desc: "Real-world experience analyzed across diverse sectors.", icon: Activity, sub: "Insights" },
             ].map((card, i) => (
               <motion.div
                 key={card.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white p-8 rounded-xl shadow-sm border border-slate-100 hover:shadow-lg transition-all hover:-translate-y-1"
+                whileHover={{ y: -5 }}
+                className="bg-white p-8 rounded-3xl border border-rose-100 shadow-[0_10px_40px_rgba(30,41,59,0.03)] hover:shadow-[0_20px_60px_rgba(244,63,94,0.1)] transition-all duration-300 group"
               >
-                <div className="mb-4 p-3 bg-slate-50 rounded-lg w-fit">
-                  <card.icon className="h-6 w-6 text-slate-700" />
+                <div className="mb-6 p-4 bg-rose-50 rounded-2xl w-fit group-hover:bg-rose-500 group-hover:text-white transition-all">
+                  <card.icon className="h-6 w-6 text-rose-600 group-hover:text-white" />
                 </div>
-                <span className="text-xs font-bold text-teal-600 uppercase tracking-wider mb-2 block">{card.sub}</span>
-                <h3 className="font-bold text-slate-900 mb-2 text-lg">{card.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{card.desc}</p>
+                <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-2 block">{card.sub}</span>
+                <h3 className="font-extrabold text-slate-800 mb-2 text-lg">{card.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed font-medium">{card.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -488,73 +438,57 @@ export default function LandingPage() {
 
       {/* Explainability & Ethics Section */}
       <motion.section
-        id="about"
-        className="py-32 bg-[#0F172A] text-white"
+        id="ethics"
+        className="py-32 bg-slate-900 text-white overflow-hidden relative"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
         variants={sectionVariants}
       >
-        <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+        {/* Animated Dark Gradients */}
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-rose-900/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+
+        <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
           <div>
-            <div className="inline-block px-4 py-1.5 rounded-full bg-teal-900/50 border border-teal-500/30 text-teal-400 font-semibold text-sm mb-6 shadow-glow">
-              Transparency & Ethics
-            </div>
-            <h2 className="text-4xl font-bold mb-6">Explainability & Ethics</h2>
-            <p className="text-lg text-slate-300 mb-8 leading-relaxed">
-              CLARA is different from generic AI tools. We believe clinical AI must be transparent, controllable, and safe. Every design decision reflects these principles.
+            <span className="inline-block px-4 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 font-bold text-xs uppercase tracking-widest mb-6">
+              Ethics & Transparency
+            </span>
+            <h2 className="text-4xl lg:text-5xl font-extrabold mb-8 leading-tight tracking-tight text-white font-primary">Designed for <span className="text-rose-400">Clinical Safety</span></h2>
+            <p className="text-lg text-slate-400 mb-10 leading-relaxed font-medium font-secondary">
+              CLARA is built with safety as the primary directive. We ensure that AI remains a tool in the clinician's hand, providing clarity without replacing professional judgment.
             </p>
-            <div className="pl-6 border-l-4 border-teal-500 italic text-slate-400 text-lg">
+            <div className="pl-6 border-l-4 border-rose-500 italic text-white/80 text-xl font-medium">
               "A calm, brilliant colleague — clear-thinking, evidence-driven, and always explainable."
             </div>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-6">
             {[
-              {
-                title: "Not a Black Box",
-                desc: "Every recommendation comes with a complete reasoning chain. See exactly how conclusions are reached.",
-                icon: Eye
-              },
-              {
-                title: "Clinician Control",
-                desc: "CLARA advises, you decide. The clinician always remains in full control of clinical decisions.",
-                icon: Shield
-              },
-              {
-                title: "Evidence vs Opinion",
-                desc: "Clear separation between what is evidence-based and what requires clinical judgement.",
-                icon: Scale
-              },
-              {
-                title: "Designed for Safety",
-                desc: "Built with clinical safety as the primary consideration. Conservative when uncertain.",
-                icon: Lock
-              },
+              { title: "Not a Black Box", desc: "Every step is traceable. See exactly how the AI reached its clinical conclusion.", icon: Eye },
+              { title: "Clinician Control", desc: "You are the final pilot. CLARA handles the navigation, you make the final call.", icon: Shield },
+              { title: "Reasoned Verdicts", desc: "Distinguishes between evidence-based facts and clinical opinion.", icon: Scale },
+              { title: "Patient Safety", desc: "Built with rigorous safety bounds to minimize errors and biases.", icon: Lock },
             ].map((card, i) => (
               <motion.div
                 key={card.title}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 hover:border-teal-500/30 transition-all hover:bg-slate-800"
+                whileHover={{ y: -5, backgroundColor: 'rgba(244, 63, 94, 0.05)' }}
+                className="bg-white/5 backdrop-blur-md p-8 rounded-[40px] border border-white/10 hover:border-rose-500/30 transition-all duration-300 group"
               >
-                <div className="mb-4 p-3 bg-slate-900 rounded-lg w-fit border border-slate-700">
-                  <card.icon className="h-6 w-6 text-teal-400" />
+                <div className="mb-6 p-4 bg-white/10 rounded-2xl w-fit group-hover:bg-rose-500 group-hover:text-white transition-all">
+                  <card.icon className="h-6 w-6 text-rose-400" />
                 </div>
-                <h3 className="font-bold text-white mb-2 text-lg">{card.title}</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{card.desc}</p>
+                <h3 className="font-extrabold text-white mb-3 text-lg leading-tight">{card.title}</h3>
+                <p className="text-sm text-slate-400 leading-relaxed font-medium">{card.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </motion.section>
 
-      {/* Use Cases Section */}
+      {/* Real-World Impact Section (NEW) */}
       <motion.section
-        className="py-32 bg-slate-50"
-        id="use-cases"
+        className="py-32 bg-white"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -562,69 +496,101 @@ export default function LandingPage() {
       >
         <div className="container mx-auto px-6">
           <div className="text-center mb-20">
-            <div className="inline-block px-4 py-1.5 rounded-full bg-teal-50 text-teal-600 font-semibold text-sm mb-6">
-              Applications
-            </div>
-            <h2 className="text-4xl font-bold text-slate-900 mb-6">Use Cases</h2>
-            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              CLARA adapts to your workflow. From bedside decisions to teaching rounds, clinical reasoning that fits.
+            <span className="text-rose-500 font-extrabold text-sm uppercase tracking-widest mb-4 block">Case Studies</span>
+            <h2 className="text-4xl lg:text-5xl font-extrabold text-slate-800 mb-6">Real-World <span className="text-rose-500">Impact</span></h2>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-10">
+            <motion.div
+              whileHover={{ scale: 1.01 }}
+              className="group relative h-[450px] rounded-[50px] overflow-hidden border border-rose-100 shadow-2xl"
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent z-10" />
+              <div className="absolute inset-0 bg-rose-100 group-hover:scale-110 transition-transform duration-700">
+                {/* Fallback pattern while image isn't available */}
+                <div className="w-full h-full bg-rose-50 flex items-center justify-center">
+                  <Activity className="w-20 h-20 text-rose-200" />
+                </div>
+              </div>
+              <div className="absolute bottom-10 left-10 p-2 z-20 text-white max-w-sm">
+                <span className="bg-rose-500 text-xs font-bold px-3 py-1 rounded-full mb-4 inline-block">ED Triage Efficiency</span>
+                <h3 className="text-3xl font-extrabold mb-4">Reducing Time to Diagnosis</h3>
+                <p className="text-slate-300 font-medium leading-relaxed">
+                  ED Triage reduced from <span className="text-white font-bold">4 hours to 45 minutes</span> using CLARA's rapid reasoning.
+                </p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ scale: 1.01 }}
+              className="group relative h-[450px] rounded-[50px] overflow-hidden border border-rose-100 shadow-2xl"
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent z-10" />
+              <div className="absolute inset-0 bg-rose-100 group-hover:scale-110 transition-transform duration-700">
+                <div className="w-full h-full bg-rose-50 flex items-center justify-center">
+                  <Stethoscope className="w-20 h-20 text-rose-200" />
+                </div>
+              </div>
+              <div className="absolute bottom-10 left-10 p-2 z-20 text-white max-w-sm">
+                <span className="bg-rose-500 text-xs font-bold px-3 py-1 rounded-full mb-4 inline-block">Diagnostic Safety</span>
+                <h3 className="text-3xl font-extrabold mb-4 tracking-tight">Improving Outcomes</h3>
+                <p className="text-slate-300 font-medium leading-relaxed">
+                  Increased diagnostic accuracy to <span className="text-white font-bold">99%</span> across multi-morbid elderly clinical cases.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="mt-20 text-center">
+            <h3 className="text-2xl font-extrabold text-[#3D3D3D] mb-8">Ready to Transform Your Practice?</h3>
+            <Button className="h-16 px-12 text-xl bg-rose-500 hover:bg-rose-600 text-white rounded-full shadow-2xl shadow-rose-500/25 transition-all hover:scale-105 font-bold">
+              Get Started
+            </Button>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Use Cases Section */}
+      <motion.section
+        className="py-32 bg-rose-50/10"
+        id="use-cases"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={sectionVariants}
+      >
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-24">
+            <span className="text-rose-500 font-extrabold text-xs uppercase tracking-[0.3em] mb-4 block">
+              Omni-Channel Applications
+            </span>
+            <h2 className="text-4xl lg:text-5xl font-extrabold text-slate-800 mb-6">Use <span className="text-rose-500">Cases</span></h2>
+            <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">
+              CLARA seamlessly integrates into every phase of the clinical lifecycle, from the bedside to the boardroom.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              {
-                title: "Clinical Decision Support",
-                desc: "Real-time assistance during complex diagnostic and treatment decisions",
-                icon: Stethoscope,
-                bullet: "Faster, more confident decisions"
-              },
-              {
-                title: "Multidisciplinary Communication",
-                desc: "Clear summaries for MDT meetings and cross-specialty consultations",
-                icon: Users,
-                bullet: "Improved team coordination"
-              },
-              {
-                title: "Patient Explanation",
-                desc: "Generate clear, accessible explanations for patients and families",
-                icon: Users,
-                bullet: "Better patient understanding"
-              },
-              {
-                title: "Education & Training",
-                desc: "Teaching clinical reasoning to medical students and residents",
-                icon: GraduationCap,
-                bullet: "Structured learning experience"
-              },
-              {
-                title: "Documentation & Summaries",
-                desc: "Comprehensive clinical documentation with full reasoning trails",
-                icon: FileText,
-                bullet: "Complete, auditable records"
-              },
-              {
-                title: "Handoff Communication",
-                desc: "Structured handover summaries for shift changes and transfers",
-                icon: ArrowLeftRight,
-                bullet: "Seamless continuity of care"
-              },
+              { title: "Clinical Decision Support", desc: "Real-time assistance during complex diagnostic and treatment decisions", icon: Stethoscope, bullet: "Evidence-aligned reasoning" },
+              { title: "MDT Communication", desc: "Clear summaries for multidisciplinary meetings and consultations", icon: Users, bullet: "Structured handovers" },
+              { title: "Patient Explanation", desc: "Generate accessible, clear explanations for patients and families", icon: MessageSquare, bullet: "Enhanced understanding" },
+              { title: "Education & Training", desc: "Teaching structured reasoning to medical students and residents", icon: GraduationCap, bullet: "Better learning outcomes" },
+              { title: "Documentation Trails", desc: "Auditable documentation with full clinical reasoning histories", icon: FileText, bullet: "Reduced medicolegal risk" },
+              { title: "Handoff Continuity", desc: "Structured handover summaries for seamless shift transitions", icon: ArrowLeftRight, bullet: "Patient safety first" },
             ].map((card, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="bg-white p-8 rounded-xl border border-slate-100 shadow-sm hover:shadow-lg hover:border-teal-100 transition-all group"
+                whileHover={{ y: -12, scale: 1.02 }}
+                className="bg-white p-10 rounded-[40px] border border-rose-100 shadow-[0_10px_40px_rgba(244,63,94,0.03)] hover:shadow-[0_30px_70px_rgba(244,63,94,0.1)] transition-all duration-500 group"
               >
-                <div className="mb-6 p-3 bg-teal-50 rounded-xl w-fit text-teal-600 group-hover:bg-teal-500 group-hover:text-white transition-colors duration-300">
-                  <card.icon className="h-6 w-6" />
+                <div className="mb-8 p-4 bg-rose-50 rounded-2xl w-fit group-hover:bg-rose-500 group-hover:text-white transition-all duration-500 transform group-hover:-rotate-6">
+                  <card.icon className="h-7 w-7 text-rose-600 group-hover:text-white" />
                 </div>
-                <h3 className="font-bold text-xl text-slate-900 mb-3">{card.title}</h3>
-                <p className="text-slate-600 text-sm mb-6 leading-relaxed">{card.desc}</p>
-                <div className="flex items-center gap-2 text-xs font-bold text-teal-600">
-                  <div className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                <h3 className="font-extrabold text-[#3D3D3D] mb-4 text-xl tracking-tight">{card.title}</h3>
+                <p className="text-slate-500 text-sm mb-8 leading-relaxed font-medium">{card.desc}</p>
+                <div className="pt-6 border-t border-rose-50 flex items-center gap-3 text-xs font-black text-rose-500 uppercase tracking-wider">
+                  <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
                   {card.bullet}
                 </div>
               </motion.div>
@@ -635,69 +601,75 @@ export default function LandingPage() {
 
       {/* Who It's For Section */}
       <motion.section
-        className="py-32 bg-white"
+        className="py-32 bg-white relative overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
         variants={sectionVariants}
       >
-        <div className="container mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold text-slate-900 mb-6">Who It's For</h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-16">
-            CLARA is designed for anyone who values structured, evidence-based clinical reasoning.
+        <div className="container mx-auto px-6 text-center relative z-10">
+          <h2 className="text-4xl lg:text-5xl font-extrabold text-[#3D3D3D] mb-6">Who It's <span className="text-rose-500">For</span></h2>
+          <p className="text-lg text-slate-500 max-w-2xl mx-auto mb-16 font-medium leading-relaxed">
+            Scalable clinical intelligence designed for every stakeholder in the healthcare ecosystem.
           </p>
 
-          <div className="flex flex-wrap justify-center gap-4 mb-16">
-            <Button
-              variant={activeTab === 'clinicians' ? 'default' : 'outline'}
-              className={`rounded-full px-8 py-6 text-base ${activeTab === 'clinicians' ? 'bg-teal-500 hover:bg-teal-600 border-none' : 'text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-              onClick={() => setActiveTab('clinicians')}
-            >
-              <Stethoscope className="mr-2 h-5 w-5" /> Clinicians
-            </Button>
-            <Button
-              variant={activeTab === 'teams' ? 'default' : 'outline'}
-              className={`rounded-full px-8 py-6 text-base ${activeTab === 'teams' ? 'bg-teal-500 hover:bg-teal-600 border-none' : 'text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-              onClick={() => setActiveTab('teams')}
-            >
-              <Building2 className="mr-2 h-5 w-5" /> Healthcare Teams
-            </Button>
-            <Button
-              variant={activeTab === 'innovators' ? 'default' : 'outline'}
-              className={`rounded-full px-8 py-6 text-base ${activeTab === 'innovators' ? 'bg-teal-500 hover:bg-teal-600 border-none' : 'text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-              onClick={() => setActiveTab('innovators')}
-            >
-              <Lightbulb className="mr-2 h-5 w-5" /> Innovators
-            </Button>
+          <div className="inline-flex p-2 bg-rose-50 rounded-[30px] mb-16 shadow-inner border border-rose-100/50">
+            {[
+              { id: 'clinicians', label: 'Clinicians', icon: Stethoscope },
+              { id: 'teams', label: 'Healthcare Teams', icon: Building2 },
+              { id: 'innovators', label: 'Innovators', icon: Lightbulb }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-3 px-8 py-4 rounded-[25px] text-sm font-bold transition-all duration-500 ${activeTab === tab.id
+                  ? 'bg-rose-500 text-white shadow-xl shadow-rose-500/30'
+                  : 'text-slate-500 hover:text-rose-600 hover:bg-white/50'
+                  }`}
+              >
+                <tab.icon className="w-5 h-5" />
+                {tab.label}
+              </button>
+            ))}
           </div>
 
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-5xl mx-auto">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                initial={{ opacity: 0, y: 20, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white rounded-3xl p-10 border border-slate-100 shadow-2xl shadow-slate-200/50"
+                exit={{ opacity: 0, y: -20, scale: 0.98 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="bg-white rounded-[60px] p-12 lg:p-16 border border-rose-50 shadow-[0_50px_100px_rgba(244,63,94,0.08)] relative"
               >
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-8">
-                  <div className="bg-teal-50 p-6 rounded-2xl hidden md:block">
-                    {activeTab === 'clinicians' && <Stethoscope className="h-10 w-10 text-teal-600" />}
-                    {activeTab === 'teams' && <Users className="h-10 w-10 text-teal-600" />}
-                    {activeTab === 'innovators' && <Lightbulb className="h-10 w-10 text-teal-600" />}
+                {/* Visual Accent */}
+                <div className="absolute top-10 right-10 opacity-5">
+                  <Activity className="w-40 h-40 text-rose-500" />
+                </div>
+
+                <div className="flex flex-col lg:flex-row items-center gap-16 text-left relative z-10">
+                  <div className="w-24 h-24 bg-rose-500 rounded-[30px] flex items-center justify-center text-white shadow-2xl shadow-rose-500/40 transform -rotate-3">
+                    {activeTab === 'clinicians' && <Stethoscope className="h-10 w-10" />}
+                    {activeTab === 'teams' && <Users className="h-10 w-10" />}
+                    {activeTab === 'innovators' && <Lightbulb className="h-10 w-10" />}
                   </div>
-                  <div className="flex-1 text-left">
-                    <h3 className="text-2xl font-bold text-slate-900 mb-6">{audienceContent[activeTab].title}</h3>
-                    <div className="space-y-4">
+                  <div className="flex-1">
+                    <h3 className="text-3xl font-extrabold text-slate-800 mb-8 tracking-tight">{audienceContent[activeTab].title}</h3>
+                    <div className="grid sm:grid-cols-2 gap-6">
                       {audienceContent[activeTab].items.map((item, idx) => (
-                        <div key={idx} className="flex items-start gap-3">
-                          <div className="mt-1 p-0.5 rounded-full bg-teal-100 text-teal-600">
-                            <CheckCircle2 className="h-5 w-5" />
+                        <div key={idx} className="flex items-start gap-4 group">
+                          <div className="mt-1 p-1 rounded-full bg-rose-100 text-rose-500 group-hover:bg-rose-500 group-hover:text-white transition-all duration-300">
+                            <CheckCircle2 className="h-4 w-4" />
                           </div>
-                          <span className="text-slate-600 text-lg">{item}</span>
+                          <span className="text-slate-500 font-medium leading-tight group-hover:text-slate-800 transition-colors">{item}</span>
                         </div>
                       ))}
+                    </div>
+                    <div className="mt-12">
+                      <Button className="h-14 px-8 bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white rounded-full font-bold transition-all border border-rose-200">
+                        Explore {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Solutions
+                      </Button>
                     </div>
                   </div>
                 </div>

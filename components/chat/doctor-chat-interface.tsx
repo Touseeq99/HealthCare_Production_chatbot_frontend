@@ -56,10 +56,10 @@ const MessageBubble = memo(({ message, isAi }: { message: Message; isAi: boolean
         <div className="flex-shrink-0">
           <div
             className={cn(
-              "h-10 w-10 rounded-full flex items-center justify-center shadow-lg border",
+              "h-10 w-10 rounded-full flex items-center justify-center shadow-md border",
               isAi
-                ? "bg-slate-800 border-slate-700 text-teal-400"
-                : "bg-teal-600 border-teal-500 text-white"
+                ? "bg-rose-50 border-rose-100 text-rose-600"
+                : "bg-rose-600 border-rose-500 text-white"
             )}
           >
             {isAi ? <Bot className="h-5 w-5" /> : <User className="h-5 w-5" />}
@@ -72,12 +72,12 @@ const MessageBubble = memo(({ message, isAi }: { message: Message; isAi: boolean
             className={cn(
               "px-5 py-4 rounded-2xl shadow-sm",
               isAi
-                ? "bg-slate-800 text-slate-200 border border-slate-700 rounded-tl-sm"
-                : "bg-teal-600 text-white border border-teal-500 rounded-tr-sm"
+                ? "bg-white text-slate-800 border border-rose-100 rounded-tl-sm"
+                : "bg-rose-600 text-white border border-rose-500 rounded-tr-sm"
             )}
           >
             {isAi ? (
-              <div className="prose prose-sm prose-invert max-w-none prose-p:text-slate-300 prose-headings:text-slate-100 prose-strong:text-teal-400">
+              <div className="prose prose-sm max-w-none prose-p:text-slate-700 prose-headings:text-slate-900 prose-strong:text-rose-600">
                 <StructuredResponse content={message.content} />
               </div>
             ) : (
@@ -100,14 +100,14 @@ const TypingIndicator = ({ message }: { message: string }) => (
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0 }}
-    className="flex items-center gap-3 px-4 py-3 bg-slate-800/80 backdrop-blur-sm rounded-xl w-fit border border-slate-700 shadow-sm transition-all duration-500"
+    className="flex items-center gap-3 px-4 py-3 bg-white/80 backdrop-blur-sm rounded-xl w-fit border border-rose-100 shadow-sm transition-all duration-500"
   >
     <div className="flex gap-1.5">
-      <div className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-bounce [animation-delay:-0.3s]" />
-      <div className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-bounce [animation-delay:-0.15s]" />
-      <div className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-bounce" />
+      <div className="h-1.5 w-1.5 rounded-full bg-rose-400 animate-bounce [animation-delay:-0.3s]" />
+      <div className="h-1.5 w-1.5 rounded-full bg-rose-400 animate-bounce [animation-delay:-0.15s]" />
+      <div className="h-1.5 w-1.5 rounded-full bg-rose-400 animate-bounce" />
     </div>
-    <span className="text-xs font-medium text-teal-400 animate-pulse">{message}</span>
+    <span className="text-xs font-black text-rose-500 animate-pulse uppercase tracking-wider">{message}</span>
   </motion.div>
 )
 
@@ -343,11 +343,11 @@ export function DoctorChatInterface() {
   }, [messages, isStreaming, streamingContent])
 
   return (
-    <div className="flex h-screen bg-[#0F172A] text-slate-200 overflow-hidden font-sans">
+    <div className="flex h-screen bg-slate-50 text-slate-800 overflow-hidden font-sans">
       {/* Subtle background gradients */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-200/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-rose-300/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
       </div>
 
       <Tabs defaultValue="chat" value={activeTab} onValueChange={setActiveTab} className="flex w-full h-full z-10">
@@ -359,19 +359,19 @@ export function DoctorChatInterface() {
               animate={{ width: 288, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="fixed lg:relative inset-y-0 left-0 z-50 bg-slate-900/95 backdrop-blur-sm border-r border-slate-800 shadow-2xl lg:shadow-none overflow-hidden flex flex-col"
+              className="fixed lg:relative inset-y-0 left-0 z-50 bg-white backdrop-blur-sm border-r border-rose-100 shadow-2xl lg:shadow-none overflow-hidden flex flex-col"
             >
-              <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+              <div className="p-4 border-b border-rose-100 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-teal-500/10 border border-teal-500/20 rounded-lg flex items-center justify-center">
-                    <Stethoscope className="h-4 w-4 text-teal-400" />
+                  <div className="w-8 h-8 bg-rose-500/10 border border-rose-500/20 rounded-lg flex items-center justify-center">
+                    <Stethoscope className="h-4 w-4 text-rose-500" />
                   </div>
                   <div>
-                    <h1 className="font-bold text-white text-sm tracking-tight">CLARA MD</h1>
-                    <p className="text-[10px] text-teal-500 uppercase font-semibold tracking-wider">Clinician Mode</p>
+                    <h1 className="font-black text-rose-950 text-sm tracking-tight">CLARA MD</h1>
+                    <p className="text-[10px] text-rose-500 uppercase font-black tracking-wider">Clinician Mode</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)} className="text-slate-400 hover:text-white hover:bg-slate-800">
+                <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)} className="text-slate-400 hover:text-rose-600 hover:bg-rose-50">
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -396,10 +396,10 @@ export function DoctorChatInterface() {
                 />
               </div>
 
-              <div className="p-4 border-t border-slate-800 bg-slate-900/50">
+              <div className="p-4 border-t border-rose-100 bg-rose-50/30">
                 <Button
                   variant="ghost"
-                  className="w-full justify-start gap-2 text-slate-400 hover:text-red-400 hover:bg-red-950/20 transition-colors"
+                  className="w-full justify-start gap-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors font-bold"
                   onClick={handleLogout}
                 >
                   <LogOut className="h-4 w-4" />
@@ -413,44 +413,44 @@ export function DoctorChatInterface() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col h-full relative overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md z-20">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-rose-100 bg-white/80 backdrop-blur-md z-20">
             <div className="flex items-center gap-4">
               {(!isSidebarOpen || activeTab !== 'chat') && (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-slate-400 hover:text-teal-400 hover:bg-slate-800"
+                  className="text-slate-400 hover:text-rose-600 hover:bg-rose-50"
                   onClick={() => setIsSidebarOpen(true)}
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
               )}
 
-              <TabsList className="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
+              <TabsList className="flex bg-rose-50/50 p-1 rounded-xl border border-rose-100">
                 <TabsTrigger
                   value="chat"
-                  className="px-4 py-1.5 rounded-md text-sm font-medium text-slate-400 data-[state=active]:bg-teal-600 data-[state=active]:text-white transition-all flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg text-sm font-black text-slate-500 data-[state=active]:bg-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-rose-500/20 transition-all flex items-center gap-2 uppercase tracking-tight"
                 >
                   <MessageSquare className="w-4 h-4" />
                   Clinical Chat
                 </TabsTrigger>
                 <TabsTrigger
                   value="evidence"
-                  className="px-4 py-1.5 rounded-md text-sm font-medium text-slate-400 data-[state=active]:bg-teal-600 data-[state=active]:text-white transition-all flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg text-sm font-black text-slate-500 data-[state=active]:bg-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-rose-500/20 transition-all flex items-center gap-2 uppercase tracking-tight"
                 >
                   <Shield className="w-4 h-4" />
                   Evidence Base
                 </TabsTrigger>
                 <TabsTrigger
                   value="note"
-                  className="px-4 py-1.5 rounded-md text-sm font-medium text-slate-400 data-[state=active]:bg-teal-600 data-[state=active]:text-white transition-all flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg text-sm font-black text-slate-500 data-[state=active]:bg-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-rose-500/20 transition-all flex items-center gap-2 uppercase tracking-tight"
                 >
                   <ClipboardList className="w-4 h-4" />
                   Clinical Note
                 </TabsTrigger>
                 <TabsTrigger
                   value="diff-dx"
-                  className="px-4 py-1.5 rounded-md text-sm font-medium text-slate-400 data-[state=active]:bg-teal-600 data-[state=active]:text-white transition-all flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg text-sm font-black text-slate-500 data-[state=active]:bg-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-rose-500/20 transition-all flex items-center gap-2 uppercase tracking-tight"
                 >
                   <Microscope className="w-4 h-4" />
                   Differential Dx
@@ -459,7 +459,7 @@ export function DoctorChatInterface() {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-xs font-medium text-teal-400 flex items-center gap-2">
+              <div className="px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-[10px] font-black uppercase tracking-widest text-rose-600 flex items-center gap-2">
                 <Activity className="w-3 h-3" />
                 <span>System Active</span>
               </div>
@@ -484,13 +484,13 @@ export function DoctorChatInterface() {
                       transition={{ delay: 0.1 }}
                       className="flex flex-col items-center gap-6"
                     >
-                      <div className="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center shadow-2xl border border-slate-700 relative group">
-                        <div className="absolute inset-0 bg-teal-500/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-50" />
-                        <Stethoscope className="w-10 h-10 text-teal-400 relative z-10" />
+                      <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-xl border border-rose-100 relative group">
+                        <div className="absolute inset-0 bg-rose-500/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-50" />
+                        <Stethoscope className="w-10 h-10 text-rose-500 relative z-10" />
                       </div>
                       <div>
-                        <h2 className="text-4xl font-bold text-white tracking-tight mb-2">CLARA MD</h2>
-                        <p className="text-slate-400 text-lg">Advanced Clinical Decision Support System</p>
+                        <h2 className="text-4xl font-black text-rose-950 tracking-tighter mb-2">CLARA MD</h2>
+                        <p className="text-slate-500 text-lg font-medium">Advanced Clinical Decision Support System</p>
                       </div>
                     </motion.div>
 
@@ -508,14 +508,14 @@ export function DoctorChatInterface() {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.2 + (i * 0.1) }}
                           onClick={item.action}
-                          className="flex items-start gap-4 p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-teal-500/50 hover:bg-slate-800 transition-all group text-left"
+                          className="flex items-start gap-4 p-5 rounded-2xl bg-white border border-rose-100/50 hover:border-rose-500/50 hover:shadow-xl hover:shadow-rose-500/5 transition-all group text-left shadow-sm"
                         >
-                          <div className="p-2.5 rounded-lg bg-slate-900 group-hover:bg-teal-500/10 transition-colors">
-                            <item.icon className="w-5 h-5 text-slate-400 group-hover:text-teal-400" />
+                          <div className="p-2.5 rounded-xl bg-rose-50/50 group-hover:bg-rose-500 text-rose-500 group-hover:text-white transition-all">
+                            <item.icon className="w-5 h-5" />
                           </div>
                           <div>
-                            <span className="block font-semibold text-slate-200 group-hover:text-white">{item.title}</span>
-                            <span className="text-xs text-slate-500 group-hover:text-slate-400">{item.desc}</span>
+                            <span className="block font-black text-slate-800 group-hover:text-rose-950 tracking-tight">{item.title}</span>
+                            <span className="text-xs text-slate-500 group-hover:text-slate-600 font-medium">{item.desc}</span>
                           </div>
                         </motion.button>
                       ))}
@@ -552,9 +552,9 @@ export function DoctorChatInterface() {
             </AnimatePresence>
 
             {/* Input Area */}
-            <div className="border-t border-slate-800 bg-slate-900/90 backdrop-blur-md p-4 lg:px-8 z-20">
+            <div className="border-t border-rose-100 bg-white/90 backdrop-blur-md p-4 lg:px-8 z-20">
               <div className="max-w-4xl mx-auto">
-                <div className="relative flex items-end gap-3 bg-slate-800/80 rounded-2xl p-2 border border-slate-700 focus-within:ring-2 focus-within:ring-teal-500/50 focus-within:border-teal-500 transition-all shadow-lg">
+                <div className="relative flex items-end gap-3 bg-rose-50/30 rounded-2xl p-2 border border-rose-100 focus-within:ring-4 focus-within:ring-rose-500/10 focus-within:border-rose-300 transition-all shadow-sm">
                   <Textarea
                     ref={textareaRef}
                     value={inputMessage}
@@ -566,7 +566,7 @@ export function DoctorChatInterface() {
                       }
                     }}
                     placeholder="Enter clinical query or patient details..."
-                    className="w-full min-h-[48px] max-h-[200px] bg-transparent border-0 focus-visible:ring-0 px-4 py-3 resize-none text-base text-slate-200 placeholder:text-slate-500"
+                    className="w-full min-h-[48px] max-h-[200px] bg-transparent border-0 focus-visible:ring-0 px-4 py-3 resize-none text-base text-slate-800 placeholder:text-slate-400 font-medium"
                     disabled={isLoading}
                     rows={1}
                   />
@@ -575,28 +575,28 @@ export function DoctorChatInterface() {
                     disabled={!inputMessage.trim() || isLoading}
                     onClick={() => handleSendMessage()}
                     className={cn(
-                      "h-10 w-10 rounded-xl mb-1 mr-1 transition-all duration-200",
+                      "h-10 w-10 rounded-xl mb-1 mr-1 transition-all duration-300",
                       inputMessage.trim()
-                        ? "bg-teal-500 hover:bg-teal-400 text-white shadow-lg shadow-teal-500/20"
-                        : "bg-slate-700 text-slate-500 cursor-not-allowed"
+                        ? "bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/20 scale-100 hover:scale-105 active:scale-95"
+                        : "bg-slate-100 text-slate-400 cursor-not-allowed"
                     )}
                   >
                     {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                   </Button>
                 </div>
-                <p className="text-[10px] text-slate-500 text-center mt-3">
+                <p className="text-[10px] text-slate-400 text-center mt-3 font-black uppercase tracking-[0.2em]">
                   AI-generated clinical support tool. Verify all results with standard medical protocols.
                 </p>
               </div>
             </div>
           </TabsContent>
 
-          <TabsContent value="evidence" className="h-full overflow-hidden m-0 bg-slate-900">
+          <TabsContent value="evidence" className="h-full overflow-hidden m-0 bg-slate-50">
             <div className="h-full overflow-auto p-6">
-              <div className="max-w-7xl mx-auto bg-slate-800 rounded-2xl border border-slate-700 min-h-full">
-                <div className="p-6">
-                  <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
-                    <Shield className="w-6 h-6 text-teal-400" />
+              <div className="max-w-7xl mx-auto bg-white rounded-3xl border border-rose-100 min-h-full shadow-sm">
+                <div className="p-8">
+                  <h2 className="text-3xl font-black text-rose-950 mb-6 flex items-center gap-4 tracking-tighter">
+                    <Shield className="w-8 h-8 text-rose-500" />
                     Evidence Engine
                   </h2>
                   <EvidenceEngine />
@@ -605,13 +605,13 @@ export function DoctorChatInterface() {
             </div>
           </TabsContent>
 
-          <TabsContent value="note" className="h-full overflow-hidden m-0 bg-slate-900">
+          <TabsContent value="note" className="h-full overflow-hidden m-0 bg-slate-50">
             <div className="h-full overflow-y-auto">
               <AIClinicalNote />
             </div>
           </TabsContent>
 
-          <TabsContent value="diff-dx" className="h-full overflow-hidden m-0 bg-[#0B1523]">
+          <TabsContent value="diff-dx" className="h-full overflow-hidden m-0 bg-slate-50">
             <div className="h-full overflow-y-auto">
               <DifferentialDiagnosis />
             </div>
@@ -631,6 +631,6 @@ export function DoctorChatInterface() {
           />
         )}
       </AnimatePresence>
-    </div>
+    </div >
   )
 }

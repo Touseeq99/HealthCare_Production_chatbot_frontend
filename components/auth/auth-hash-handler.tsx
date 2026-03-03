@@ -4,6 +4,9 @@ import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { setCookie } from "@/lib/cookies"
+import { motion, AnimatePresence } from "framer-motion"
+import { Loader2, Heart } from "lucide-react"
+import Image from "next/image"
 
 /**
  * This component handles OAuth redirects that use the Implicit Flow
@@ -108,10 +111,62 @@ export function AuthHashHandler() {
     // If we detect auth is happening, we show a loading overlay to prevent the login form flash
     if (isAuthDetected.current) {
         return (
-            <div className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center">
-                <div className="h-10 w-10 border-4 border-teal-500/30 border-t-teal-500 rounded-full animate-spin mb-4" />
-                <p className="text-slate-600 font-medium">Authenticating...</p>
-            </div>
+            <AnimatePresence>
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center font-sans"
+                >
+                    {/* Subtle background elements */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-100/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
+                        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-rose-50 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+                    </div>
+
+                    <div className="relative flex flex-col items-center z-10">
+                        <motion.div
+                            animate={{
+                                scale: [1, 1.05, 1],
+                                opacity: [0.8, 1, 0.8],
+                            }}
+                            transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                            className="relative mb-12"
+                        >
+                            <div className="relative w-16 h-16 transition-transform hover:scale-110">
+                                <Image
+                                    src="/MetamedMDlogo (2).png"
+                                    alt="MetaMedMD Logo"
+                                    width={64}
+                                    height={64}
+                                    className="object-contain"
+                                    priority
+                                />
+                                <div className="absolute -inset-4 border border-rose-100 rounded-full animate-[spin_4s_linear_infinite]" />
+                                <div className="absolute -inset-8 border border-rose-50 rounded-full animate-[spin_6s_linear_infinite_reverse]" />
+                            </div>
+                        </motion.div>
+
+                        <div className="text-center space-y-3">
+                            <h2 className="text-2xl font-black text-rose-950 tracking-tighter uppercase leading-none">CLARA</h2>
+                            <div className="flex items-center gap-2 justify-center">
+                                <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-bounce [animation-delay:-0.3s]" />
+                                <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-bounce [animation-delay:-0.15s]" />
+                                <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-bounce" />
+                            </div>
+                            <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.4em] mt-4">Establishing Secure Node</p>
+                        </div>
+                    </div>
+
+                    <div className="absolute bottom-12 text-center">
+                        <p className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Clinical Data Sync In Progress</p>
+                    </div>
+                </motion.div>
+            </AnimatePresence>
         );
     }
 

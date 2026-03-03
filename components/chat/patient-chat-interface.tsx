@@ -3,8 +3,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,7 +13,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CopyButton } from "@/components/ui/copy-button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { formatTime } from "@/lib/date-utils"
-import { BookOpen, MessageCircle, Calendar, User, Heart, Zap, Menu, PanelLeftClose, X } from "lucide-react"
+import {
+  BookOpen,
+  MessageCircle,
+  Calendar,
+  User,
+  Heart,
+  Zap,
+  Menu,
+  PanelLeftClose,
+  X,
+  ArrowRight,
+  Shield,
+  Loader2
+} from "lucide-react"
 import { MarkdownRenderer } from "./markdown-renderer"
 import { useChatSessions } from "@/hooks/use-chat-sessions"
 import { ChatSessionsSidebar } from "./chat-sessions-sidebar"
@@ -366,18 +379,18 @@ export function PatientChatInterface() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0F172A] flex flex-col font-sans relative overflow-hidden text-slate-200">
+    <div className="min-h-screen bg-white flex flex-col font-sans relative overflow-hidden text-slate-900">
       {/* Subtle animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-teal-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-rose-200/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-rose-300/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
       </div>
 
       <motion.header
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-sm relative z-10"
+        className="bg-white/80 backdrop-blur-md border-b border-rose-100 shadow-sm relative z-50"
       >
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <motion.div
@@ -390,28 +403,23 @@ export function PatientChatInterface() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="text-slate-400 hover:text-teal-400 hover:bg-slate-800"
+                className="text-slate-400 hover:text-rose-600 hover:bg-rose-50"
               >
                 {isSidebarOpen ? <PanelLeftClose className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
-              <div className="w-10 h-10 bg-teal-500/10 border border-teal-500/20 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/10 group">
-                <motion.div
-                  animate={{
-                    scale: [1, 1.1, 1],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                  }}
-                  className="group-hover:text-teal-400 text-teal-500"
-                >
-                  <Heart className="w-5 h-5 fill-current" strokeWidth={2.5} />
-                </motion.div>
+              <div className="relative w-10 h-10 transition-transform hover:scale-105">
+                <Image
+                  src="/MetamedMDlogo (2).png"
+                  alt="MetaMedMD Logo"
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                  priority
+                />
               </div>
               <div>
-                <h2 className="font-bold text-2xl text-white tracking-tight">CLARA</h2>
-                <p className="text-xs text-teal-500 font-medium uppercase tracking-wider">Patient Assistant</p>
+                <h2 className="font-black text-2xl text-rose-950 tracking-tighter uppercase leading-none">CLARA</h2>
+                <p className="text-[10px] text-rose-50 font-black uppercase tracking-widest mt-1 bg-rose-500 px-2 py-0.5 rounded-full inline-block">Patient Assistant</p>
               </div>
             </div>
           </motion.div>
@@ -423,404 +431,344 @@ export function PatientChatInterface() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.3 }}
           >
-            <motion.div
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className="border-rose-100 text-slate-500 bg-white hover:bg-rose-50 hover:text-rose-600 transition-all duration-300 shadow-sm font-bold rounded-xl"
             >
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                size="sm"
-                className="border-slate-700 text-slate-400 bg-slate-800 hover:bg-slate-700 hover:text-white transition-all duration-300 shadow-sm"
-              >
-                Sign Out
-              </Button>
-            </motion.div>
+              Sign Out
+            </Button>
           </motion.div>
         </div>
       </motion.header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col pt-2 relative z-10">
-        <Tabs value={tab} onValueChange={(v) => setTab(v as "chat" | "blog")} className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col pt-2 relative z-10 overflow-hidden">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as "chat" | "blog")} className="flex-1 flex flex-col overflow-hidden">
           <motion.div
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.3 }}
-            className="bg-slate-900/50 backdrop-blur-sm border-b border-slate-800 px-4"
+            className="bg-white/50 backdrop-blur-sm px-4 pb-2"
           >
             <div className="max-w-6xl mx-auto">
-              <TabsList className="grid w-full grid-cols-2 bg-slate-800 p-1 h-12 rounded-xl border border-slate-700">
+              <TabsList className="grid w-full grid-cols-2 bg-rose-50/50 p-1 h-12 rounded-2xl border border-rose-100 shadow-sm">
                 <TabsTrigger
                   value="chat"
-                  className="flex items-center gap-2 data-[state=active]:bg-teal-500 data-[state=active]:text-white rounded-lg transition-all duration-200 h-10 text-slate-400 hover:text-white"
+                  className="flex items-center gap-2 rounded-xl transition-all duration-300 h-10 text-slate-500 data-[state=active]:bg-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-rose-500/20 font-black uppercase tracking-widest text-[10px]"
                 >
-                  <MessageCircle className="h-4 w-4" strokeWidth={2} />
-                  <span className="font-medium">Chat Assistant</span>
+                  <MessageCircle className="h-4 w-4" strokeWidth={3} />
+                  <span>Clinical Chat</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="blog"
-                  className="flex items-center gap-2 data-[state=active]:bg-teal-500 data-[state=active]:text-white rounded-lg transition-all duration-200 h-10 text-slate-400 hover:text-white"
+                  className="flex items-center gap-2 rounded-xl transition-all duration-300 h-10 text-slate-500 data-[state=active]:bg-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-rose-500/20 font-black uppercase tracking-widest text-[10px]"
                 >
-                  <BookOpen className="h-4 w-4" strokeWidth={2} />
-                  <span className="font-medium">Health Articles ({blogPosts.length})</span>
+                  <BookOpen className="h-4 w-4" strokeWidth={3} />
+                  <span>Health Articles</span>
                 </TabsTrigger>
               </TabsList>
             </div>
           </motion.div>
 
-          {/* Chat Tab */}
-          <TabsContent value="chat" className="flex-1 flex flex-row mt-0 overflow-hidden">
-            <AnimatePresence>
-              {isSidebarOpen && (
-                <>
-                  <motion.div
-                    initial={{ width: 0, x: -20, opacity: 0 }}
-                    animate={{ width: 288, x: 0, opacity: 1 }}
-                    exit={{ width: 0, x: -20, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="fixed md:relative inset-y-0 left-0 z-50 bg-slate-900 border-r border-slate-800 shadow-xl md:shadow-none overflow-hidden"
-                  >
-                    <div className="flex md:hidden justify-end p-2">
-                      <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)}>
-                        <X className="h-5 w-5 text-slate-400" />
-                      </Button>
-                    </div>
-                    <ChatSessionsSidebar
-                      sessions={sessions}
-                      currentSessionId={currentSessionId}
-                      onSelectSession={(id) => {
-                        handleSelectSession(id);
-                        if (window.innerWidth < 768) setIsSidebarOpen(false);
-                      }}
-                      onCreateSession={() => {
-                        handleCreateNewChat();
-                        if (window.innerWidth < 768) setIsSidebarOpen(false);
-                      }}
-                      onDeleteSession={handleDeleteSession}
-                      onRenameSession={async (id, name) => {
-                        const success = await updateSessionName(id, name);
-                        if (success) {
-                          toast({ title: "Success", description: "Chat renamed" });
-                        } else {
-                          toast({ title: "Error", description: "Failed to rename chat", variant: "destructive" });
-                        }
-                      }}
-                      isLoading={isLoadingSessions}
-                      role="patient"
+          {/* Tab Content area */}
+          <div className="flex-1 overflow-hidden">
+            <TabsContent value="chat" className="h-full flex flex-row mt-0 overflow-hidden outline-none">
+              <AnimatePresence>
+                {isSidebarOpen && (
+                  <>
+                    <motion.div
+                      initial={{ width: 0, opacity: 0 }}
+                      animate={{ width: 300, opacity: 1 }}
+                      exit={{ width: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="fixed md:relative inset-y-0 left-0 z-40 lg:z-10 bg-white border-r border-rose-100 shadow-2xl md:shadow-none overflow-hidden"
+                    >
+                      <div className="flex md:hidden justify-end p-2">
+                        <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)} className="hover:bg-rose-50 rounded-lg">
+                          <X className="h-5 w-5 text-rose-300" />
+                        </Button>
+                      </div>
+                      <ChatSessionsSidebar
+                        sessions={sessions}
+                        currentSessionId={currentSessionId}
+                        onSelectSession={(id) => {
+                          handleSelectSession(id);
+                          if (window.innerWidth < 1024) setIsSidebarOpen(false);
+                        }}
+                        onCreateSession={() => {
+                          handleCreateNewChat();
+                          if (window.innerWidth < 1024) setIsSidebarOpen(false);
+                        }}
+                        onDeleteSession={handleDeleteSession}
+                        onRenameSession={async (id, name) => {
+                          const success = await updateSessionName(id, name);
+                          if (success) {
+                            toast({ title: "Success", description: "Memory updated" });
+                          } else {
+                            toast({ title: "Error", description: "Sync failure", variant: "destructive" });
+                          }
+                        }}
+                        isLoading={isLoadingSessions}
+                        role="patient"
+                      />
+                    </motion.div>
+                    {/* Mobile Overlay */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      onClick={() => setIsSidebarOpen(false)}
+                      className="fixed inset-0 bg-rose-950/20 backdrop-blur-sm z-30 md:hidden"
                     />
-                  </motion.div>
-                  {/* Mobile Overlay */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={() => setIsSidebarOpen(false)}
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden"
-                  />
-                </>
-              )}
-            </AnimatePresence>
+                  </>
+                )}
+              </AnimatePresence>
 
-            <div className="flex-1 flex flex-col min-w-0">
-              <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 max-h-[calc(100vh-220px)] overflow-y-auto">
-                <div className="max-w-3xl mx-auto space-y-6 px-2">
-                  <AnimatePresence initial={false}>
-                    {messages.map((message) => (
-                      <motion.div
-                        key={message.id}
-                        initial="hidden"
-                        animate="visible"
-                        exit={{ opacity: 0, y: 4, filter: "blur(3px)" }}
-                        variants={messageVariants}
-                        transition={{ duration: 0.18, ease: "easeOut" }}
-                        className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-                      >
-                        <div className="flex items-start gap-4 max-w-lg group">
-                          {message.sender === "bot" && (
-                            <motion.div
-                              initial={{ scale: 0.9, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              transition={{ duration: 0.2 }}
-                              className="w-8 h-8 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm"
-                            >
-                              <Heart className="w-4 h-4 text-teal-400" strokeWidth={2} />
-                            </motion.div>
-                          )}
+              <div className="flex-1 flex flex-col min-w-0 bg-rose-50/10">
+                <ScrollArea ref={scrollAreaRef} className="flex-1 p-6 lg:p-10">
+                  <div className="max-w-4xl mx-auto space-y-10">
+                    <AnimatePresence initial={false}>
+                      {messages.map((message, index) => (
+                        <motion.div
+                          key={message.id}
+                          initial="hidden"
+                          animate="visible"
+                          exit={{ opacity: 0, y: 10 }}
+                          variants={messageVariants}
+                          transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.3) }}
+                          className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
+                        >
+                          <div className={cn(
+                            "flex items-start gap-4 max-w-[85%] lg:max-w-3xl group",
+                            message.sender === "user" ? "flex-row-reverse" : "flex-row"
+                          )}>
+                            <div className={cn(
+                              "w-10 h-10 rounded-[1.25rem] border flex items-center justify-center shrink-0 mt-2 shadow-sm transition-transform group-hover:scale-110 duration-500",
+                              message.sender === "user"
+                                ? "bg-rose-500 border-rose-400 text-white shadow-rose-500/20"
+                                : "bg-white border-rose-100 text-rose-500"
+                            )}>
+                              {message.sender === "user" ? <User className="w-5 h-5" /> : <Heart className="w-5 h-5 fill-current" />}
+                            </div>
 
-                          <div
-                            className={`px-5 py-4 rounded-2xl shadow-sm min-w-[80px] border ${message.sender === "user"
-                              ? "bg-teal-600 text-white border-teal-500 rounded-br-sm"
-                              : "bg-slate-800 text-slate-200 border-slate-700 rounded-bl-sm"
-                              }`}
-                          >
-                            {message.type === "health-tip" ? (
-                              <>
-                                <div className="flex items-center gap-2 mb-2">
-                                  <motion.div
-                                    animate={{
-                                      scale: [1, 1.2, 1],
-                                    }}
-                                    transition={{
-                                      duration: 2,
-                                      repeat: Infinity,
-                                      repeatType: "loop",
-                                    }}
-                                  >
-                                    <Zap className="w-3 h-3 text-amber-400" />
-                                  </motion.div>
-                                  <span className="text-xs font-bold text-amber-400 uppercase tracking-wide">Health Tip</span>
-                                </div>
-                                <div className="text-sm leading-relaxed">
-                                  <MarkdownRenderer content={message.content} />
-                                </div>
-                              </>
-                            ) : message.sender === "bot" && message.id.startsWith("temp-") && !message.content ? (
-                              <div className="h-5 flex items-center gap-1">
-                                <motion.span
-                                  className="inline-block w-2 h-2 rounded-full bg-teal-400"
-                                  animate={{ opacity: [0.3, 1, 0.3] }}
-                                  transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
-                                />
-                                <motion.span
-                                  className="inline-block w-2 h-2 rounded-full bg-teal-400"
-                                  animate={{ opacity: [0.3, 1, 0.3] }}
-                                  transition={{
-                                    duration: 1,
-                                    repeat: Number.POSITIVE_INFINITY,
-                                    delay: 0.2,
-                                  }}
-                                />
-                                <motion.span
-                                  className="inline-block w-2 h-2 rounded-full bg-teal-400"
-                                  animate={{ opacity: [0.3, 1, 0.3] }}
-                                  transition={{
-                                    duration: 1,
-                                    repeat: Number.POSITIVE_INFINITY,
-                                    delay: 0.4,
-                                  }}
-                                />
-                              </div>
-                            ) : (
-                              <div className={`text-sm leading-relaxed ${message.sender === "user" ? "text-white" : "text-slate-200"}`}>
-                                <MarkdownRenderer content={message.content} variant={message.sender === "bot" ? "patient" : "user"} />
-                              </div>
-                            )}
-
-                            <div className="flex items-center justify-between mt-2">
-                              <p
-                                className={`text-[10px] ${message.sender === "user" ? "text-teal-100/70" : "text-slate-500"
-                                  }`}
+                            <div className={cn("flex flex-col", message.sender === "user" ? "items-end" : "items-start")}>
+                              <div
+                                className={cn(
+                                  "px-6 py-5 rounded-[2.5rem] shadow-sm transition-all duration-500",
+                                  message.sender === "user"
+                                    ? "bg-rose-500 text-white rounded-tr-none shadow-rose-500/10 border border-rose-400"
+                                    : "bg-white text-slate-800 border border-rose-100 rounded-tl-none hover:shadow-md hover:border-rose-200"
+                                )}
                               >
-                                {formatTime(message.timestamp)}
-                              </p>
-                              {message.sender === "bot" && (
-                                <CopyButton
-                                  text={message.content}
-                                  size="sm"
-                                  variant="ghost"
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-teal-400 h-6 w-6"
-                                />
-                              )}
+                                <div className="text-sm leading-relaxed font-medium">
+                                  <MarkdownRenderer
+                                    content={message.content}
+                                    variant={message.sender === "user" ? "user" : "doctor"}
+                                  />
+                                </div>
+
+                                <div className="flex items-center justify-between mt-3 gap-6">
+                                  <p className={cn(
+                                    "text-[9px] font-black uppercase tracking-[0.2em]",
+                                    message.sender === "user" ? "text-rose-100" : "text-slate-400"
+                                  )}>
+                                    {formatTime(message.timestamp)}
+                                  </p>
+                                  {message.sender === "bot" && (
+                                    <CopyButton
+                                      text={message.content}
+                                      size="sm"
+                                      variant="ghost"
+                                      className="opacity-0 group-hover:opacity-100 transition-all text-slate-300 hover:text-rose-500 h-6 w-6"
+                                    />
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           </div>
-
-                          {message.sender === "user" && (
-                            <motion.div
-                              className="w-8 h-8 bg-teal-900/50 border border-teal-500/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1"
-                              whileHover={{ rotate: 360 }}
-                              transition={{ duration: 0.5 }}
-                            >
-                              <User className="w-4 h-4 text-teal-400" strokeWidth={2} />
-                            </motion.div>
-                          )}
-                        </div>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
-              </ScrollArea>
-
-              <motion.div
-                className="sticky bottom-0 left-0 w-full bg-slate-900/90 backdrop-blur-md border-t border-slate-800 p-4 z-20"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{
-                  type: "spring",
-                  damping: 25,
-                  stiffness: 300,
-                  delay: 0.2
-                }}
-              >
-                <div className="max-w-3xl mx-auto">
-                  <motion.div
-                    className="flex gap-3 items-center"
-                    whileHover={{
-                      scale: 1.005,
-                      transition: { duration: 0.2 },
-                    }}
-                  >
-                    <Input
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      placeholder="Ask CLARA about symptoms, wellness, or health topics..."
-                      onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-                      className="bg-slate-800 border-slate-700 rounded-xl px-5 py-5 text-slate-200 placeholder:text-slate-500 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-0 shadow-lg"
-                    />
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button
-                        onClick={() => handleSendMessage()}
-                        disabled={!inputMessage.trim() || isLoading}
-                        className={`relative overflow-hidden rounded-xl px-6 h-12 font-medium shadow-lg transition-all duration-200 ${inputMessage.trim()
-                          ? "bg-teal-500 text-white hover:bg-teal-600 shadow-teal-500/20"
-                          : "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
-                          }`}
-                      >
-                        {isLoading ? (
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                          <Zap className="w-4 h-4 mr-2" strokeWidth={2} />
-                        )}
-                        Send
-                      </Button>
-                    </motion.div>
-                  </motion.div>
-
-                  <motion.div
-                    className="flex items-center justify-center mt-3"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                      <span className="w-2 h-2 rounded-full bg-teal-500/50 animate-pulse"></span>
-                      <span>AI-generated content. Always verify with a healthcare professional.</span>
-                    </div>
-                  </motion.div>
-                </div>
-              </motion.div>
-            </div>
-          </TabsContent>
-
-          {/* Blog Tab */}
-          <TabsContent value="blog" className="flex-1 mt-0">
-            <ScrollArea className="h-full p-4 max-h-[calc(100vh-150px)] overflow-y-auto">
-              <div className="max-w-4xl mx-auto space-y-6">
-                <motion.div
-                  className="text-center mb-8"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <h2 className="text-3xl font-bold text-white mb-2">
-                    Health Insights
-                  </h2>
-                  <p className="text-slate-400">Expert articles curated for your wellness</p>
-                </motion.div>
-
-                {blogPosts.length > 0 ? (
-                  <div className="grid gap-6">
-                    <AnimatePresence>
-                      {blogPosts.map((post, index) => (
-                        <motion.div
-                          key={post.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-                          transition={{
-                            duration: 0.4,
-                            delay: index * 0.08,
-                            ease: [0.2, 0, 0, 1],
-                          }}
-                        >
-                          <motion.div
-                            whileHover={{
-                              y: -2,
-                              transition: { duration: 0.2 },
-                            }}
-                            className="h-full"
-                          >
-                            <Card className="group bg-slate-800/50 border border-slate-700 hover:border-teal-500/30 transition-all duration-300 h-full overflow-hidden shadow-sm hover:shadow-lg hover:shadow-teal-900/10">
-                              <CardHeader className="pb-3">
-                                <div className="flex items-start justify-between">
-                                  <div className="space-y-2">
-                                    <CardTitle
-                                      className="text-xl font-bold text-slate-200 group-hover:text-teal-400 transition-colors cursor-pointer line-clamp-2"
-                                      onClick={() => handleReadMore(post)}
-                                    >
-                                      {post.title}
-                                    </CardTitle>
-                                    <div className="flex flex-wrap items-center gap-2 text-sm text-slate-400">
-                                      <div className="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-md">
-                                        <Calendar className="w-3.5 h-3.5 text-teal-500" />
-                                        <span className="text-xs text-slate-300">{new Date(post.created_at).toLocaleDateString()}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div className="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-slate-700 transition-transform group-hover:scale-105">
-                                    <BookOpen className="w-5 h-5 text-teal-500" strokeWidth={2} />
-                                  </div>
-                                </div>
-                              </CardHeader>
-                              <CardContent className="pt-0">
-                                <p className="text-slate-400 leading-relaxed line-clamp-3 mb-4">
-                                  {post.content.length > 200 ? `${post.content.substring(0, 200)}...` : post.content}
-                                </p>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-teal-400 border-teal-500/30 bg-teal-500/5 hover:bg-teal-500/10 hover:text-teal-300 transition-colors"
-                                  onClick={() => handleReadMore(post)}
-                                >
-                                  Read more
-                                </Button>
-                              </CardContent>
-                            </Card>
-                          </motion.div>
                         </motion.div>
                       ))}
                     </AnimatePresence>
                   </div>
-                ) : (
-                  <div className="text-center py-20 bg-slate-800/30 rounded-3xl border border-slate-800 border-dashed">
-                    <div className="mx-auto w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4">
-                      <BookOpen className="w-8 h-8 text-slate-600" />
+                </ScrollArea>
+
+                <div className="p-6 bg-white/80 backdrop-blur-xl border-t border-rose-100">
+                  <div className="max-w-4xl mx-auto">
+                    <div className="relative group">
+                      <div className="absolute -inset-1 bg-gradient-to-r from-rose-500/10 to-rose-600/10 rounded-[2.5rem] blur opacity-0 group-hover:opacity-100 transition duration-1000"></div>
+                      <div className="relative flex gap-3 items-center">
+                        <Input
+                          value={inputMessage}
+                          onChange={(e) => setInputMessage(e.target.value)}
+                          placeholder="Ask CLARA about symptoms, wellness, or medical guidelines..."
+                          onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                          className="h-16 bg-white border-rose-100 rounded-[2rem] px-8 text-slate-900 placeholder:text-slate-300 focus-visible:ring-4 focus-visible:ring-rose-500/5 focus-visible:border-rose-300 transition-all shadow-xl shadow-rose-500/5 font-medium border-2"
+                        />
+                        <button
+                          onClick={() => handleSendMessage()}
+                          disabled={!inputMessage.trim() || isLoading}
+                          className={cn(
+                            "h-14 w-14 rounded-full flex items-center justify-center transition-all duration-300 shrink-0 shadow-lg active:scale-95 group",
+                            inputMessage.trim()
+                              ? "bg-rose-500 text-white hover:bg-rose-600 shadow-rose-500/20"
+                              : "bg-rose-50 text-rose-200 cursor-not-allowed border-2 border-rose-100"
+                          )}
+                        >
+                          {isLoading ? (
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                          ) : (
+                            <Zap className={cn("w-6 h-6 transition-transform group-hover:scale-110", inputMessage.trim() && "fill-current")} />
+                          )}
+                        </button>
+                      </div>
                     </div>
-                    <h3 className="text-lg font-medium text-slate-300">No articles found</h3>
-                    <p className="text-slate-500">Check back later for health insights.</p>
+                    <div className="mt-4 flex flex-wrap justify-center gap-6">
+                      <p className="text-[9px] font-black uppercase tracking-[0.25em] text-slate-300">
+                        Clinical AI Framework · Always verify critical events
+                      </p>
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
-            </ScrollArea>
-          </TabsContent>
+            </TabsContent>
+
+            <TabsContent value="blog" className="h-full mt-0 outline-none overflow-hidden flex flex-col">
+              <ScrollArea className="flex-1 bg-rose-50/10">
+                <div className="max-w-6xl mx-auto px-6 py-12 md:py-20 lg:py-24">
+                  <motion.div
+                    className="flex flex-col md:flex-row items-end justify-between gap-8 mb-16"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <div className="max-w-xl">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-[10px] font-black uppercase tracking-widest mb-6">
+                        <BookOpen className="w-3 h-3" />
+                        <span>Clinical Intelligence Base</span>
+                      </div>
+                      <h2 className="text-4xl lg:text-5xl font-black text-rose-950 uppercase tracking-tighter leading-none mb-6">
+                        Medical <br />
+                        <span className="text-rose-500">Discovery Library</span>
+                      </h2>
+                      <p className="text-slate-500 font-medium leading-relaxed">Expert-reviewed clinical perspectives and health insights curated for your active wellness journey.</p>
+                    </div>
+                  </motion.div>
+
+                  {blogPosts.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+                      <AnimatePresence>
+                        {blogPosts.map((post, index) => (
+                          <motion.div
+                            key={post.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            className="group h-full"
+                          >
+                            <div
+                              onClick={() => handleReadMore(post)}
+                              className="h-full bg-white rounded-[3rem] border border-rose-100 p-1 shadow-sm hover:shadow-2xl hover:shadow-rose-500/10 hover:-translate-y-2 hover:border-rose-300 transition-all duration-700 overflow-hidden cursor-pointer flex flex-col"
+                            >
+                              <div className="p-8 lg:p-10 flex flex-col flex-1">
+                                <div className="flex items-center justify-between mb-8">
+                                  <div className="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500 group-hover:bg-rose-500 group-hover:text-white transition-all duration-500">
+                                    <BookOpen className="w-6 h-6" />
+                                  </div>
+                                  <div className="px-3 py-1 rounded-full bg-slate-50 border border-slate-100 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                                    {new Date(post.created_at).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+                                  </div>
+                                </div>
+                                <h3 className="text-xl lg:text-2xl font-black text-rose-950 mb-6 group-hover:text-rose-600 transition-colors uppercase tracking-tight leading-tight" title={post.title}>
+                                  {post.title}
+                                </h3>
+                                <p className="text-slate-500 line-clamp-4 leading-relaxed font-medium mb-12 flex-1">
+                                  {post.content}
+                                </p>
+                                <div className="flex items-center justify-between pt-6 border-t border-rose-50">
+                                  <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Scientific Review</span>
+                                  <div className="w-8 h-8 rounded-full border border-rose-100 flex items-center justify-center group-hover:bg-rose-50 transition-all">
+                                    <ArrowRight className="w-4 h-4 text-rose-500 translate-x-0 group-hover:translate-x-1 transition-transform" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </div>
+                  ) : (
+                    <div className="text-center py-32 bg-white rounded-[4rem] border-2 border-dashed border-rose-100">
+                      <div className="mx-auto w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mb-8 border border-rose-100">
+                        <BookOpen className="w-10 h-10 text-rose-200" />
+                      </div>
+                      <h3 className="text-xl font-black text-rose-950 uppercase tracking-widest">Library Empty</h3>
+                      <p className="text-slate-400 font-medium max-w-xs mx-auto mt-4">Check back soon for validated medical insights and community updates.</p>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </TabsContent>
+          </div>
         </Tabs>
       </main>
 
       {/* Article Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl bg-slate-900 border-slate-800 text-slate-200">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-white mb-2">{selectedArticle?.title}</DialogTitle>
-            <div className="flex items-center gap-4 text-sm text-slate-400">
-              {selectedArticle?.created_at && (
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" /> {new Date(selectedArticle.created_at).toLocaleDateString()}
-                </span>
-              )}
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0 bg-white border-0 shadow-2xl rounded-[3rem]">
+          {isLoadingArticle ? (
+            <div className="flex flex-col items-center justify-center h-[600px] gap-6">
+              <Loader2 className="w-12 h-12 text-rose-500 animate-spin" />
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-400">Retrieving Clinical Asset...</p>
             </div>
-          </DialogHeader>
-          <ScrollArea className="max-h-[70vh] pr-4">
-            <div className="text-slate-300 leading-relaxed space-y-4">
-              {isLoadingArticle ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="w-8 h-8 text-teal-500 animate-spin" />
+          ) : selectedArticle ? (
+            <div className="h-full flex flex-col">
+              <div className="h-80 relative flex-shrink-0">
+                <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-rose-600" />
+                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+                <div className="absolute inset-0 p-12 lg:p-16 flex flex-col justify-end">
+                  <div className="flex items-center gap-3 text-rose-100 text-[10px] font-black uppercase tracking-[0.3em] mb-6">
+                    <Calendar className="w-4 h-4" />
+                    <span>{new Date(selectedArticle.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                  </div>
+                  <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-[0.9] max-w-3xl">
+                    {selectedArticle.title}
+                  </h1>
                 </div>
-              ) : (
-                <MarkdownRenderer content={selectedArticle?.content || ""} />
-              )}
+                <button
+                  onClick={handleCloseModal}
+                  className="absolute top-8 right-8 w-12 h-12 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white transition-all active:scale-90 z-10"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <ScrollArea className="flex-1">
+                <div className="p-12 lg:p-16">
+                  <div className="prose prose-sm md:prose-base max-w-none prose-p:text-slate-600 prose-headings:text-rose-950 prose-strong:text-rose-700">
+                    <MarkdownRenderer content={selectedArticle.content} variant="doctor" />
+                  </div>
+                  <div className="mt-20 pt-12 border-t border-rose-50 flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500 border border-rose-100">
+                        <Shield className="w-7 h-7" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-rose-950 uppercase tracking-widest">Medical Board Review</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Validated for Public Health Discovery</p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handleCloseModal}
+                      className="bg-rose-500 hover:bg-rose-600 text-white rounded-full px-10 h-14 font-black uppercase tracking-widest text-[10px]"
+                    >
+                      Close Library Asset
+                    </Button>
+                  </div>
+                </div>
+              </ScrollArea>
             </div>
-          </ScrollArea>
+          ) : null}
         </DialogContent>
       </Dialog>
     </div>

@@ -42,11 +42,11 @@ export function ChatSessionsSidebar({
     }
 
     return (
-        <div className="flex flex-col h-full bg-[#0F172A] border-r border-slate-800 w-72">
-            <div className="p-4 border-b border-slate-800">
+        <div className="flex flex-col h-full bg-white border-r border-rose-100 w-72">
+            <div className="p-4 border-b border-rose-100">
                 <Button
                     onClick={onCreateSession}
-                    className="w-full justify-start gap-2 bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-900/20 transition-all duration-200 font-medium"
+                    className="w-full justify-start gap-2 bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/10 transition-all duration-300 font-black uppercase tracking-tight py-6 rounded-xl"
                 >
                     <Plus className="h-4 w-4" />
                     New {role === "patient" ? "Health Chat" : "Clinical Session"}
@@ -58,16 +58,16 @@ export function ChatSessionsSidebar({
                     {isLoading ? (
                         <div className="flex flex-col gap-2 p-2">
                             {[1, 2, 3].map((i) => (
-                                <div key={i} className="h-16 bg-slate-800 animate-pulse rounded-xl" />
+                                <div key={i} className="h-16 bg-rose-50/50 animate-pulse rounded-xl border border-rose-100/50" />
                             ))}
                         </div>
                     ) : sessions.length === 0 ? (
                         <div className="text-center py-10 px-4">
-                            <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-700 border-dashed">
-                                <MessageCircle className="h-8 w-8 text-slate-500" />
+                            <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-100 border-dashed">
+                                <MessageCircle className="h-8 w-8 text-rose-300" />
                             </div>
-                            <p className="text-sm text-slate-400 font-medium">No sessions yet</p>
-                            <p className="text-xs text-slate-500 mt-1">Start a conversation to see it here</p>
+                            <p className="text-sm text-slate-400 font-black uppercase tracking-widest">No sessions yet</p>
+                            <p className="text-xs text-slate-400 mt-2 font-medium">Start a conversation to see it here</p>
                         </div>
                     ) : (
                         <AnimatePresence initial={false}>
@@ -80,11 +80,11 @@ export function ChatSessionsSidebar({
                                     className="group relative"
                                 >
                                     {editingSessionId === session.session_id ? (
-                                        <div className="p-3 bg-slate-800/80 rounded-xl border border-teal-500/50">
+                                        <div className="p-3 bg-rose-50/50 rounded-xl border border-rose-200">
                                             <div className="flex items-center gap-2">
                                                 <input
                                                     autoFocus
-                                                    className="flex-1 bg-slate-900 border-teal-500 rounded px-2 py-1 text-sm outline-none border focus:ring-1 focus:ring-teal-500 text-slate-200"
+                                                    className="flex-1 bg-white border-rose-300 rounded-lg px-2 py-1.5 text-sm outline-none border focus:ring-2 focus:ring-rose-500/20 text-slate-800 font-medium"
                                                     value={editName}
                                                     onChange={(e) => setEditName(e.target.value)}
                                                     onKeyDown={(e) => {
@@ -95,9 +95,9 @@ export function ChatSessionsSidebar({
                                                 />
                                                 <button
                                                     onClick={() => handleSaveRename(session.session_id)}
-                                                    className="p-1 hover:bg-slate-700 rounded transition-colors"
+                                                    className="p-1 hover:bg-rose-500 hover:text-white rounded-lg transition-all"
                                                 >
-                                                    <Check className="h-4 w-4 text-teal-400" />
+                                                    <Check className="h-4 w-4" />
                                                 </button>
                                             </div>
                                         </div>
@@ -106,25 +106,28 @@ export function ChatSessionsSidebar({
                                             <button
                                                 onClick={() => onSelectSession(session.session_id)}
                                                 className={cn(
-                                                    "w-full text-left p-3 rounded-xl transition-all duration-200 flex flex-col gap-1.5",
+                                                    "w-full text-left p-4 rounded-xl transition-all duration-300 flex flex-col gap-2",
                                                     currentSessionId === session.session_id
-                                                        ? "bg-teal-900/20 border border-teal-500/30 shadow-sm"
-                                                        : "hover:bg-slate-800/50 border border-transparent text-slate-400 hover:text-slate-200"
+                                                        ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20"
+                                                        : "hover:bg-rose-50/50 border border-transparent text-slate-500 hover:text-rose-950"
                                                 )}
                                             >
-                                                <div className="flex items-center justify-between gap-2">
+                                                <div className="flex items-center justify-between gap-2 text-inherit">
                                                     <span className={cn(
-                                                        "text-sm font-semibold truncate flex-1",
-                                                        currentSessionId === session.session_id ? "text-teal-400" : "text-slate-300"
+                                                        "text-sm font-black truncate flex-1 tracking-tight",
+                                                        currentSessionId === session.session_id ? "text-white" : "text-slate-800"
                                                     )}>
                                                         {session.session_name || `Session ${session.session_id}`}
                                                     </span>
                                                 </div>
 
-                                                <div className="flex items-center gap-3 text-[10px] text-slate-500">
+                                                <div className={cn(
+                                                    "flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider",
+                                                    currentSessionId === session.session_id ? "text-rose-100" : "text-slate-400"
+                                                )}>
                                                     <div className="flex items-center gap-1">
                                                         <MessageSquare className="h-3 w-3" />
-                                                        <span>{session.message_count} messages</span>
+                                                        <span>{session.message_count}</span>
                                                     </div>
                                                     <div className="flex items-center gap-1">
                                                         <Clock className="h-3 w-3" />
@@ -138,12 +141,17 @@ export function ChatSessionsSidebar({
                                                 </div>
                                             </button>
 
-                                            <div className="absolute right-2 top-2.5 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="absolute right-2 top-2.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
                                                 {onRenameSession && (
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-7 w-7 text-slate-500 hover:text-teal-400 hover:bg-teal-500/10"
+                                                        className={cn(
+                                                            "h-8 w-8 transition-colors",
+                                                            currentSessionId === session.session_id
+                                                                ? "text-rose-200 hover:text-white hover:bg-white/10"
+                                                                : "text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                                                        )}
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setEditingSessionId(session.session_id);
@@ -156,7 +164,12 @@ export function ChatSessionsSidebar({
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-7 w-7 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+                                                    className={cn(
+                                                        "h-8 w-8 transition-colors",
+                                                        currentSessionId === session.session_id
+                                                            ? "text-rose-200 hover:text-white hover:bg-white/10"
+                                                            : "text-slate-400 hover:text-red-500 hover:bg-red-50"
+                                                    )}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         onDeleteSession(session.session_id);

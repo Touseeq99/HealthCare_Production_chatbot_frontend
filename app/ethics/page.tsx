@@ -40,12 +40,12 @@ export default function EthicsPage() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen bg-white">
             {/* Navigation */}
             <nav
                 className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? "bg-white/90 backdrop-blur-md shadow-sm py-4 border-b border-slate-100"
-                    : "bg-transparent py-6"
+                    ? "bg-white/90 backdrop-blur-md shadow-sm py-4 border-b border-rose-100"
+                    : "bg-white/50 backdrop-blur-sm py-6"
                     }`}
             >
                 <div className="container mx-auto px-6 flex items-center justify-between">
@@ -60,21 +60,21 @@ export default function EthicsPage() {
                             />
                         </div>
                         <div className="flex flex-col">
-                            <span className={`font-bold text-lg leading-none ${isScrolled ? 'text-slate-900' : 'text-slate-900'}`}>
+                            <span className="font-bold text-lg leading-none text-rose-950">
                                 CLARA
                             </span>
-                            <span className={`text-[10px] leading-none ${isScrolled ? 'text-slate-500' : 'text-slate-500'}`}>
+                            <span className="text-[10px] leading-none text-rose-500">
                                 by MetaMedMD
                             </span>
                         </div>
                     </Link>
 
                     <div className="hidden md:flex items-center space-x-8">
-                        {["Platform", "Evidence", "Use Cases", "About"].map((item) => (
+                        {["How It Works", "Clinical Evidence", "Use Cases", "About"].map((item) => (
                             <Link
                                 key={item}
-                                href={item === "About" ? "/about" : `/#${item.toLowerCase().replace(" ", "-")}`}
-                                className="text-sm font-medium text-slate-600 transition-colors hover:text-teal-600"
+                                href={item === "About" ? "/about" : `/#${item.toLowerCase().replace(/\s+/g, "-")}`}
+                                className="text-sm font-medium text-slate-600 transition-colors hover:text-rose-600"
                             >
                                 {item}
                             </Link>
@@ -83,7 +83,7 @@ export default function EthicsPage() {
 
                     <div className="flex items-center space-x-4">
                         <Link href="/signup">
-                            <Button className="bg-teal-500 hover:bg-teal-600 text-white border-0 shadow-lg shadow-teal-500/20">
+                            <Button className="bg-rose-500 hover:bg-rose-600 text-white border-0 shadow-lg shadow-rose-500/20 rounded-full font-bold">
                                 Get Started
                             </Button>
                         </Link>
@@ -92,14 +92,14 @@ export default function EthicsPage() {
             </nav>
 
             {/* Hero Section */}
-            <section className="pt-40 pb-24 bg-white relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(20,184,166,0.05),transparent)] pointer-events-none" />
+            <section className="pt-40 pb-24 bg-rose-50/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-rose-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                 <div className="container mx-auto px-6 relative z-10">
                     <div className="max-w-4xl">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 text-teal-400 text-sm font-bold mb-8 shadow-2xl shadow-slate-900/20"
+                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1A0A0E] text-rose-400 text-xs font-black uppercase tracking-[0.2em] mb-8 shadow-2xl shadow-rose-950/20"
                         >
                             <ShieldCheck className="h-4 w-4" />
                             Ethics & Safety
@@ -107,15 +107,16 @@ export default function EthicsPage() {
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-5xl md:text-7xl font-bold text-slate-900 mb-8 leading-[1.1]"
+                            className="text-5xl md:text-7xl font-extrabold text-[#3D3D3D] mb-8 leading-[1.1] font-primary tracking-tight"
                         >
-                            Committed to <span className="text-teal-500 underline decoration-teal-500/20 decoration-8 underline-offset-8">Accountability.</span>
+                            Committed to <br />
+                            <span className="text-rose-500 underline decoration-rose-500/20 decoration-8 underline-offset-8">Accountability.</span>
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="text-xl text-slate-600 leading-relaxed max-w-3xl"
+                            className="text-xl text-slate-600 leading-relaxed max-w-3xl font-secondary font-medium"
                         >
                             CLARA™ is developed and deployed with a clear commitment to ethical clinical practice, patient safety, and professional responsibility, respecting patient autonomy and established standards of care.
                         </motion.p>
@@ -124,9 +125,9 @@ export default function EthicsPage() {
             </section>
 
             {/* Principles Section */}
-            <section className="py-24">
+            <section className="py-32 bg-white">
                 <div className="container mx-auto px-6">
-                    <div className="grid md:grid-cols-2 gap-x-12 gap-y-16">
+                    <div className="grid md:grid-cols-2 gap-x-12 gap-y-20">
                         {[
                             {
                                 title: "Primacy of patient welfare",
@@ -134,7 +135,7 @@ export default function EthicsPage() {
                                 icon: HeartPulse,
                             },
                             {
-                                title: "Clinician responsibility and oversight",
+                                title: "Clinician oversight",
                                 desc: "Clinicians retain full responsibility for interpretation and action. CLARA operates within a clinician-in-the-loop framework and does not override local clinical policies.",
                                 icon: Users,
                             },
@@ -149,17 +150,17 @@ export default function EthicsPage() {
                                 icon: Gavel,
                             },
                             {
-                                title: "Data protection and confidentiality",
+                                title: "Data protection",
                                 desc: "Aligned with GDPR, collection is guided by principles of data minimisation and purpose limitation. Access is governed by role-based controls and audit mechanisms.",
                                 icon: Lock,
                             },
                             {
-                                title: "Informed consent & governance",
+                                title: "Governance",
                                 desc: "Research and service evaluations are subject to appropriate ethical approval processes, maintaining transparency regarding data collection and use.",
                                 icon: Scale,
                             },
                             {
-                                title: "Bias, fairness, and equity",
+                                title: "Bias and equity",
                                 desc: "Attention to inclusivity and representativeness across diverse patient populations. Outputs assist equitable clinical care without constraints.",
                                 icon: Handshake,
                             },
@@ -178,12 +179,12 @@ export default function EthicsPage() {
                                 transition={{ delay: i * 0.1 }}
                                 className="flex gap-8 group"
                             >
-                                <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-white border border-slate-100 shadow-lg shadow-slate-200/50 flex items-center justify-center group-hover:bg-teal-500 group-hover:border-teal-400 group-hover:scale-110 transition-all duration-300">
-                                    <item.icon className="h-8 w-8 text-slate-400 group-hover:text-white transition-colors" />
+                                <div className="flex-shrink-0 w-16 h-16 rounded-3xl bg-rose-50 flex items-center justify-center group-hover:bg-rose-500 group-hover:scale-110 transition-all duration-500 ease-out transform group-hover:rotate-6">
+                                    <item.icon className="h-8 w-8 text-rose-500 group-hover:text-white transition-colors" />
                                 </div>
                                 <div>
-                                    <h3 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-teal-600 transition-colors">{item.title}</h3>
-                                    <p className="text-slate-600 leading-relaxed">{item.desc}</p>
+                                    <h3 className="text-2xl font-extrabold text-slate-800 mb-4 group-hover:text-rose-600 transition-colors tracking-tight">{item.title}</h3>
+                                    <p className="text-slate-500 leading-relaxed font-medium">{item.desc}</p>
                                 </div>
                             </motion.div>
                         ))}
@@ -192,23 +193,23 @@ export default function EthicsPage() {
             </section>
 
             {/* Continuous Improvement Section */}
-            <section className="py-24 bg-slate-900 relative overflow-hidden">
-                {/* Abstract shapes */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2" />
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[80px] -translate-x-1/2 translate-y-1/2" />
+            <section className="py-32 bg-[#1A0A0E] relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-rose-500/10 rounded-full blur-[150px] translate-x-1/3 -translate-y-1/3" />
+                <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-rose-900/10 rounded-full blur-[150px] -translate-x-1/3 translate-y-1/3" />
 
                 <div className="container mx-auto px-6 relative z-10">
                     <div className="max-w-4xl mx-auto text-center">
-                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-teal-500/20 border border-teal-500/30 mb-8">
-                            <RefreshCcw className="h-10 w-10 text-teal-400" />
+                        <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-rose-500/10 border border-white/10 mb-12 shadow-2xl relative overflow-hidden group">
+                            <div className="absolute inset-0 bg-rose-500/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                            <RefreshCcw className="h-10 w-10 text-rose-400 relative z-10" />
                         </div>
-                        <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">Continuous evaluation and improvement</h2>
-                        <p className="text-xl text-slate-400 leading-relaxed mb-12">
+                        <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-8 tracking-tight font-primary">Continuous evaluation <br />and improvement</h2>
+                        <p className="text-xl text-slate-400 leading-relaxed mb-16 font-secondary font-medium">
                             Ethics and safety are not static requirements. CLARA™ is designed to support ongoing monitoring, feedback, and refinement as clinical practice, evidence, and regulatory expectations evolve.
                         </p>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {["User Feedback", "Emerging Best Practice", "Incident Reporting"].map((tag) => (
-                                <div key={tag} className="px-6 py-4 rounded-2xl bg-slate-800/50 border border-slate-700 text-slate-300 font-medium whitespace-nowrap">
+                                <div key={tag} className="px-8 py-5 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 text-rose-100 font-extrabold tracking-tight hover:bg-white/10 transition-colors">
                                     {tag}
                                 </div>
                             ))}
@@ -218,10 +219,10 @@ export default function EthicsPage() {
             </section>
 
             {/* Back to Home CTA */}
-            <section className="py-20 bg-white">
+            <section className="py-24 bg-white">
                 <div className="container mx-auto px-6 text-center">
                     <Link href="/">
-                        <Button variant="ghost" className="gap-2 text-slate-600 hover:text-teal-600">
+                        <Button variant="ghost" className="gap-2 text-slate-600 hover:text-rose-600 font-extrabold h-12 px-8 rounded-full">
                             <ArrowLeft className="h-4 w-4" /> Back to Home
                         </Button>
                     </Link>

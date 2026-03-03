@@ -201,24 +201,24 @@ function ToggleSwitch({
     return (
         <div
             className={cn(
-                "flex items-center justify-between gap-3 rounded-lg border px-4 py-3 transition-colors",
+                "flex items-center justify-between gap-3 rounded-xl border px-4 py-3 transition-all duration-300",
                 locked
-                    ? "border-slate-200 bg-slate-50 opacity-80"
+                    ? "border-rose-100 bg-rose-50/30 opacity-80"
                     : disabled
-                        ? "border-slate-200 bg-white opacity-50 cursor-not-allowed"
-                        : "border-slate-200 bg-white hover:border-slate-300"
+                        ? "border-slate-100 bg-white opacity-50 cursor-not-allowed"
+                        : "border-slate-200 bg-white hover:border-rose-300 shadow-sm hover:shadow-md"
             )}
         >
             <div className="flex items-center gap-3 min-w-0">
-                <span className={cn("shrink-0", locked || disabled ? "text-slate-400" : "text-slate-500")}>
+                <span className={cn("shrink-0", locked || disabled ? "text-slate-400" : "text-rose-500")}>
                     {icon}
                 </span>
                 <div className="min-w-0">
-                    <p className={cn("text-sm font-medium leading-none", locked ? "text-slate-500" : "text-slate-700")}>
+                    <p className={cn("text-sm font-black uppercase tracking-tight", locked ? "text-slate-500" : "text-slate-800")}>
                         {label}
                     </p>
                     {description && (
-                        <p className="mt-0.5 text-xs text-slate-400 truncate">{description}</p>
+                        <p className="mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">{description}</p>
                     )}
                 </div>
             </div>
@@ -231,11 +231,11 @@ function ToggleSwitch({
                     disabled={disabled || locked}
                     onClick={() => !disabled && !locked && onChange?.(!checked)}
                     className={cn(
-                        "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
+                        "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1",
                         checked
                             ? disabled || locked
                                 ? "bg-slate-400"
-                                : "bg-blue-600"
+                                : "bg-rose-500"
                             : "bg-slate-200",
                         (disabled || locked) ? "cursor-not-allowed" : "cursor-pointer"
                     )}
@@ -774,29 +774,31 @@ export function AIClinicalNote() {
     // ─────────────────────────────────────────────────────────────────────────
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans">
-            <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-white font-sans">
+            <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 
                 {/* ── Header ─────────────────────────────────────────────────────── */}
-                <header className="mb-8">
-                    <div className="flex items-start gap-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600 shadow-sm">
-                            <ClipboardList className="size-6 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                                AI Clinical Note
-                            </h1>
-                            <div className="mt-1 flex items-center gap-2">
-                                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 border border-blue-100">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                                    AI-assisted
-                                </span>
-                                <span className="text-slate-300">·</span>
-                                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-100">
-                                    <CheckCircle2 className="size-3" />
-                                    Doctor-approved
-                                </span>
+                <header className="mb-12">
+                    <div className="flex items-end justify-between">
+                        <div className="flex items-start gap-5">
+                            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-rose-500 shadow-xl shadow-rose-500/20 rotate-3">
+                                <ClipboardList className="size-8 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-4xl font-black tracking-tighter text-slate-900 uppercase">
+                                    AI Clinical <span className="text-rose-500">Note</span>
+                                </h1>
+                                <div className="mt-3 flex items-center gap-3">
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-rose-600 border border-rose-100">
+                                        <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
+                                        Advanced AI Engine
+                                    </span>
+                                    <span className="text-slate-300">/</span>
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-slate-600 border border-slate-200">
+                                        <CheckCircle2 className="size-3" />
+                                        Certified Clinical Format
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -807,9 +809,9 @@ export function AIClinicalNote() {
                     <div className="space-y-5">
 
                         {/* Note Type Selector */}
-                        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
-                                Note Type
+                        <section className="rounded-3xl border border-rose-100 bg-white p-6 shadow-sm">
+                            <h2 className="mb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                Output Framework
                             </h2>
                             <div
                                 role="radiogroup"
@@ -824,10 +826,10 @@ export function AIClinicalNote() {
                                         aria-checked={noteType === value}
                                         onClick={() => setNoteType(value)}
                                         className={cn(
-                                            "rounded-lg border px-4 py-2 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1",
+                                            "rounded-xl border px-5 py-3 text-xs font-black uppercase tracking-wider transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1",
                                             noteType === value
-                                                ? "border-blue-600 bg-blue-600 text-white shadow-sm"
-                                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                                                ? "border-rose-500 bg-rose-500 text-white shadow-lg shadow-rose-500/20"
+                                                : "border-slate-100 bg-rose-50/20 text-slate-500 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
                                         )}
                                     >
                                         <span className="hidden sm:inline">{label}</span>
@@ -836,74 +838,74 @@ export function AIClinicalNote() {
                                 ))}
                             </div>
                             {!noteType && (
-                                <p className="mt-2.5 text-xs text-slate-400">
-                                    Select a note type to continue
+                                <p className="mt-3 text-[10px] font-bold text-rose-400/70 border-l border-rose-200 pl-2 uppercase tracking-widest">
+                                    Selection required for processing
                                 </p>
                             )}
                         </section>
 
                         {/* Patient & Doctor Info */}
-                        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
-                                Metadata
+                        <section className="rounded-3xl border border-rose-100 bg-white p-6 shadow-sm">
+                            <h2 className="mb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                Clinical Context
                             </h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <label htmlFor="patient-name" className="text-xs font-medium text-slate-500">
-                                        Patient Name / ID
+                                <div className="space-y-2">
+                                    <label htmlFor="patient-name" className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                                        Identifier / MRN
                                     </label>
                                     <input
                                         id="patient-name"
                                         type="text"
                                         value={patientName}
                                         onChange={(e) => setPatientName(e.target.value)}
-                                        placeholder="e.g. John Doe / 984521"
-                                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+                                        placeholder="JS-9845 / Anonymous"
+                                        className="w-full rounded-xl border border-rose-100 bg-rose-50/20 px-4 py-3 text-sm text-slate-800 font-medium focus:border-rose-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-rose-500/5 transition-all outline-none"
                                     />
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label htmlFor="doctor-name" className="text-xs font-medium text-slate-500">
-                                        Doctor Name
+                                <div className="space-y-2">
+                                    <label htmlFor="doctor-name" className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
+                                        Clinical Staff
                                     </label>
                                     <input
                                         id="doctor-name"
                                         type="text"
                                         value={doctorName}
                                         onChange={(e) => setDoctorName(e.target.value)}
-                                        placeholder="e.g. Smith"
-                                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+                                        placeholder="Dr. Resident / NP"
+                                        className="w-full rounded-xl border border-rose-100 bg-rose-50/20 px-4 py-3 text-sm text-slate-800 font-medium focus:border-rose-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-rose-500/5 transition-all outline-none"
                                     />
                                 </div>
                             </div>
                         </section>
 
                         {/* Input Panel */}
-                        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                            <div className="mb-3 flex items-center justify-between">
-                                <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-                                    Clinical Input
+                        <section className="rounded-3xl border border-rose-100 bg-white p-6 shadow-sm overflow-hidden">
+                            <div className="mb-4 flex items-center justify-between">
+                                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                    Clinical Insight
                                 </h2>
                                 <button
                                     id="voice-input-btn"
                                     onClick={toggleVoice}
                                     title={isListening ? "Stop recording" : "Start voice input"}
                                     className={cn(
-                                        "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                                        "inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-[10px] font-black uppercase tracking-widest transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500",
                                         isListening
-                                            ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
-                                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                                            ? "border-red-500 bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/20"
+                                            : "border-rose-100 bg-rose-50/50 text-rose-600 hover:border-rose-200 hover:bg-rose-50"
                                     )}
                                 >
                                     {isListening ? (
                                         <>
                                             <MicOff className="size-3.5" />
-                                            <span>Stop</span>
-                                            <span className="ml-1 h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+                                            <span>Recording...</span>
+                                            <span className="ml-1 h-1.5 w-1.5 rounded-full bg-white animate-ping" />
                                         </>
                                     ) : (
                                         <>
                                             <Mic className="size-3.5" />
-                                            <span>Dictate</span>
+                                            <span>Voice Input</span>
                                         </>
                                     )}
                                 </button>
@@ -921,15 +923,9 @@ export function AIClinicalNote() {
                                 ref={textareaRef}
                                 value={inputText}
                                 onChange={(e) => setInputText(e.target.value)}
-                                placeholder="Enter bullets, shorthand, or dictated notes…
-
-Example:
-• 45M, chest pain 2h, radiation to left arm
-• Diaphoresis, dyspnea on exertion
-• Hx: HTN, T2DM, smoker 20pk-yr
-• BP 155/92, HR 98 irregular"
-                                rows={9}
-                                className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-sm text-slate-700 placeholder:font-sans placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-colors"
+                                placeholder="DICTATE OR TYPE CLINICAL FINDINGS..."
+                                rows={8}
+                                className="w-full resize-none rounded-2xl border border-rose-100 bg-rose-50/20 px-5 py-4 font-mono text-sm text-slate-700 placeholder:text-rose-300 placeholder:font-black placeholder:uppercase placeholder:tracking-widest focus:border-rose-300 focus:bg-white focus:outline-none focus:ring-4 focus:ring-rose-500/5 transition-all outline-none leading-relaxed"
                             />
 
                             {/* File Upload Zone */}
@@ -940,19 +936,21 @@ Example:
                                 onDragLeave={handleDragLeave}
                                 onClick={() => fileInputRef.current?.click()}
                                 className={cn(
-                                    "mt-3 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed px-4 py-5 text-center transition-colors",
+                                    "mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-all duration-300",
                                     isDragging
-                                        ? "border-blue-400 bg-blue-50"
-                                        : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-slate-100"
+                                        ? "border-rose-400 bg-rose-50"
+                                        : "border-rose-100 bg-rose-50/10 hover:border-rose-300 hover:bg-rose-50/50"
                                 )}
                             >
-                                <Upload className={cn("size-5", isDragging ? "text-blue-500" : "text-slate-400")} />
-                                <div>
-                                    <p className="text-sm font-medium text-slate-600">
-                                        {isDragging ? "Drop files here" : "Drag & drop or click to upload"}
+                                <div className="p-3 rounded-xl bg-white shadow-sm">
+                                    <Upload className={cn("size-6", isDragging ? "text-rose-500" : "text-rose-300")} />
+                                </div>
+                                <div className="mt-2">
+                                    <p className="text-xs font-black uppercase tracking-widest text-slate-600">
+                                        {isDragging ? "Process Documents" : "Clinical Source Files"}
                                     </p>
-                                    <p className="mt-0.5 text-xs text-slate-400">
-                                        PDF · Image (PNG, JPG) · Text — ECG and Lab reports auto-detected
+                                    <p className="mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                        EU GDPR Compliant Processing
                                     </p>
                                 </div>
                                 <input
@@ -977,17 +975,17 @@ Example:
                         </section>
 
                         {/* Context Switches */}
-                        <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
-                                Context Options
+                        <section className="rounded-3xl border border-rose-100 bg-white p-6 shadow-sm">
+                            <h2 className="mb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                AI Augmentation
                             </h2>
-                            <div className="space-y-2">
+                            <div className="grid grid-cols-1 gap-3">
                                 <ToggleSwitch
                                     id="toggle-ecg"
                                     checked={toggles.ecgInterpretation}
                                     disabled={!hasECG}
-                                    label="Include ECG Interpretation"
-                                    description={hasECG ? "ECG file detected" : "Upload an ECG file to enable"}
+                                    label="ECG Engine"
+                                    description={hasECG ? "Clinical waveform detected" : "Source missing"}
                                     icon={<Activity className="size-4" />}
                                     onChange={(v) => setToggles((p) => ({ ...p, ecgInterpretation: v }))}
                                 />
@@ -995,8 +993,8 @@ Example:
                                     id="toggle-lab"
                                     checked={toggles.labResults}
                                     disabled={!hasLab}
-                                    label="Include Lab Results"
-                                    description={hasLab ? "Lab report detected" : "Upload a lab report to enable"}
+                                    label="Lab Analyzer"
+                                    description={hasLab ? "Panel data extraction" : "Source missing"}
                                     icon={<FlaskConical className="size-4" />}
                                     onChange={(v) => setToggles((p) => ({ ...p, labResults: v }))}
                                 />
@@ -1004,23 +1002,15 @@ Example:
                                     id="toggle-guidelines"
                                     checked={toggles.clinicalGuidelines}
                                     locked
-                                    label="Use Clinical Guidelines"
-                                    description="Always applied — per institutional policy"
+                                    label="EBM Guidelines"
+                                    description="Mandatory Compliance"
                                     icon={<FileText className="size-4" />}
-                                />
-                                <ToggleSwitch
-                                    id="toggle-conservative"
-                                    checked={toggles.conservativeWording}
-                                    locked
-                                    label="Conservative / Legal Wording"
-                                    description="Always applied — medicolegal compliance"
-                                    icon={<Lock className="size-4" />}
                                 />
                                 <ToggleSwitch
                                     id="toggle-ddx"
                                     checked={toggles.differentialDiagnosis}
-                                    label="Include Differential Diagnosis"
-                                    description="Add DDx section to the generated note"
+                                    label="Clinical DDx"
+                                    description="Generate Differential analysis"
                                     icon={<ChevronRight className="size-4" />}
                                     onChange={(v) => setToggles((p) => ({ ...p, differentialDiagnosis: v }))}
                                 />
@@ -1033,28 +1023,28 @@ Example:
                             onClick={handleGenerate}
                             disabled={!canGenerate || isGenerating}
                             className={cn(
-                                "w-full rounded-xl px-6 py-3.5 text-sm font-semibold tracking-wide transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+                                "w-full rounded-2xl px-6 py-5 text-[11px] font-black uppercase tracking-[0.2em] transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-500/20",
                                 canGenerate && !isGenerating
-                                    ? "bg-blue-600 text-white shadow-sm hover:bg-blue-700 active:scale-[0.99]"
-                                    : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                                    ? "bg-rose-500 text-white shadow-xl shadow-rose-500/20 hover:bg-rose-600 hover:-translate-y-0.5 active:translate-y-0"
+                                    : "bg-slate-100 text-slate-400 cursor-not-allowed"
                             )}
                         >
                             {isGenerating ? (
-                                <span className="inline-flex items-center gap-2 justify-center">
+                                <span className="inline-flex items-center gap-3 justify-center">
                                     <Loader2 className="size-4 animate-spin" />
-                                    Generating note…
+                                    Synthesizing Record...
                                 </span>
                             ) : (
-                                <span className="inline-flex items-center gap-2 justify-center">
+                                <span className="inline-flex items-center gap-3 justify-center">
                                     <ClipboardList className="size-4" />
-                                    Generate Note
+                                    Generate Clinical Record
                                 </span>
                             )}
                         </button>
 
                         {!noteType && (
-                            <p className="text-center text-xs text-slate-400">
-                                Select a note type and provide input to generate
+                            <p className="text-center text-[10px] font-black uppercase tracking-[0.15em] text-slate-300">
+                                System Standby · Awaiting Framework
                             </p>
                         )}
                     </div>
@@ -1066,51 +1056,49 @@ Example:
                                 {/* Disclaimer */}
                                 <div
                                     role="alert"
-                                    className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3"
+                                    className="flex items-start gap-3 rounded-2xl border border-rose-100 bg-rose-50/50 px-5 py-4"
                                 >
-                                    <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600" />
+                                    <AlertTriangle className="mt-0.5 size-4 shrink-0 text-rose-500" />
                                     <div>
-                                        <p className="text-sm font-semibold text-amber-800">AI-generated content</p>
-                                        <p className="mt-0.5 text-xs text-amber-700">
-                                            This note has been generated by an AI model. It must be reviewed, verified,
-                                            and approved by a licensed clinician before being used in any clinical
-                                            context, patient record, or medicolegal document.
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-rose-600">AI Synthesized Content</p>
+                                        <p className="mt-1 text-[10px] font-bold text-slate-500 uppercase tracking-tight leading-normal">
+                                            European clinical standards. Professional verification required.
+                                            Final clinical responsibility remains with the attending physician.
                                         </p>
                                     </div>
                                 </div>
 
                                 {/* Output Note */}
-                                <div className="flex flex-1 flex-col rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-                                    <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                                            <span className="text-xs font-semibold text-slate-500">
+                                <div className="flex flex-1 flex-col rounded-3xl border border-rose-100 bg-white shadow-xl shadow-rose-500/5 overflow-hidden">
+                                    <div className="flex items-center justify-between border-b border-rose-50 px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-2.5 w-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
+                                            <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-800">
                                                 {NOTE_TYPES.find((n) => n.value === noteType)?.label ?? "Clinical Note"}
                                             </span>
                                         </div>
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-4">
                                             <button
                                                 onClick={() => setIsPreview(!isPreview)}
                                                 className={cn(
-                                                    "flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all",
+                                                    "flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                                                     isPreview
-                                                        ? "bg-blue-600 text-white shadow-sm"
-                                                        : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                                        ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20"
+                                                        : "bg-rose-50 text-rose-500 hover:bg-rose-100"
                                                 )}
                                             >
-                                                {isPreview ? <><Edit3 className="size-3" /> Edit Mode</> : <><Eye className="size-3" /> Preview Mode</>}
+                                                {isPreview ? <><Edit3 className="size-3" /> Edit</> : <><Eye className="size-3" /> Preview</>}
                                             </button>
-                                            <span className="text-xs text-slate-400">Review before use</span>
                                         </div>
                                     </div>
 
                                     {isPreview ? (
-                                        <div className="flex-1 bg-white px-8 py-8 overflow-y-auto min-h-[480px] prose prose-slate prose-sm max-w-none">
+                                        <div className="flex-1 bg-white px-10 py-10 overflow-y-auto min-h-[520px] prose prose-slate max-w-none">
                                             {outputNote.split('\n').map((line, i) => {
-                                                if (!line.trim()) return <div key={i} className="h-4" />
+                                                if (!line.trim()) return <div key={i} className="h-6" />
 
                                                 const leadingSpaces = line.match(/^(\s*)/)?.[1]?.length || 0
-                                                const indent = leadingSpaces * 8
+                                                const indent = leadingSpaces * 12
                                                 const trimmed = line.trim()
                                                 const isHeader = trimmed.toUpperCase() === trimmed && trimmed.length > 4 && !trimmed.includes('•')
 
@@ -1119,19 +1107,19 @@ Example:
                                                     const parts = txt.split(/(\*\*.*?\*\*)/g)
                                                     return parts.map((p, j) => {
                                                         if (p.startsWith('**') && p.endsWith('**')) {
-                                                            return <strong key={j} className="text-slate-900 font-bold">{p.slice(2, -2)}</strong>
+                                                            return <strong key={j} className="text-slate-900 font-black">{p.slice(2, -2)}</strong>
                                                         }
                                                         return p
                                                     })
                                                 }
 
                                                 if (isHeader) {
-                                                    return <h3 key={i} className="text-slate-900 font-bold mt-6 mb-2 text-sm border-b border-slate-100 pb-1">{trimmed}</h3>
+                                                    return <h3 key={i} className="text-slate-900 font-black mt-10 mb-4 text-xs uppercase tracking-[0.2em] border-b-2 border-rose-500 w-fit pb-1">{trimmed}</h3>
                                                 }
 
                                                 return (
-                                                    <div key={i} className="flex gap-2 text-slate-700 leading-relaxed mb-1" style={{ paddingLeft: `${indent}px` }}>
-                                                        {(trimmed.startsWith('•') || trimmed.startsWith('-')) && <span className="text-blue-500">•</span>}
+                                                    <div key={i} className="flex gap-3 text-slate-700 leading-relaxed mb-2 font-medium" style={{ paddingLeft: `${indent}px` }}>
+                                                        {(trimmed.startsWith('•') || trimmed.startsWith('-')) && <span className="text-rose-500 font-bold">•</span>}
                                                         <span>{renderBold(trimmed.replace(/^[•-]\s*/, ''))}</span>
                                                     </div>
                                                 )
@@ -1143,7 +1131,7 @@ Example:
                                             ref={outputRef}
                                             value={outputNote}
                                             onChange={(e) => setOutputNote(e.target.value)}
-                                            className="flex-1 resize-none bg-white px-5 py-4 font-mono text-[13px] leading-relaxed text-slate-700 focus:outline-none min-h-[480px]"
+                                            className="flex-1 resize-none bg-white px-8 py-8 font-mono text-sm leading-relaxed text-slate-700 focus:outline-none min-h-[520px]"
                                             spellCheck={false}
                                             aria-label="Generated clinical note — editable"
                                         />
@@ -1157,21 +1145,21 @@ Example:
                                         onClick={() => setIsApproved(true)}
                                         disabled={isApproved}
                                         className={cn(
-                                            "inline-flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
+                                            "inline-flex flex-1 items-center justify-center gap-2 rounded-2xl border px-6 py-4 text-[10px] font-black uppercase tracking-widest transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/20",
                                             isApproved
-                                                ? "border-emerald-200 bg-emerald-50 text-emerald-700 cursor-default"
-                                                : "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 shadow-sm"
+                                                ? "border-emerald-100 bg-emerald-50 text-emerald-600 shadow-inner"
+                                                : "border-rose-100 bg-rose-500 text-white hover:bg-rose-600 shadow-lg shadow-rose-500/20"
                                         )}
                                     >
                                         {isApproved ? (
                                             <>
                                                 <CheckCircle2 className="size-4" />
-                                                Approved & Finalized
+                                                Verified & Validated
                                             </>
                                         ) : (
                                             <>
                                                 <FileCheck className="size-4" />
-                                                Approve & Finalize
+                                                Authorize Record
                                             </>
                                         )}
                                     </button>
@@ -1179,65 +1167,65 @@ Example:
                                     <button
                                         id="copy-to-emr-btn"
                                         onClick={handleCopy}
-                                        title="Copy to EMR"
+                                        title="Copy to Clipboard"
                                         className={cn(
-                                            "inline-flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+                                            "inline-flex items-center justify-center gap-2 rounded-2xl border px-5 py-4 text-[10px] font-black transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-500/10",
                                             copySuccess
-                                                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                                                : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                                                ? "border-rose-100 bg-rose-50 text-rose-500"
+                                                : "border-rose-100 bg-white text-rose-500 hover:bg-rose-50"
                                         )}
                                     >
                                         {copySuccess ? (
-                                            <CheckCircle2 className="size-4" />
+                                            <CheckCircle2 className="size-5" />
                                         ) : (
-                                            <Copy className="size-4" />
+                                            <Copy className="size-5" />
                                         )}
                                     </button>
 
                                     <button
                                         id="download-pdf-btn"
                                         onClick={handleDownloadPDF}
-                                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                        className="inline-flex flex-1 items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-800 transition-all hover:border-rose-200 hover:bg-rose-50 shadow-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-rose-500/10"
                                     >
-                                        <Download className="size-4" />
-                                        Export PDF (EU Report)
+                                        <Download className="size-4 text-rose-500" />
+                                        EU Clinical Report (PDF)
                                     </button>
 
                                     <button
                                         id="clear-note-btn"
                                         onClick={handleClear}
-                                        title="Clear all"
-                                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-100 bg-red-50 px-3 py-2.5 text-sm font-medium text-red-600 transition-all hover:bg-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                                        title="Purge Current Data"
+                                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-50 bg-red-50 px-5 py-4 text-red-600 transition-all hover:bg-red-500 hover:text-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-400/20"
                                     >
-                                        <Trash2 className="size-4" />
+                                        <Trash2 className="size-5" />
                                     </button>
                                 </div>
                             </div>
                         ) : (
                             /* Empty state */
-                            <div className="flex h-full min-h-[480px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-white p-10 text-center">
-                                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
-                                    <ClipboardList className="size-8 text-slate-300" />
+                            <div className="flex h-full min-h-[520px] flex-col items-center justify-center rounded-3xl border-2 border-dashed border-rose-100 bg-rose-50/10 p-12 text-center">
+                                <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white shadow-xl shadow-rose-500/5 rotate-6">
+                                    <ClipboardList className="size-10 text-rose-200" />
                                 </div>
-                                <h3 className="mt-5 text-base font-semibold text-slate-600">
-                                    Note will appear here
+                                <h3 className="mt-8 text-xs font-black uppercase tracking-[0.2em] text-slate-800">
+                                    Awaiting Synthesizer
                                 </h3>
-                                <p className="mt-2 max-w-xs text-sm text-slate-400">
+                                <p className="mt-3 max-w-xs text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">
                                     {isGenerating ? (
-                                        <span className="inline-flex items-center gap-2">
-                                            <Loader2 className="size-4 animate-spin" />
-                                            Generating your clinical note…
+                                        <span className="inline-flex items-center gap-3">
+                                            <Loader2 className="size-4 animate-spin text-rose-500" />
+                                            Reconstructing Clinical Timeline...
                                         </span>
                                     ) : (
-                                        "Select a note type, provide clinical details, and click Generate Note."
+                                        "Framework selection and clinical input required to begin generation."
                                     )}
                                 </p>
                                 {isGenerating && (
-                                    <div className="mt-5 flex gap-1.5">
+                                    <div className="mt-8 flex gap-2">
                                         {[0, 1, 2].map((i) => (
                                             <div
                                                 key={i}
-                                                className="h-2 w-2 rounded-full bg-blue-400"
+                                                className="h-2 w-2 rounded-full bg-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.3)]"
                                                 style={{
                                                     animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
                                                 }}

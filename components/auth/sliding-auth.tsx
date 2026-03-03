@@ -14,7 +14,6 @@ interface SlidingAuthProps {
 export function SlidingAuth({ initialMode = "signin" }: SlidingAuthProps) {
     const [isSignUp, setIsSignUp] = useState(initialMode === "signup")
     const searchParams = useSearchParams()
-    const role = searchParams.get("role")
 
     useEffect(() => {
         setIsSignUp(initialMode === "signup")
@@ -25,146 +24,152 @@ export function SlidingAuth({ initialMode = "signin" }: SlidingAuthProps) {
     }
 
     return (
-        <div className="min-h-screen w-full flex items-center justify-center bg-[#0F172A] p-4 overflow-hidden relative">
-            {/* Background Gradients */}
-            <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-teal-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
+        <div className="min-h-screen w-full flex items-center justify-center bg-white p-4 overflow-y-auto relative font-sans selection:bg-rose-100 selection:text-rose-900">
+            {/* Premium Background Elements */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[80%] bg-gradient-to-br from-rose-100/50 to-transparent rounded-full blur-[120px] animate-pulse" />
+                <div className="absolute bottom-[-20%] left-[-10%] w-[70%] h-[100%] bg-gradient-to-tr from-rose-50 to-transparent rounded-full blur-[100px]" />
 
-            {/* Main Container - Card */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="relative bg-white rounded-[2rem] shadow-2xl w-full max-w-[1000px] min-h-[650px] overflow-hidden flex flex-col md:flex-row z-10"
-            >
-
-                {/* Mobile Toggle (Visible only on small screens) */}
-                <div className="md:hidden flex justify-center p-6 border-b border-slate-100">
-                    <div className="flex bg-slate-100 rounded-full p-1 relative">
-                        <motion.div
-                            className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-full shadow-sm"
-                            animate={{ x: isSignUp ? "100%" : "0%" }}
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        />
-                        <button
-                            onClick={() => setIsSignUp(false)}
-                            className={`relative z-10 px-8 py-2.5 text-sm font-bold transition-colors ${!isSignUp ? 'text-teal-600' : 'text-slate-500'}`}
-                        >
-                            Sign In
-                        </button>
-                        <button
-                            onClick={() => setIsSignUp(true)}
-                            className={`relative z-10 px-8 py-2.5 text-sm font-bold transition-colors ${isSignUp ? 'text-teal-600' : 'text-slate-500'}`}
-                        >
-                            Sign Up
-                        </button>
-                    </div>
-                </div>
-
-                {/* Form Container (Sign In) - Left Side */}
-                <div className={`w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center transition-all duration-700 ease-in-out z-0 ${isSignUp ? 'hidden md:flex md:opacity-0 md:pointer-events-none' : 'flex md:opacity-100'}`}>
-                    <div className="max-w-md mx-auto w-full">
-                        <div className="text-center mb-10 md:hidden">
-                            <div className="relative w-16 h-16 mx-auto mb-4">
-                                <Image src="/MetamedMDlogo (2).png" alt="Logo" fill className="object-contain" />
-                            </div>
-                            <h2 className="text-2xl font-bold text-slate-900">Welcome Back</h2>
-                        </div>
-
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                        >
-                            <h2 className="text-3xl font-bold mb-3 text-slate-900 hidden md:block">Sign In</h2>
-                            <p className="text-slate-500 mb-8 hidden md:block">Access your clinical dashboard</p>
-                            <LoginForm />
-                        </motion.div>
-                    </div>
-                </div>
-
-                {/* Form Container (Sign Up) - Right Side */}
-                <div className={`w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center transition-all duration-700 ease-in-out z-0 ${isSignUp ? 'flex md:opacity-100' : 'hidden md:flex md:opacity-0 md:pointer-events-none'}`}>
-                    <div className="max-w-md mx-auto w-full">
-                        <div className="text-center mb-10 md:hidden">
-                            <div className="relative w-16 h-16 mx-auto mb-4">
-                                <Image src="/MetamedMDlogo (2).png" alt="Logo" fill className="object-contain" />
-                            </div>
-                            <h2 className="text-2xl font-bold text-slate-900">Create Account</h2>
-                        </div>
-
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                        >
-                            <h2 className="text-3xl font-bold mb-3 text-slate-900 hidden md:block">Create Account</h2>
-                            <p className="text-slate-500 mb-8 hidden md:block">Join the intelligent clinical network</p>
-                            <SignupForm />
-                        </motion.div>
-                    </div>
-                </div>
-
-                {/* Overlay Container - The Slider */}
+                {/* Animated Floating Orbs */}
                 <motion.div
-                    className="hidden md:block absolute top-0 left-1/2 w-1/2 h-full z-50 overflow-hidden"
-                    animate={{ x: isSignUp ? "-100%" : "0%" }}
-                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    animate={{
+                        y: [0, -40, 0],
+                        x: [0, 20, 0],
+                    }}
+                    transition={{
+                        duration: 10,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                    className="absolute top-1/4 left-1/4 w-32 h-32 bg-rose-500/5 rounded-full blur-xl"
+                />
+                <motion.div
+                    animate={{
+                        y: [0, 60, 0],
+                        x: [0, -30, 0],
+                    }}
+                    transition={{
+                        duration: 15,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                    className="absolute bottom-1/4 right-1/3 w-48 h-48 bg-rose-500/10 rounded-full blur-2xl"
+                />
+            </div>
+
+            {/* Auth Container with 3D Perspective */}
+            <div className="relative z-10 w-full max-w-[1100px] [perspective:2000px]">
+                <motion.div
+                    animate={{ rotateY: isSignUp ? 180 : 0 }}
+                    transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+                    className="relative w-full min-h-[700px] [transform-style:preserve-3d]"
                 >
-                    <motion.div
-                        className="relative w-[200%] h-full flex bg-[#0F172A] text-white"
-                        animate={{ x: isSignUp ? "0%" : "-50%" }}
-                        transition={{ duration: 0.6, ease: "easeInOut" }}
-                    >
-                        {/* Overlay Pattern */}
-                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#14B8A6_1px,transparent_1px)] [background-size:16px_16px]" />
-
-                        {/* Overlay Panel Left (Visible when Sliding Window is on Left -> Sign In Context) */}
-                        <div
-                            className="w-1/2 h-full flex flex-col items-center justify-center p-12 text-center relative z-10"
-                        >
-                            <div className="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-10 border border-teal-500/20 max-w-sm shadow-2xl">
-                                <div className="relative w-20 h-20 mx-auto mb-6">
-                                    <Image src="/MetamedMDlogo (2).png" alt="Logo" fill className="object-contain" />
-                                </div>
-                                <h2 className="text-3xl font-bold mb-4 text-white">Welcome Back!</h2>
-                                <p className="text-slate-300 mb-8 leading-relaxed">
-                                    "A calm, brilliant colleague — clear-thinking, evidence-driven."
-                                </p>
-                                <button
-                                    onClick={toggleMode}
-                                    className="px-10 py-3 border border-teal-500/50 text-teal-400 rounded-lg font-semibold hover:bg-teal-500/10 transition-all uppercase tracking-wider text-sm hover:scale-105"
+                    {/* FRONT SIDE (Sign In) */}
+                    <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] bg-white rounded-[60px] shadow-[0_50px_100px_rgba(244,63,94,0.08)] border border-rose-100 flex overflow-hidden">
+                        <div className="w-full lg:w-[55%] p-8 md:p-12 lg:p-16 flex flex-col justify-center">
+                            <div className="max-w-md mx-auto w-full">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
                                 >
-                                    Sign In
-                                </button>
+                                    <div className="mb-10 flex items-center gap-4">
+                                        <div className="w-14 h-14 relative bg-rose-50 rounded-2xl flex items-center justify-center border border-rose-100 p-2.5">
+                                            <Image src="/MetamedMDlogo (2).png" alt="Logo" fill className="object-contain p-2" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-black text-rose-950 text-xl tracking-tight leading-none">CLARA™</h3>
+                                            <p className="text-[10px] uppercase font-black text-rose-500 tracking-[0.2em] mt-1">by MetaMedMD</p>
+                                        </div>
+                                    </div>
+
+                                    <h1 className="text-5xl font-black text-slate-900 mb-4 tracking-tighter">Welcome Back.</h1>
+                                    <p className="text-slate-500 text-lg mb-10 font-medium">Elevate your clinical reasoning today.</p>
+
+                                    <LoginForm />
+
+                                    <div className="mt-12 pt-8 border-t border-slate-100 text-center">
+                                        <p className="text-slate-500 font-medium">
+                                            New to CLARA?{' '}
+                                            <button
+                                                onClick={toggleMode}
+                                                className="text-rose-500 font-black hover:text-rose-600 transition-colors underline-offset-4 hover:underline"
+                                            >
+                                                Create account
+                                            </button>
+                                        </p>
+                                    </div>
+                                </motion.div>
                             </div>
                         </div>
 
-                        {/* Overlay Panel Right (Visible when Sliding Window is on Right -> Sign Up Context) */}
-                        <div
-                            className="w-1/2 h-full flex flex-col items-center justify-center p-12 text-center relative z-10"
-                        >
-                            <div className="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-10 border border-teal-500/20 max-w-sm shadow-2xl">
-                                <div className="relative w-20 h-20 mx-auto mb-6">
-                                    <Image src="/MetamedMDlogo (2).png" alt="Logo" fill className="object-contain" />
+                        {/* Visual Panel Right (LIGHT THEME) */}
+                        <div className="hidden lg:flex w-[45%] bg-rose-50/30 relative overflow-hidden items-center justify-center p-16 border-l border-rose-100/50">
+                            <div className="absolute inset-0 bg-gradient-to-br from-white via-rose-50/20 to-rose-100/30" />
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-rose-200/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
+                            <div className="absolute bottom-0 left-0 w-80 h-80 bg-rose-500/5 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/4" />
+
+                            <div className="relative z-10 text-center">
+                                <div className="w-24 h-24 bg-white rounded-[32px] border border-rose-100 flex items-center justify-center mx-auto mb-10 shadow-xl">
+                                    <Image src="/MetamedMDlogo (2).png" alt="Logo" width={48} height={48} className="object-contain" />
                                 </div>
-                                <h2 className="text-3xl font-bold mb-4 text-white">Join CLARA</h2>
-                                <p className="text-slate-300 mb-8 leading-relaxed">
-                                    Structured, evidence-based clinical reasoning for the modern clinician.
-                                </p>
-                                <button
-                                    onClick={toggleMode}
-                                    className="px-10 py-3 bg-teal-500 text-white rounded-lg font-semibold hover:bg-teal-600 transition-all uppercase tracking-wider text-sm shadow-lg shadow-teal-500/20 hover:scale-105"
-                                >
-                                    Sign Up
-                                </button>
+                                <h2 className="text-3xl font-black text-rose-950 mb-8 leading-tight max-w-sm mx-auto">"A brilliant colleague — always evidence-driven."</h2>
+                                <div className="w-16 h-1 bg-rose-500/20 mx-auto rounded-full" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* BACK SIDE (Sign Up) */}
+                    <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] bg-white rounded-[60px] shadow-[0_50px_100px_rgba(244,63,94,0.08)] border border-rose-100 flex overflow-hidden">
+                        {/* Visual Panel Left (LIGHT THEME) */}
+                        <div className="hidden lg:flex w-[45%] bg-rose-50/30 relative overflow-hidden items-center justify-center p-16 border-r border-rose-100/50">
+                            <div className="absolute inset-0 bg-gradient-to-bl from-white via-rose-50/20 to-rose-100/30" />
+                            <div className="absolute top-0 left-0 w-64 h-64 bg-rose-200/20 rounded-full blur-[100px] -translate-y-1/2 -translate-x-1/2" />
+
+                            <div className="relative z-10 text-center">
+                                <div className="w-auto h-24 bg-white rounded-[32px] border border-rose-100 flex items-center justify-center mx-auto mb-10 shadow-xl relative px-8">
+                                    <div className="text-rose-500 font-black text-2xl tracking-[0.1em]">CLARA</div>
+                                    <div className="absolute top-2 right-2 flex gap-1">
+                                        <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
+                                    </div>
+                                </div>
+                                <h2 className="text-3xl font-black text-rose-950 mb-8 leading-tight flex flex-col gap-3 mx-auto max-w-sm">
+                                    <span>Clinical Intelligence.</span>
+                                    <span className="text-rose-500">Mastered by CLARA.</span>
+                                </h2>
+                                <div className="w-16 h-1 bg-rose-500/20 mx-auto rounded-full" />
                             </div>
                         </div>
 
-                    </motion.div>
+                        <div className="w-full lg:w-[55%] p-6 md:p-10 lg:p-12 flex flex-col items-center overflow-y-auto relative custom-scrollbar">
+                            {/* Top Toggle for visibility */}
+                            <div className="absolute top-10 right-14 z-20">
+                                <button
+                                    onClick={toggleMode}
+                                    className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-2"
+                                >
+                                    <span>Sign in</span>
+                                    <div className="w-4 h-px bg-slate-200" />
+                                </button>
+                            </div>
+
+                            <div className="max-w-md mx-auto w-full pt-6 pb-6">
+                                <div className="mb-8 flex items-center gap-4 p-2.5 bg-rose-50/50 rounded-xl border border-rose-100/50 w-fit">
+                                    <div className="w-8 h-8 relative bg-white rounded-lg flex items-center justify-center shadow-sm p-1.5">
+                                        <Image src="/MetamedMDlogo (2).png" alt="Logo" fill className="object-contain p-1" />
+                                    </div>
+                                    <h3 className="font-black text-rose-950 text-[10px] tracking-[0.2em] leading-none uppercase pr-2">Join the Network</h3>
+                                </div>
+
+                                <h1 className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">Start Reasoning.</h1>
+                                <p className="text-slate-200 text-sm mb-8 font-medium bg-rose-950/90 py-2.5 px-5 rounded-full w-fit">Clinical Precision. AI Speed.</p>
+
+                                <SignupForm />
+                            </div>
+                        </div>
+                    </div>
                 </motion.div>
-
-            </motion.div>
+            </div>
         </div>
     )
 }

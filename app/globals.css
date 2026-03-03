@@ -59,36 +59,38 @@
 }
 
 :root {
-  /* Navy Scale (Deep charcoal for trust/medicine) */
-  --navy-50: 222 47% 98%;
-  --navy-100: 222 47% 95%;
-  --navy-200: 222 47% 90%;
-  --navy-300: 222 47% 80%;
-  --navy-400: 222 47% 60%;
-  --navy-500: 222 47% 40%;
-  --navy-600: 222 47% 30%;
-  --navy-700: 222 47% 20%;
-  --navy-800: 222 47% 15%;
-  --navy-900: 222 47% 11%;
+  /* Rose Scale (Warm pink for empathy/healthcare) */
+  --rose-50: 350 100% 98%;
+  --rose-100: 350 100% 95%;
+  --rose-200: 350 100% 90%;
+  --rose-300: 350 100% 80%;
+  --rose-400: 350 89% 65%;
+  --rose-500: 340 82% 52%;
+  --rose-600: 340 82% 45%;
+  --rose-700: 340 82% 35%;
+  --rose-800: 340 82% 25%;
+  --rose-900: 340 82% 15%;
 
-  /* Teal Scale (Electric accent for logic paths) */
-  --teal-50: 175 60% 98%;
-  --teal-100: 175 60% 95%;
-  --teal-200: 175 60% 85%;
-  --teal-300: 175 60% 70%;
-  --teal-400: 175 60% 55%;
-  --teal-500: 175 84% 32%;
+  /* Neutral Scale (Clean slate for balance) */
+  --slate-50: 210 40% 98%;
+  --slate-100: 210 40% 96%;
+  --slate-200: 210 40% 90%;
+  --slate-300: 210 40% 80%;
+  --slate-400: 210 40% 60%;
+  --slate-500: 210 40% 40%;
+  --slate-600: 210 40% 30%;
+  --slate-700: 210 40% 20%;
+  --slate-800: 210 40% 15%;
+  --slate-900: 222 47% 11%;
 
   /* Status Colors */
   --success: 142 76% 36%;
   --warning: 48 96% 53%;
   --destructive-base: 0 84% 60%;
 
-  /* Light Theme Semantic Mapping */
-  --background: 222 47% 98%;
-  /* Navy 50 (Very Light) */
+  /* Light Theme Semantic Mapping (Pink/White Theme) */
+  --background: 350 100% 99%;
   --foreground: 222 47% 11%;
-  /* Navy 900 */
 
   --card: 0 0% 100%;
   --card-foreground: 222 47% 11%;
@@ -96,49 +98,41 @@
   --popover: 0 0% 100%;
   --popover-foreground: 222 47% 11%;
 
-  --primary: 222 47% 11%;
-  /* Navy 900 */
-  --primary-foreground: 222 47% 98%;
+  --primary: 340 82% 52%; /* Rose 500 */
+  --primary-foreground: 0 0% 100%;
 
-  --secondary: 175 84% 32%;
-  /* Teal 500 */
-  --secondary-foreground: 0 0% 100%;
+  --secondary: 350 100% 95%; /* Rose 100 */
+  --secondary-foreground: 340 82% 52%;
 
-  --muted: 222 47% 95%;
-  /* Navy 100 */
-  --muted-foreground: 222 47% 40%;
-  /* Navy 500 */
+  --muted: 210 40% 96%; /* Slate 100 */
+  --muted-foreground: 210 40% 40%; /* Slate 500 */
 
-  --accent: 175 60% 95%;
-  /* Teal 100 */
-  --accent-foreground: 175 84% 32%;
-  /* Teal 500 */
+  --accent: 350 100% 95%; /* Rose 100 */
+  --accent-foreground: 340 82% 52%;
 
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
 
-  --border: 222 47% 90%;
-  /* Navy 200 */
-  --input: 222 47% 90%;
-  --ring: 222 47% 11%;
-  /* Navy 900 */
+  --border: 350 100% 90%; /* Rose 200 */
+  --input: 350 100% 90%;
+  --ring: 340 82% 52%;
 
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 
-  --chart-1: 222 47% 11%;
-  --chart-2: 175 84% 32%;
+  --chart-1: 340 82% 52%;
+  --chart-2: 350 89% 65%;
   --chart-3: 142 76% 36%;
   --chart-4: 48 96% 53%;
   --chart-5: 0 84% 60%;
 
-  --sidebar: 222 47% 98%;
+  --sidebar: 350 100% 99%;
   --sidebar-foreground: 222 47% 11%;
-  --sidebar-primary: 222 47% 11%;
-  --sidebar-primary-foreground: 222 47% 98%;
-  --sidebar-accent: 222 47% 95%;
-  --sidebar-accent-foreground: 222 47% 11%;
-  --sidebar-border: 222 47% 90%;
-  --sidebar-ring: 222 47% 11%;
+  --sidebar-primary: 340 82% 52%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 350 100% 95%;
+  --sidebar-accent-foreground: 340 82% 52%;
+  --sidebar-border: 350 100% 90%;
+  --sidebar-ring: 340 82% 52%;
 }
 
 .dark {

@@ -42,116 +42,116 @@ interface SectionConfig {
 const SECTION_CONFIG: Record<string, SectionConfig> = {
     "Clinical Takeaway": {
         icon: ClipboardList,
-        color: "bg-teal-50 border-teal-200 text-teal-900",
-        darkColor: "dark:bg-teal-900/20 dark:border-teal-800 dark:text-teal-100",
-        iconColor: "text-teal-600 dark:text-teal-400",
+        color: "bg-rose-50 border-rose-100 text-rose-950 shadow-[0_4px_12px_rgba(244,63,94,0.05)]",
+        darkColor: "",
+        iconColor: "text-rose-500",
         colSpan: "md:col-span-2",
-        contentClass: "columns-1 md:columns-2 gap-8 [&>ul]:mt-0 [&>ul]:mb-0 break-inside-avoid-column"
+        contentClass: "columns-1 md:columns-2 gap-8 [&>ul]:mt-0 [&>ul]:mb-0 break-inside-avoid-column font-medium"
     },
     "Research Evidence": {
         icon: Microscope,
-        color: "bg-blue-50 border-blue-200 text-blue-900",
-        darkColor: "dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-100",
-        iconColor: "text-blue-600 dark:text-blue-400",
+        color: "bg-white border-rose-100 text-slate-800",
+        darkColor: "",
+        iconColor: "text-rose-500",
         colSpan: "md:col-span-2"
     },
     "Expert Opinion": {
         icon: Brain,
-        color: "bg-indigo-50 border-indigo-200 text-indigo-900",
-        darkColor: "dark:bg-indigo-900/20 dark:border-indigo-800 dark:text-indigo-100",
-        iconColor: "text-indigo-600 dark:text-indigo-400",
+        color: "bg-indigo-50/50 border-indigo-100 text-indigo-900",
+        darkColor: "",
+        iconColor: "text-indigo-600",
         colSpan: "md:col-span-1"
     },
     "Patient Perspectives": {
         icon: Users,
-        color: "bg-rose-50 border-rose-200 text-rose-900",
-        darkColor: "dark:bg-rose-900/20 dark:border-rose-800 dark:text-rose-100",
-        iconColor: "text-rose-600 dark:text-rose-400",
+        color: "bg-rose-50 border-rose-100 text-rose-900",
+        darkColor: "",
+        iconColor: "text-rose-600",
         colSpan: "md:col-span-1"
     },
     "Definition": {
         icon: BookOpen,
-        color: "bg-indigo-50 border-indigo-200 text-indigo-900",
-        darkColor: "dark:bg-indigo-900/20 dark:border-indigo-800 dark:text-indigo-100",
-        iconColor: "text-indigo-600 dark:text-indigo-400",
+        color: "bg-slate-50 border-rose-100 text-slate-900",
+        darkColor: "",
+        iconColor: "text-rose-500",
         colSpan: "md:col-span-1"
     },
     "Evidence-Based Overview": {
         icon: Activity,
-        color: "bg-blue-50 border-blue-200 text-blue-900",
-        darkColor: "dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-100",
-        iconColor: "text-blue-600 dark:text-blue-400",
+        color: "bg-rose-50/30 border-rose-100 text-rose-900",
+        darkColor: "",
+        iconColor: "text-rose-600",
         colSpan: "md:col-span-1"
     },
     "Clinical Decision Context": {
         icon: Stethoscope,
-        color: "bg-amber-50 border-amber-200 text-amber-900",
-        darkColor: "dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-100",
-        iconColor: "text-amber-600 dark:text-amber-400",
+        color: "bg-amber-50/50 border-amber-100 text-amber-900",
+        darkColor: "",
+        iconColor: "text-amber-600",
         colSpan: "md:col-span-2"
     },
     "Limitations & Uncertainty": {
         icon: AlertTriangle,
-        color: "bg-orange-50 border-orange-200 text-orange-900",
-        darkColor: "dark:bg-orange-900/20 dark:border-orange-800 dark:text-orange-100",
-        iconColor: "text-orange-600 dark:text-orange-400",
+        color: "bg-orange-50/50 border-orange-100 text-orange-900",
+        darkColor: "",
+        iconColor: "text-orange-600",
         colSpan: "md:col-span-1"
     },
     "When Immediate Medical Attention Is Required": {
         icon: ShieldAlert,
-        color: "bg-red-50 border-red-200 text-red-900",
-        darkColor: "dark:bg-red-900/20 dark:border-red-800 dark:text-red-100",
-        iconColor: "text-red-600 dark:text-red-400",
+        color: "bg-red-50 border-red-100 text-red-900",
+        darkColor: "",
+        iconColor: "text-red-600",
         colSpan: "md:col-span-1"
     },
     "Sources Used": {
         icon: Info,
-        color: "bg-slate-50 border-slate-200 text-slate-900",
-        darkColor: "dark:bg-slate-800/50 dark:border-slate-700 dark:text-slate-100",
-        iconColor: "text-slate-600 dark:text-slate-400",
+        color: "bg-slate-50 border-slate-200 text-slate-700",
+        darkColor: "",
+        iconColor: "text-slate-500",
         colSpan: "md:col-span-2"
     },
     "Guideline Concordance Color Rating": {
         icon: Scale,
-        color: "bg-violet-50 border-violet-200 text-violet-900",
-        darkColor: "dark:bg-violet-900/20 dark:border-violet-800 dark:text-violet-100",
-        iconColor: "text-violet-600 dark:text-violet-400",
+        color: "bg-violet-50/50 border-violet-100 text-violet-900",
+        darkColor: "",
+        iconColor: "text-violet-600",
         colSpan: "md:col-span-1"
     },
     "Confidence Meter": {
         icon: CheckCircle2,
-        color: "bg-sky-50 border-sky-200 text-sky-900",
-        darkColor: "dark:bg-sky-900/20 dark:border-sky-800 dark:text-sky-100",
-        iconColor: "text-sky-600 dark:text-sky-400",
+        color: "bg-emerald-50/50 border-emerald-100 text-emerald-900",
+        darkColor: "",
+        iconColor: "text-emerald-600",
         colSpan: "md:col-span-1"
     },
     "Conclusion": {
         icon: Lightbulb,
-        color: "bg-purple-50 border-purple-200 text-purple-900",
-        darkColor: "dark:bg-purple-900/20 dark:border-purple-800 dark:text-purple-100",
-        iconColor: "text-purple-600 dark:text-purple-400",
+        color: "bg-white border-rose-100 text-slate-800 shadow-sm",
+        darkColor: "",
+        iconColor: "text-rose-500",
         colSpan: "md:col-span-2"
     },
     // Backwards compatibility / Fallbacks
     "Key Summary": {
         icon: FileText,
-        color: "bg-blue-50 border-blue-200 text-blue-900",
-        darkColor: "dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-100",
-        iconColor: "text-blue-600 dark:text-blue-400",
+        color: "bg-white border-rose-100 text-slate-800",
+        darkColor: "",
+        iconColor: "text-rose-500",
         colSpan: "md:col-span-2"
     },
     "Practical Considerations": {
         icon: Stethoscope,
-        color: "bg-amber-50 border-amber-200 text-amber-900",
-        darkColor: "dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-100",
-        iconColor: "text-amber-600 dark:text-amber-400",
+        color: "bg-amber-50/30 border-amber-100 text-amber-900",
+        darkColor: "",
+        iconColor: "text-amber-600",
         colSpan: "md:col-span-2"
     },
     "Next Steps": {
         icon: ArrowRight,
-        color: "bg-emerald-50 border-emerald-200 text-emerald-900",
-        darkColor: "dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-100",
-        iconColor: "text-emerald-600 dark:text-emerald-400",
+        color: "bg-rose-50/50 border-rose-100 text-rose-900",
+        darkColor: "",
+        iconColor: "text-rose-500",
         colSpan: "md:col-span-2"
     }
 }
@@ -197,7 +197,7 @@ export const StructuredResponse = memo(({ content }: StructuredResponseProps) =>
 
     if (sections.length === 0) {
         return (
-            <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+            <div className="prose prose-sm max-w-none text-slate-700">
                 <MarkdownRenderer content={content} variant="doctor" />
             </div>
         )
@@ -215,25 +215,26 @@ export const StructuredResponse = memo(({ content }: StructuredResponseProps) =>
         return (
             <motion.div
                 key={index !== undefined ? index : section.title}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
                 className={cn(
-                    "rounded-lg border p-4 backdrop-blur-sm shadow-sm transition-all hover:shadow-md flex flex-col",
+                    "rounded-[2rem] border p-6 backdrop-blur-sm transition-all flex flex-col shadow-sm hover:shadow-md hover:border-rose-200 duration-300",
                     config.color,
-                    config.darkColor,
                     colSpanClass
                 )}
             >
-                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-black/5 dark:border-white/5 flex-shrink-0">
-                    <Icon className={cn("h-5 w-5", config.iconColor)} />
-                    <h3 className="font-bold text-lg leading-tight">{section.originalTitle}</h3>
+                <div className="flex items-center gap-3 mb-5 pb-4 border-b border-rose-100/50 flex-shrink-0">
+                    <div className="p-2 rounded-xl bg-white shadow-sm border border-rose-50">
+                        <Icon className={cn("h-5 w-5", config.iconColor)} />
+                    </div>
+                    <h3 className="font-black text-base md:text-lg leading-tight tracking-tight uppercase tracking-widest text-inherit">{section.originalTitle}</h3>
                 </div>
                 <div className="flex-grow">
                     <MarkdownRenderer
                         content={section.content}
                         variant="doctor"
-                        className={config.contentClass}
+                        className={cn("prose-p:text-slate-700 prose-strong:text-inherit", config.contentClass)}
                     />
                 </div>
             </motion.div>
@@ -244,7 +245,7 @@ export const StructuredResponse = memo(({ content }: StructuredResponseProps) =>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             {/* Section 1: Main Analysis (Takeaway + Evidence + Hidden) */}
             {layoutGroups.main.length > 0 && (
-                <div className="md:col-span-2 space-y-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-1">
+                <div className="md:col-span-2 space-y-4 rounded-3xl border border-rose-100 bg-rose-50/20 p-1">
                     {layoutGroups.main.map((section, idx) => renderSection(section, idx, "md:col-span-2"))}
 
                     {layoutGroups.hidden.length > 0 && (
@@ -265,7 +266,7 @@ export const StructuredResponse = memo(({ content }: StructuredResponseProps) =>
                             <Button
                                 variant="ghost"
                                 onClick={() => setIsExpanded(!isExpanded)}
-                                className="w-full mt-2 flex items-center justify-center gap-2 text-slate-500 hover:text-teal-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+                                className="w-full mt-2 flex items-center justify-center gap-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all font-black uppercase tracking-[0.1em] text-[10px] py-6"
                             >
                                 {isExpanded ? (
                                     <>

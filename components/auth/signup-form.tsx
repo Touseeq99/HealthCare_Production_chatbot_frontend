@@ -198,7 +198,7 @@ export function SignupForm() {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-1.5">
+                <Label htmlFor="name" className="block text-sm font-black text-slate-800 mb-2 tracking-tight">
                   First Name *
                 </Label>
                 <Input
@@ -206,12 +206,12 @@ export function SignupForm() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`${errors.name ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all`}
+                  className={`${errors.name ? 'border-red-500' : 'border-slate-200 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-300'} bg-rose-50/10 text-slate-900 px-5 py-3.5 rounded-2xl transition-all font-medium`}
                 />
                 {errors.name && <p className="mt-1 text-sm text-red-600 font-medium">{errors.name}</p>}
               </div>
               <div>
-                <Label htmlFor="surname" className="block text-sm font-semibold text-slate-700 mb-1.5">
+                <Label htmlFor="surname" className="block text-sm font-black text-slate-800 mb-2 tracking-tight">
                   Last Name *
                 </Label>
                 <Input
@@ -219,14 +219,14 @@ export function SignupForm() {
                   name="surname"
                   value={formData.surname}
                   onChange={handleChange}
-                  className={`${errors.surname ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all`}
+                  className={`${errors.surname ? 'border-red-500' : 'border-slate-200 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-300'} bg-rose-50/10 text-slate-900 px-5 py-3.5 rounded-2xl transition-all font-medium`}
                 />
                 {errors.surname && <p className="mt-1 text-sm text-red-600 font-medium">{errors.surname}</p>}
               </div>
             </div>
 
             <div>
-              <Label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-1.5">
+              <Label htmlFor="email" className="block text-sm font-black text-slate-800 mb-2 tracking-tight">
                 Email Address *
               </Label>
               <Input
@@ -235,13 +235,13 @@ export function SignupForm() {
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`${errors.email ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all`}
+                className={`${errors.email ? 'border-red-500' : 'border-slate-200 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-300'} bg-rose-50/10 text-slate-900 px-5 py-3.5 rounded-2xl transition-all font-medium`}
               />
               {errors.email && <p className="mt-1 text-sm text-red-600 font-medium">{errors.email}</p>}
             </div>
 
             <div>
-              <Label htmlFor="role" className="block text-sm font-semibold text-slate-700 mb-1.5">
+              <Label htmlFor="role" className="block text-sm font-black text-slate-800 mb-2 tracking-tight">
                 I am a *
               </Label>
               <Select
@@ -250,12 +250,12 @@ export function SignupForm() {
                   setFormData(prev => ({ ...prev, role: value }))
                 }
               >
-                <SelectTrigger className={`${errors.role ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg`}>
+                <SelectTrigger className={`${errors.role ? 'border-red-500' : 'border-slate-200 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-300'} bg-rose-50/10 text-slate-900 px-5 py-3.5 rounded-2xl h-auto`}>
                   <SelectValue placeholder="Select your role" className="text-slate-500" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-slate-200 shadow-xl rounded-xl p-1">
-                  <SelectItem value="patient" className="text-slate-700 focus:bg-teal-50 focus:text-teal-700 rounded-lg cursor-pointer py-2">Patient</SelectItem>
-                  <SelectItem value="doctor" className="text-slate-700 focus:bg-teal-50 focus:text-teal-700 rounded-lg cursor-pointer py-2">Doctor</SelectItem>
+                <SelectContent className="bg-white border-rose-100 shadow-2xl rounded-2xl p-2 relative z-[100]">
+                  <SelectItem value="patient" className="text-slate-700 focus:bg-rose-50 focus:text-rose-700 rounded-xl cursor-pointer py-3 px-4 font-medium transition-colors">Patient</SelectItem>
+                  <SelectItem value="doctor" className="text-slate-700 focus:bg-rose-50 focus:text-rose-700 rounded-xl cursor-pointer py-3 px-4 font-medium transition-colors">Doctor</SelectItem>
                 </SelectContent>
               </Select>
               {errors.role && <p className="mt-1 text-sm text-red-600 font-medium">{errors.role}</p>}
@@ -273,7 +273,7 @@ export function SignupForm() {
             {formData.role === 'doctor' && (
               <>
                 <div>
-                  <Label htmlFor="specialization" className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  <Label htmlFor="specialization" className="block text-sm font-black text-slate-800 mb-2 tracking-tight">
                     Specialization *
                   </Label>
                   <Input
@@ -281,12 +281,12 @@ export function SignupForm() {
                     name="specialization"
                     value={formData.specialization}
                     onChange={handleChange}
-                    className={`${errors.specialization ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all`}
+                    className={`${errors.specialization ? 'border-red-500' : 'border-slate-200 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-300'} bg-rose-50/10 text-slate-900 px-5 py-3.5 rounded-2xl transition-all font-medium`}
                   />
                   {errors.specialization && <p className="mt-1 text-sm text-red-600 font-medium">{errors.specialization}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="doctorRegisterNumber" className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  <Label htmlFor="doctorRegisterNumber" className="block text-sm font-black text-slate-800 mb-2 tracking-tight">
                     Medical License Number *
                   </Label>
                   <Input
@@ -294,7 +294,7 @@ export function SignupForm() {
                     name="doctorRegisterNumber"
                     value={formData.doctorRegisterNumber}
                     onChange={handleChange}
-                    className={`${errors.doctorRegisterNumber ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all`}
+                    className={`${errors.doctorRegisterNumber ? 'border-red-500' : 'border-slate-200 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-300'} bg-rose-50/10 text-slate-900 px-5 py-3.5 rounded-2xl transition-all font-medium`}
                     placeholder="e.g., MD123456"
                   />
                   {errors.doctorRegisterNumber && <p className="mt-1 text-sm text-red-600 font-medium">{errors.doctorRegisterNumber}</p>}
@@ -303,7 +303,7 @@ export function SignupForm() {
             )}
 
             <div className="pt-2">
-              <p className="text-sm text-slate-500 bg-slate-50 p-4 rounded-lg border border-slate-100">
+              <p className="text-sm text-slate-500 bg-rose-50/30 p-5 rounded-2xl border border-rose-100 font-medium leading-relaxed">
                 {formData.role === 'doctor'
                   ? 'Your medical license will be verified before account activation.'
                   : 'Please proceed to set up your account security.'}
@@ -320,7 +320,7 @@ export function SignupForm() {
             className="space-y-4"
           >
             <div>
-              <Label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-1.5">
+              <Label htmlFor="password" className="block text-sm font-black text-slate-800 mb-2 tracking-tight">
                 Create Password *
               </Label>
               <div className="relative">
@@ -330,12 +330,12 @@ export function SignupForm() {
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleChange}
-                  className={`${errors.password ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all pr-10`}
+                  className={`${errors.password ? 'border-red-500' : 'border-slate-200 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-300'} bg-rose-50/10 text-slate-900 px-5 py-3.5 rounded-2xl transition-all pr-12 font-medium`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-rose-500 transition-colors"
                   tabIndex={-1}
                 >
                   {showPassword ? (
@@ -353,7 +353,7 @@ export function SignupForm() {
             </div>
 
             <div>
-              <Label htmlFor="confirmPassword" className="block text-sm font-semibold text-slate-700 mb-1.5">
+              <Label htmlFor="confirmPassword" className="block text-sm font-black text-slate-800 mb-2 tracking-tight">
                 Confirm Password *
               </Label>
               <div className="relative">
@@ -363,12 +363,12 @@ export function SignupForm() {
                   type={showConfirmPassword ? "text" : "password"}
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`${errors.confirmPassword ? 'border-red-500' : 'border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500'} bg-slate-50 text-slate-900 px-4 py-2.5 rounded-lg transition-all pr-10`}
+                  className={`${errors.confirmPassword ? 'border-red-500' : 'border-slate-200 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-300'} bg-rose-50/10 text-slate-900 px-5 py-3.5 rounded-2xl transition-all pr-12 font-medium`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-rose-500 transition-colors"
                   tabIndex={-1}
                 >
                   {showConfirmPassword ? (
@@ -391,15 +391,15 @@ export function SignupForm() {
                     onCheckedChange={(checked) =>
                       setFormData(prev => ({ ...prev, agreeToTerms: !!checked }))
                     }
-                    className={`h-4 w-4 rounded ${errors.agreeToTerms ? 'border-red-500' : 'border-slate-300 text-teal-600 focus:ring-teal-500 data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600'}`}
+                    className={`h-5 w-5 rounded-lg ${errors.agreeToTerms ? 'border-red-500' : 'border-slate-300 text-rose-500 focus:ring-rose-500 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500'}`}
 
                   />
                 </div>
                 <div className="ml-3 text-sm">
-                  <label htmlFor="agreeToTerms" className="font-medium text-slate-700">
+                  <label htmlFor="agreeToTerms" className="font-semibold text-slate-600 cursor-pointer">
                     I agree to the{' '}
-                    <a href="/terms" className="text-teal-600 hover:text-teal-700 font-bold hover:underline">Terms of Service</a> and{' '}
-                    <a href="/privacy" className="text-teal-600 hover:text-teal-700 font-bold hover:underline">Privacy Policy</a> *
+                    <a href="/terms" className="text-rose-500 hover:text-rose-600 font-black tracking-tight underline-offset-4 hover:underline">Terms of Service</a> and{' '}
+                    <a href="/privacy" className="text-rose-500 hover:text-rose-600 font-black tracking-tight underline-offset-4 hover:underline">Privacy Policy</a> *
                   </label>
                   {errors.agreeToTerms && <p className="mt-1 text-sm text-red-600 font-medium">{errors.agreeToTerms}</p>}
                 </div>
@@ -415,7 +415,7 @@ export function SignupForm() {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {generalError && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -427,19 +427,19 @@ export function SignupForm() {
           </motion.div>
         )}
         {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between relative z-10 w-full">
+        <div className="mb-4">
+          <div className="flex items-center justify-between relative z-10 w-full px-4">
             {[1, 2, 3].map((stepNum) => (
               <div key={stepNum} className="flex flex-col items-center group cursor-default">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 shadow-sm ${step >= stepNum
-                    ? 'bg-teal-500 text-white shadow-teal-500/30 scale-110'
+                  className={`w-9 h-9 rounded-[12px] flex items-center justify-center text-xs font-black transition-all duration-500 shadow-sm ${step >= stepNum
+                    ? 'bg-rose-500 text-white shadow-rose-500/40 scale-110 rotate-3'
                     : 'bg-slate-100 text-slate-400'
                     }`}
                 >
                   {stepNum}
                 </div>
-                <span className={`mt-2 text-xs font-bold uppercase tracking-wider transition-colors ${step >= stepNum ? 'text-teal-600' : 'text-slate-400'}`}>
+                <span className={`mt-1.5 text-[8px] font-black uppercase tracking-[0.2em] transition-colors ${step >= stepNum ? 'text-rose-600' : 'text-slate-400'}`}>
                   {stepNum === 1 ? 'Account' : stepNum === 2 ? 'Details' : 'Security'}
                 </span>
               </div>
@@ -448,12 +448,12 @@ export function SignupForm() {
         </div>
 
         {/* Form Content */}
-        <div className="min-h-[300px]">
+        <div className="min-h-[220px]">
           {renderStep()}
         </div>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between pt-4 border-t border-slate-100 mt-6">
+        <div className="flex justify-between pt-3 border-t border-slate-100 mt-4">
           <Button
             type="button"
             variant="ghost"
@@ -468,7 +468,7 @@ export function SignupForm() {
             <Button
               type="button"
               onClick={handleNext}
-              className="bg-teal-500 hover:bg-teal-600 text-white shadow-lg shadow-teal-500/20 px-8 rounded-xl font-bold transition-all hover:scale-105"
+              className="bg-rose-500 hover:bg-rose-600 text-white shadow-[0_15px_30px_rgba(244,63,94,0.15)] px-10 py-5 rounded-2xl font-black tracking-tight transition-all hover:scale-105 active:scale-[0.98]"
             >
               Continue
             </Button>
@@ -476,10 +476,10 @@ export function SignupForm() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-teal-500 hover:bg-teal-600 text-white shadow-lg shadow-teal-500/20 px-8 rounded-xl font-bold transition-all hover:scale-105"
+              className="bg-rose-500 hover:bg-rose-600 text-white shadow-[0_15px_30px_rgba(244,63,94,0.15)] px-10 py-5 rounded-2xl font-black tracking-tight transition-all hover:scale-105 active:scale-[0.98]"
             >
               {isSubmitting ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   <span>Creating...</span>
                 </div>
@@ -491,12 +491,12 @@ export function SignupForm() {
         </div>
       </form>
 
-      <div className="relative my-8">
+      <div className="relative my-2">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-slate-200" />
+          <span className="w-full border-t border-slate-100" />
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-slate-500 font-medium tracking-wider">Or continue with</span>
+        <div className="relative flex justify-center text-xs">
+          <span className="bg-white px-4 text-slate-400 font-bold uppercase tracking-[0.2em]">Or continue with</span>
         </div>
       </div>
 
@@ -504,7 +504,7 @@ export function SignupForm() {
         type="button"
         variant="outline"
         onClick={handleGoogleLogin}
-        className="w-full py-6 border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl transition-all flex items-center justify-center gap-3"
+        className="w-full py-4 border-slate-200 hover:bg-rose-50 hover:border-rose-200 text-slate-700 font-bold rounded-2xl transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path

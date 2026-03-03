@@ -42,7 +42,7 @@ export default function TermsPage() {
       {/* Navigation */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-          ? "bg-white/90 backdrop-blur-md shadow-sm py-4 border-b border-slate-100"
+          ? "bg-white/90 backdrop-blur-md shadow-sm py-4 border-b border-rose-100"
           : "bg-white/50 backdrop-blur-sm py-6"
           }`}
       >
@@ -58,21 +58,21 @@ export default function TermsPage() {
               />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-lg leading-none text-slate-900">
+              <span className="font-bold text-lg leading-none text-rose-950">
                 CLARA
               </span>
-              <span className="text-[10px] leading-none text-slate-500">
+              <span className="text-[10px] leading-none text-rose-500">
                 by MetaMedMD
               </span>
             </div>
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
-            {["Platform", "Evidence", "Use Cases", "About"].map((item) => (
+            {["How It Works", "Clinical Evidence", "Use Cases", "About"].map((item) => (
               <Link
                 key={item}
-                href={item === "About" ? "/about" : `/#${item.toLowerCase().replace(" ", "-")}`}
-                className="text-sm font-medium text-slate-600 transition-colors hover:text-teal-600"
+                href={item === "About" ? "/about" : `/#${item.toLowerCase().replace(/\s+/g, "-")}`}
+                className="text-sm font-medium text-slate-600 transition-colors hover:text-rose-600"
               >
                 {item}
               </Link>
@@ -81,7 +81,7 @@ export default function TermsPage() {
 
           <div className="flex items-center space-x-4">
             <Link href="/signup">
-              <Button className="bg-teal-500 hover:bg-teal-600 text-white border-0 shadow-lg shadow-teal-500/20">
+              <Button className="bg-rose-500 hover:bg-rose-600 text-white border-0 shadow-lg shadow-rose-500/20 rounded-full font-bold">
                 Get Started
               </Button>
             </Link>
@@ -90,14 +90,14 @@ export default function TermsPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-40 pb-20 bg-slate-50 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <section className="pt-40 pb-20 bg-rose-50/20 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-rose-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="container mx-auto px-6 relative z-10">
           <div className="max-w-3xl">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-white text-sm font-semibold mb-6"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-600 text-[10px] font-black uppercase tracking-[0.2em] mb-8"
             >
               <Gavel className="h-4 w-4" />
               Legal & Framework
@@ -105,28 +105,28 @@ export default function TermsPage() {
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-4xl md:text-6xl font-bold text-slate-900 mb-8 leading-tight"
+              className="text-5xl md:text-7xl font-black text-rose-950 mb-8 leading-tight tracking-tighter uppercase"
             >
               Terms & <br />
-              <span className="text-indigo-600">Conditions.</span>
+              <span className="text-rose-500 italic font-medium lowercase font-serif tracking-normal">Conditions.</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-xl text-slate-600 leading-relaxed mb-4"
+              className="text-xl text-slate-600 leading-relaxed mb-4 font-secondary font-medium"
             >
               Welcome to CLARA™ (and the MetaMedMD ecosystem). These Terms and Conditions govern your use of the platform and related services.
             </motion.p>
-            <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">Last updated: January 2026</p>
+            <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] mt-8">Last Updated: January 2026</p>
           </div>
         </div>
       </section>
 
       {/* Content Section */}
-      <section className="py-24 bg-white">
+      <section className="py-32 bg-white">
         <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto space-y-20">
+          <div className="max-w-5xl mx-auto space-y-24">
 
             {[
               {
@@ -151,7 +151,7 @@ export default function TermsPage() {
               },
               {
                 id: "3",
-                title: "Medical Disclaimer & Disclaimer of Warranties",
+                title: "Medical Disclaimer",
                 icon: ShieldAlert,
                 items: [
                   "The platform provides decision support outputs based on available data and programmed logic algorithms.",
@@ -204,19 +204,21 @@ export default function TermsPage() {
                 variants={sectionVariants}
                 className="group"
               >
-                <div className="flex items-start gap-8">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300">
-                    <section.icon className="h-6 w-6" />
+                <div className="flex items-start gap-10">
+                  <div className="flex-shrink-0 w-16 h-16 rounded-3xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 group-hover:bg-rose-500 group-hover:text-white group-hover:rotate-6 transition-all duration-500 ease-out shadow-sm">
+                    <section.icon className="h-7 w-7" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                      <span className="text-slate-300 text-sm font-mono">{section.id}.</span> {section.title}
+                    <h2 className="text-3xl font-extrabold text-slate-800 mb-8 flex items-center gap-3 tracking-tight">
+                      <span className="text-rose-300 text-sm font-black uppercase tracking-tighter">Section {section.id}</span>
+                      <span className="w-2 h-2 rounded-full bg-rose-200" />
+                      {section.title}
                     </h2>
-                    <ul className="space-y-4">
+                    <ul className="space-y-6">
                       {section.items.map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-3">
-                          <div className="mt-2.5 w-1.5 h-1.5 rounded-full bg-indigo-500 flex-shrink-0" />
-                          <p className="text-slate-600 leading-relaxed">{item}</p>
+                        <li key={idx} className="flex items-start gap-4 group/item">
+                          <div className="mt-2.5 w-2 h-2 rounded-full bg-rose-500 flex-shrink-0 shadow-[0_0_10px_rgba(244,63,94,0.4)]" />
+                          <p className="text-slate-500 leading-relaxed font-medium group-hover/item:text-slate-900 transition-colors text-lg">{item}</p>
                         </li>
                       ))}
                     </ul>
@@ -231,27 +233,29 @@ export default function TermsPage() {
               whileInView="visible"
               viewport={{ once: true }}
               variants={sectionVariants}
-              className="bg-slate-900 rounded-[40px] p-10 text-white relative overflow-hidden"
+              className="bg-white rounded-[40px] p-12 md:p-16 border border-rose-100 relative overflow-hidden shadow-xl"
             >
-              <div className="relative z-10">
-                <h3 className="text-2xl font-bold mb-6">Questions regarding these terms?</h3>
-                <p className="text-slate-400 mb-8 leading-relaxed">
-                  Our professional governance team is available to discuss specifics of our service level agreements and institutional terms.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative z-10 flex flex-col md:flex-row gap-12 items-center text-center md:text-left">
+                <div className="flex-1">
+                  <h3 className="text-4xl font-black mb-6 text-rose-950 tracking-tighter uppercase font-primary">Questions regarding these terms?</h3>
+                  <p className="text-slate-600 text-lg mb-0 leading-relaxed font-secondary font-medium lg:max-w-xl">
+                    Our professional governance team is available to discuss specifics of our service level agreements and institutional terms.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-4 w-full md:w-auto">
                   <a href="mailto:info@metamedmd.com">
-                    <Button className="bg-white text-slate-900 hover:bg-slate-100 font-bold px-8 py-6 rounded-2xl">
+                    <Button className="bg-rose-500 text-white hover:bg-rose-600 font-black h-16 px-12 rounded-full transition-all hover:scale-105 shadow-2xl shadow-rose-500/20 w-full uppercase tracking-widest text-xs">
                       Contact Legal Team
                     </Button>
                   </a>
-                  <Link href="/contact">
-                    <Button variant="ghost" className="text-white hover:bg-white/10 px-8 py-6 rounded-2xl">
+                  <Link href="/contact" className="w-full">
+                    <Button variant="ghost" className="text-slate-500 hover:text-rose-600 hover:bg-rose-50 h-16 px-12 rounded-full font-black w-full uppercase tracking-widest text-xs">
                       General Enquiries
                     </Button>
                   </Link>
                 </div>
               </div>
-              <div className="absolute bottom-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl translate-y-1/2 translate-x-1/2" />
+              <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
             </motion.div>
 
           </div>
@@ -259,10 +263,10 @@ export default function TermsPage() {
       </section>
 
       {/* Back to Home CTA */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-24 bg-rose-50/10">
         <div className="container mx-auto px-6 text-center">
           <Link href="/">
-            <Button variant="ghost" className="gap-2 text-slate-600 hover:text-indigo-600">
+            <Button variant="ghost" className="gap-2 text-slate-600 hover:text-rose-600 font-extrabold h-12 px-10 rounded-full">
               <ArrowLeft className="h-4 w-4" /> Back to Home
             </Button>
           </Link>

@@ -17,11 +17,11 @@ export function LoadingSpinner({ size = "md", variant = "default" }: LoadingSpin
       <div className="flex items-center justify-center">
         <div className={`${sizeClasses[size]} relative`}>
           {/* Medical heartbeat spinner */}
-          <div className="absolute inset-0 border-2 border-primary/20 rounded-full animate-ping" />
-          <div className="absolute inset-0 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <div className="absolute inset-2 border border-primary/40 rounded-full animate-pulse" />
+          <div className="absolute inset-0 border-2 border-rose-500/20 rounded-full animate-ping" />
+          <div className="absolute inset-0 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+          <div className="absolute inset-2 border border-rose-500/40 rounded-full animate-pulse" />
           <svg
-            className="absolute inset-1 text-primary animate-pulse"
+            className="absolute inset-1 text-rose-500 animate-pulse"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -40,7 +40,7 @@ export function LoadingSpinner({ size = "md", variant = "default" }: LoadingSpin
 
   return (
     <div className="flex items-center justify-center">
-      <div className={`${sizeClasses[size]} border-2 border-primary/20 border-t-primary rounded-full animate-spin`} />
+      <div className={`${sizeClasses[size]} border-2 border-rose-500/20 border-t-rose-500 rounded-full animate-spin`} />
     </div>
   )
 }
