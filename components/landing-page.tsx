@@ -43,13 +43,28 @@ const sectionVariants = {
 export default function LandingPage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState<'clinicians' | 'teams' | 'innovators'>('clinicians');
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+
+  const rotatingTexts = [
+    "For Healthcare Workers: CLARA analyzes symptoms to provide rapid, evidence-based diagnostic pathways and generates precise clinical notes instantly.",
+    "For Patients: CLARA translates complex medical data into clear, understandable insights, helping you navigate your health journey.",
+    "How it Works: Input patient history, and our AI cross-references thousands of clinical guidelines to build an actionable, traceable plan."
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    const interval = setInterval(() => {
+      setCurrentTextIndex((prev) => (prev + 1) % rotatingTexts.length);
+    }, 25000); // Changes every 25 seconds as requested
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearInterval(interval);
+    };
   }, []);
 
   const audienceContent = {
@@ -133,9 +148,14 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center space-x-4">
+            <Link href="/login">
+              <Button variant="ghost" className={`font-semibold transition-colors hover:bg-rose-50 rounded-full px-6 ${isScrolled ? "text-slate-600 hover:text-rose-600" : "text-rose-900 hover:text-rose-700"}`}>
+                Log In
+              </Button>
+            </Link>
             <Link href="/signup">
               <Button className="bg-rose-500 hover:bg-rose-600 text-white border-0 shadow-lg shadow-rose-500/20 rounded-full px-6">
-                Request Demo
+                Sign Up
               </Button>
             </Link>
           </div>
@@ -166,20 +186,35 @@ export default function LandingPage() {
               <span className="text-rose-500">in Seconds</span>
             </h1>
 
-            <p className="text-xl text-slate-600 mb-10 leading-relaxed max-w-xl font-medium">
-              Enhance Your Diagnostic Accuracy & Efficiency
-            </p>
+            <div className="h-28 sm:h-20 mb-10">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={currentTextIndex}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.5 }}
+                  className="text-xl text-slate-600 leading-relaxed max-w-xl font-medium"
+                >
+                  {rotatingTexts[currentTextIndex]}
+                </motion.p>
+              </AnimatePresence>
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-5 mb-12">
-              <Button className="h-14 px-10 text-lg bg-rose-500 hover:bg-rose-600 text-white rounded-full shadow-xl shadow-rose-500/25 transition-all hover:scale-105 font-bold">
-                Request a Demo
-              </Button>
-              <Button
-                variant="outline"
-                className="h-14 px-10 text-lg border-rose-200 text-rose-600 hover:bg-rose-50 rounded-full transition-all font-bold"
-              >
-                Learn More
-              </Button>
+              <Link href="/signup">
+                <Button className="h-14 px-10 text-lg bg-rose-500 hover:bg-rose-600 text-white rounded-full shadow-xl shadow-rose-500/25 transition-all hover:scale-105 font-bold w-full sm:w-auto">
+                  Sign Up
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="h-14 px-10 text-lg border-rose-200 text-rose-600 hover:bg-rose-50 rounded-full transition-all font-bold w-full sm:w-auto"
+                >
+                  Log In
+                </Button>
+              </Link>
             </div>
           </motion.div>
 

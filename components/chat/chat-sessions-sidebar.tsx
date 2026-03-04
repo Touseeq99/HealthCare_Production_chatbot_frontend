@@ -42,7 +42,7 @@ export function ChatSessionsSidebar({
     }
 
     return (
-        <div className="flex flex-col h-full bg-white border-r border-rose-100 w-72">
+        <div className="flex flex-col h-full overflow-hidden">
             <div className="p-4 border-b border-rose-100">
                 <Button
                     onClick={onCreateSession}
@@ -53,7 +53,7 @@ export function ChatSessionsSidebar({
                 </Button>
             </div>
 
-            <ScrollArea className="flex-1">
+            <div className="flex-1 overflow-y-auto min-h-0 scrollbar-thin scrollbar-thumb-rose-200 scrollbar-track-transparent">
                 <div className="p-3 space-y-2">
                     {isLoading ? (
                         <div className="flex flex-col gap-2 p-2">
@@ -185,7 +185,7 @@ export function ChatSessionsSidebar({
                         </AnimatePresence>
                     )}
                 </div>
-            </ScrollArea>
+            </div>
         </div>
     )
 }

@@ -9,7 +9,7 @@ import { formatTime } from "@/lib/date-utils"
 import {
   LogOut, Send, Bot, User, Loader2,
   MessageSquare, Plus, Menu, Shield, Brain, X, Trash2, Clock, History, Edit2, Check,
-  Stethoscope, Activity, ClipboardList, Microscope
+  Stethoscope, Activity, ClipboardList, Microscope, ChevronLeft
 } from "lucide-react"
 import { useChatSessions } from "@/hooks/use-chat-sessions"
 import { useToast } from "@/hooks/use-toast"
@@ -28,6 +28,7 @@ import { memo } from "react"
 import { ChatSessionsSidebar } from "./chat-sessions-sidebar"
 import { AIClinicalNote } from "@/components/ai-clinical-note/ai-clinical-note"
 import { DifferentialDiagnosis } from "@/components/differential-diagnosis/differential-diagnosis"
+import { ECGReport } from "@/components/ecg/ecg-report"
 
 interface Message {
   id: string
@@ -353,7 +354,7 @@ export function DoctorChatInterface() {
       <Tabs defaultValue="chat" value={activeTab} onValueChange={setActiveTab} className="flex w-full h-full z-10">
         {/* Sidebar */}
         <AnimatePresence>
-          {isSidebarOpen && activeTab === 'chat' && (
+          {isSidebarOpen && (
             <motion.div
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 288, opacity: 1 }}
@@ -371,29 +372,84 @@ export function DoctorChatInterface() {
                     <p className="text-[10px] text-rose-500 uppercase font-black tracking-wider">Clinician Mode</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(false)} className="text-slate-400 hover:text-rose-600 hover:bg-rose-50">
-                  <X className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 hidden lg:flex h-8 w-8"
+                    title="Collapse Sidebar"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 lg:hidden"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
 
-              <div className="flex-1 overflow-hidden">
-                <ChatSessionsSidebar
-                  sessions={sessions}
-                  currentSessionId={currentSessionId}
-                  onSelectSession={(id) => {
-                    handleSelectSession(id);
-                    if (window.innerWidth < 1024) setIsSidebarOpen(false);
-                  }}
-                  onCreateSession={handleCreateNewChat}
-                  onDeleteSession={handleDeleteSession}
-                  onRenameSession={async (id, name) => {
-                    const success = await updateSessionName(id, name)
-                    if (success) toast({ title: "Success", description: "Chat renamed" })
-                    else toast({ title: "Error", description: "Failed to rename", variant: "destructive" })
-                  }}
-                  isLoading={isLoadingSessions}
-                  role="doctor"
-                />
+              <div className="flex-1 overflow-hidden flex flex-col">
+                <div className="flex-1 flex flex-col min-h-0 p-4 space-y-4">
+                  <div className="space-y-1 flex-none">
+                    <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest px-2 mb-2">Clinical Services</p>
+                    <div className="grid grid-cols-1 gap-1">
+                      {[
+                        { id: 'chat', label: 'Clinical Chat', icon: MessageSquare },
+                        { id: 'evidence', label: 'Evidence Base', icon: Shield },
+                        { id: 'note', label: 'Clinical Note', icon: ClipboardList },
+                        { id: 'diff-dx', label: 'Differential Dx', icon: Microscope },
+                        { id: 'ecg-report', label: 'ECG Report', icon: Activity },
+                      ].map((item) => (
+                        <Button
+                          key={item.id}
+                          variant="ghost"
+                          onClick={() => setActiveTab(item.id)}
+                          className={cn(
+                            "w-full justify-start gap-3 h-10 px-3 rounded-lg font-bold text-xs transition-all uppercase tracking-tight",
+                            activeTab === item.id
+                              ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20 hover:bg-rose-600 hover:text-white"
+                              : "text-slate-500 hover:text-rose-600 hover:bg-rose-50"
+                          )}
+                        >
+                          <item.icon className="w-4 h-4" />
+                          {item.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="h-px bg-rose-100 mx-2" />
+
+                  <div className="flex-1 min-h-0 flex flex-col">
+                    <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest px-2 mb-2 flex-none">Recent Sessions</p>
+                    <ChatSessionsSidebar
+                      sessions={sessions}
+                      currentSessionId={currentSessionId}
+                      onSelectSession={(id) => {
+                        handleSelectSession(id);
+                        setActiveTab('chat');
+                        if (window.innerWidth < 1024) setIsSidebarOpen(false);
+                      }}
+                      onCreateSession={() => {
+                        handleCreateNewChat();
+                        setActiveTab('chat');
+                      }}
+                      onDeleteSession={handleDeleteSession}
+                      onRenameSession={async (id, name) => {
+                        const success = await updateSessionName(id, name)
+                        if (success) toast({ title: "Success", description: "Chat renamed" })
+                        else toast({ title: "Error", description: "Failed to rename", variant: "destructive" })
+                      }}
+                      isLoading={isLoadingSessions}
+                      role="doctor"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="p-4 border-t border-rose-100 bg-rose-50/30">
@@ -415,47 +471,34 @@ export function DoctorChatInterface() {
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-rose-100 bg-white/80 backdrop-blur-md z-20">
             <div className="flex items-center gap-4">
-              {(!isSidebarOpen || activeTab !== 'chat') && (
+              {!isSidebarOpen && (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                  className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all duration-300 transform"
                   onClick={() => setIsSidebarOpen(true)}
+                  title="Expand Sidebar"
                 >
                   <Menu className="h-5 w-5" />
                 </Button>
               )}
 
-              <TabsList className="flex bg-rose-50/50 p-1 rounded-xl border border-rose-100">
-                <TabsTrigger
-                  value="chat"
-                  className="px-4 py-2 rounded-lg text-sm font-black text-slate-500 data-[state=active]:bg-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-rose-500/20 transition-all flex items-center gap-2 uppercase tracking-tight"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  Clinical Chat
-                </TabsTrigger>
-                <TabsTrigger
-                  value="evidence"
-                  className="px-4 py-2 rounded-lg text-sm font-black text-slate-500 data-[state=active]:bg-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-rose-500/20 transition-all flex items-center gap-2 uppercase tracking-tight"
-                >
-                  <Shield className="w-4 h-4" />
-                  Evidence Base
-                </TabsTrigger>
-                <TabsTrigger
-                  value="note"
-                  className="px-4 py-2 rounded-lg text-sm font-black text-slate-500 data-[state=active]:bg-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-rose-500/20 transition-all flex items-center gap-2 uppercase tracking-tight"
-                >
-                  <ClipboardList className="w-4 h-4" />
-                  Clinical Note
-                </TabsTrigger>
-                <TabsTrigger
-                  value="diff-dx"
-                  className="px-4 py-2 rounded-lg text-sm font-black text-slate-500 data-[state=active]:bg-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-rose-500/20 transition-all flex items-center gap-2 uppercase tracking-tight"
-                >
-                  <Microscope className="w-4 h-4" />
-                  Differential Dx
-                </TabsTrigger>
-              </TabsList>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center text-white shadow-md">
+                  {activeTab === 'chat' && <MessageSquare className="w-4 h-4" />}
+                  {activeTab === 'evidence' && <Shield className="w-4 h-4" />}
+                  {activeTab === 'note' && <ClipboardList className="w-4 h-4" />}
+                  {activeTab === 'diff-dx' && <Microscope className="w-4 h-4" />}
+                  {activeTab === 'ecg-report' && <Activity className="w-4 h-4" />}
+                </div>
+                <h2 className="text-sm font-black text-rose-950 uppercase tracking-tight">
+                  {activeTab === 'chat' && 'Clinical Chat'}
+                  {activeTab === 'evidence' && 'Evidence Base'}
+                  {activeTab === 'note' && 'Clinical Note'}
+                  {activeTab === 'diff-dx' && 'Differential Dx'}
+                  {activeTab === 'ecg-report' && 'ECG Interpretation Report'}
+                </h2>
+              </div>
             </div>
 
             <div className="flex items-center gap-3">
@@ -615,12 +658,18 @@ export function DoctorChatInterface() {
               <DifferentialDiagnosis />
             </div>
           </TabsContent>
+
+          <TabsContent value="ecg-report" className="h-full overflow-hidden m-0 bg-slate-50">
+            <div className="h-full overflow-y-auto">
+              <ECGReport />
+            </div>
+          </TabsContent>
         </div>
       </Tabs>
 
       {/* Mobile Overlay */}
       <AnimatePresence>
-        {isSidebarOpen && activeTab === 'chat' && (
+        {isSidebarOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
