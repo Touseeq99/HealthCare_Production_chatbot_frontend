@@ -181,9 +181,9 @@ export default function LandingPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl lg:text-7xl font-extrabold text-[#3D3D3D] leading-tight mb-8">
-              AI Clinical Reasoning <br />
-              <span className="text-rose-500">in Seconds</span>
+            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold text-[#3D3D3D] leading-tight mb-6">
+              Precision Clinical Reasoning <br />
+              <span className="text-rose-500">for Modern Physicians and Patients</span>
             </h1>
 
             <div className="h-28 sm:h-20 mb-10">
@@ -218,53 +218,35 @@ export default function LandingPage() {
             </div>
           </motion.div>
 
-          {/* Hero Visual - Premium 3D Heart */}
+          {/* Hero Visual - Auto-playing Video */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, rotate: 5 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="relative flex justify-center items-center"
+            className="relative flex justify-center items-center w-full"
           >
             {/* Background Glow */}
             <div className="absolute inset-0 bg-rose-200/40 rounded-full blur-[100px] -z-10 animate-pulse" />
 
-            <div className="relative w-full max-w-[600px] aspect-square">
-              <Image
-                src="/hero-heart.png"
-                alt="Intelligent Clinical Reasoning"
-                fill
-                className="object-contain drop-shadow-[0_20px_50px_rgba(244,63,94,0.3)]"
-                priority
-              />
+            <div className="relative w-full max-w-2xl aspect-video rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(244,63,94,0.15)] border border-rose-100/50 bg-slate-50">
+              {/* Fallback gradient while loading */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-rose-50 to-slate-50 opacity-50" />
 
-              {/* Floating UI Elements matching the image style */}
-              <motion.div
-                animate={{ y: [0, -15, 0] }}
-                transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-                className="absolute top-10 right-10 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-rose-100 flex items-center gap-3"
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover z-0"
               >
-                <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
-                  <Activity className="h-5 w-5 text-rose-500" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase">Analysis</div>
-                  <div className="text-xs font-bold text-slate-800">Highly Probable</div>
-                </div>
-              </motion.div>
+                {/* Dynamically loads the video from the Supabase public 'herovideo' bucket */}
+                <source
+                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/herovideo/hero-video.mp4`}
+                  type="video/mp4"
+                />
+                Your browser does not support the video tag.
+              </video>
 
-              <motion.div
-                animate={{ y: [0, 15, 0] }}
-                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-                className="absolute bottom-20 left-0 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-rose-100 flex items-center gap-3"
-              >
-                <div className="w-10 h-10 bg-rose-500 rounded-full flex items-center justify-center">
-                  <Shield className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase">Verification</div>
-                  <div className="text-xs font-bold text-slate-800">Evidence Aligned</div>
-                </div>
-              </motion.div>
             </div>
           </motion.div>
         </div>

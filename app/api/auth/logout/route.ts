@@ -8,7 +8,8 @@ export async function POST() {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax' as const,
         path: '/',
-        maxAge: 0, // Delete cookie
+        maxAge: 0,
+        expires: new Date(0), // Set to past date to ensure deletion
     }
 
     // Clear all auth-related cookies
@@ -16,6 +17,12 @@ export async function POST() {
     response.cookies.set('refreshToken', '', cookieOptions)
     response.cookies.set('userRole', '', cookieOptions)
     response.cookies.set('clientRole', '', { ...cookieOptions, httpOnly: false })
+
+    // Also use the delete method for safe measure
+    response.cookies.delete('userToken')
+    response.cookies.delete('refreshToken')
+    response.cookies.delete('userRole')
+    response.cookies.delete('clientRole')
 
     return response
 }

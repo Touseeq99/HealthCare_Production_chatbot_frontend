@@ -55,6 +55,8 @@ export function AuthHashHandler() {
 
         // 2. Auth State Listener (Backup)
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            // Do NOT process anything on SIGNED_OUT — the logout handler handles the redirect
+            if (event === 'SIGNED_OUT') return;
             if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && !isProcessing.current) {
                 await handleSession(session)
             }
@@ -70,38 +72,43 @@ export function AuthHashHandler() {
         isProcessing.current = true;
 
         try {
-            // 1. Rapid Role Check (Metadata is instant)
-            let role = session.user.user_metadata?.role;
+            // NOTE: With flowType: 'pkce' set on the Supabase client, this handler
+            // should never fire for normal OAuth flows — the server-side callback
+            // route handles everything. This is kept only as a last-resort fallback.
 
-            if (!role || role === 'unassigned') {
-                const { data } = await supabase.from('users').select('role').eq('id', session.user.id).single();
-                if (data) role = data.role;
+            // Role priority: DB first → user_metadata fallback → 'unassigned'
+            let role = 'unassigned';
+            const { data: profile } = await supabase
+                .from('users')
+                .select('role')
+                .eq('id', session.user.id)
+                .single();
+
+            if (profile?.role && profile.role !== 'unassigned') {
+                role = profile.role
+            } else {
+                const metaRole = session.user.user_metadata?.role
+                if (metaRole && metaRole !== 'unassigned') role = metaRole
             }
 
-            const finalRole = role || 'unassigned';
+            // Set cookies clientRole so the UI knows
+            document.cookie = `clientRole=${role}; path=/; max-age=${60 * 60 * 24 * 7}`;;
 
-            // 2. Set Cookies via Server Side (Secure HttpOnly)
-            await fetch('/api/auth/session', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    access_token: session.access_token,
-                    refresh_token: session.refresh_token,
-                    role: finalRole
-                })
-            });
-
-            // 3. Store Local Info
             localStorage.setItem("userName", session.user.user_metadata?.full_name || "")
-            localStorage.setItem("userRole", finalRole)
 
-            // 4. Instant Redirect
-            let targetPath = '/onboarding';
-            if (finalRole === 'doctor') targetPath = '/doctor/dashboard';
-            else if (finalRole === 'patient') targetPath = '/patient/chat';
-            else if (finalRole === 'admin') targetPath = '/admin/dashboard'; // Keep existing admin path
+            // Determine destination
+            let destination = '/onboarding';
+            if (role === 'doctor') destination = '/doctor/dashboard';
+            else if (role === 'patient') destination = '/patient/chat';
+            else if (role === 'admin') destination = '/admin/dashboard';
 
-            window.location.replace(targetPath);
+            // New users must go through disclaimer (same as server-side callback)
+            const isNewUser = session.user.created_at === session.user.last_sign_in_at;
+            const target = isNewUser
+                ? `/disclaimer?redirect=${encodeURIComponent(destination)}`
+                : destination;
+
+            window.location.replace(target);
 
         } catch (error) {
             isProcessing.current = false;

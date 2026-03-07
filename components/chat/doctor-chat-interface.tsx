@@ -12,6 +12,7 @@ import {
   Stethoscope, Activity, ClipboardList, Microscope, ChevronLeft
 } from "lucide-react"
 import { useChatSessions } from "@/hooks/use-chat-sessions"
+import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 import { formatDistanceToNow } from "date-fns"
 import Image from "next/image"
@@ -322,15 +323,15 @@ export function DoctorChatInterface() {
   }
 
   const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" })
-    } catch (error) {
-      console.error("Logout error:", error)
-    } finally {
-      localStorage.clear()
-      sessionStorage.clear()
-      window.location.replace("/login")
-    }
+    // 1. Invalidate the Supabase session (clears SSR cookies set by createBrowserClient)
+    await supabase.auth.signOut()
+    // 2. Clear our custom auth cookies server-side
+    await fetch("/api/auth/logout", { method: "POST" }).catch(() => { })
+    // 3. Clear any remaining client-side storage
+    localStorage.clear()
+    sessionStorage.clear()
+    // 4. Hard redirect so no in-memory state survives
+    window.location.replace("/login")
   }
 
   const displayMessages = useMemo(() => {

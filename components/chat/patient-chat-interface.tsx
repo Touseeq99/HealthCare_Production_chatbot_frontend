@@ -32,6 +32,7 @@ import { useChatSessions } from "@/hooks/use-chat-sessions"
 import { ChatSessionsSidebar } from "./chat-sessions-sidebar"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import { supabase } from "@/lib/supabase"
 
 interface Message {
   id: string
@@ -337,11 +338,15 @@ export function PatientChatInterface() {
   }
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" })
-    localStorage.removeItem("userRole")
-    localStorage.removeItem("userEmail")
-    localStorage.removeItem("userName")
-    window.location.href = "/login"
+    // 1. Invalidate the Supabase session (clears SSR cookies set by createBrowserClient)
+    await supabase.auth.signOut()
+    // 2. Clear our custom auth cookies server-side
+    await fetch("/api/auth/logout", { method: "POST" }).catch(() => { })
+    // 3. Clear any remaining client-side storage
+    localStorage.clear()
+    sessionStorage.clear()
+    // 4. Hard redirect so no in-memory state survives
+    window.location.replace("/login")
   }
 
   const handleReadMore = async (article: BlogPost) => {

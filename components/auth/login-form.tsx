@@ -17,8 +17,7 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
 
-  const checkRoleAndRedirect = async (userId: string, router: any) => {
-    // Fetch profile from YOUR public.users table (Best Practice: Fetch fresh role)
+  const checkRoleAndRedirect = async (userId: string, sessionTokens: { access_token: string; refresh_token: string }) => {
     const { data: profile, error } = await supabase
       .from('users')
       .select('role, name, surname')
@@ -26,17 +25,12 @@ export function LoginForm() {
       .single()
 
     if (error || !profile) {
-      // Should not happen if Trigger is working
       setError("User profile not found. Please contact support.")
       return
     }
 
-    // Save profile info via server API (Secure HttpOnly)
-    await fetch('/api/auth/session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role: profile.role })
-    });
+    // Set the non-httpOnly clientRole directly in the browser so UI components know what to show
+    document.cookie = `clientRole=${profile.role}; path=/; max-age=${60 * 60 * 24 * 7}`;
 
     localStorage.setItem("userName", profile.name || "")
     if (profile.surname) {
@@ -81,7 +75,6 @@ export function LoginForm() {
       })
 
       if (error) {
-        // Map common auth errors to user-friendly messages
         if (error.message.includes("Invalid login credentials")) {
           setError("Incorrect email or password. Please try again.")
         } else if (error.message.includes("Email not confirmed")) {
@@ -92,20 +85,11 @@ export function LoginForm() {
         return
       }
 
-      if (data.session) {
-        // Set cookies for Middleware via server API (Secure HttpOnly)
-        await fetch('/api/auth/session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            access_token: data.session.access_token,
-            refresh_token: data.session.refresh_token
-          })
-        });
-      }
-
-      if (data.user) {
-        await checkRoleAndRedirect(data.user.id, router)
+      if (data.user && data.session) {
+        await checkRoleAndRedirect(data.user.id, {
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token
+        })
       }
     } catch (error) {
       setError("An error occurred during login. Please try again later.")

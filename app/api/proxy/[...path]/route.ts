@@ -32,11 +32,27 @@ async function handleRequest(request: NextRequest, pathArray: string[], method: 
     })
 
     const cookieStore = await cookies()
-    const token = cookieStore.get('userToken')?.value
+
+    const { createServerClient } = await import('@supabase/ssr')
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                getAll() {
+                    return cookieStore.getAll()
+                },
+                setAll() { } // We don't need to set cookies in the proxy request
+            }
+        }
+    )
+
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
 
     if (!token) {
         return NextResponse.json(
-            { message: 'No authentication token found' },
+            { message: 'No valid Supabase session found' },
             { status: 401 }
         )
     }

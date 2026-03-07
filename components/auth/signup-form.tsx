@@ -134,16 +134,8 @@ export function SignupForm() {
       }
 
       if (data.session) {
-        // Set cookies via server API (Secure HttpOnly)
-        await fetch('/api/auth/session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            access_token: data.session.access_token,
-            refresh_token: data.session.refresh_token,
-            role: formData.role
-          })
-        });
+        // Set the non-httpOnly clientRole directly in the browser so UI components know what to show
+        document.cookie = `clientRole=${formData.role}; path=/; max-age=${60 * 60 * 24 * 7}`;
       }
 
       if (data.user) {
@@ -151,11 +143,9 @@ export function SignupForm() {
         localStorage.setItem("userSurname", formData.surname)
         localStorage.setItem("userFullName", `${formData.name} ${formData.surname}`)
 
-        if (formData.role === 'doctor') {
-          router.push('/doctor/dashboard')
-        } else {
-          router.push('/patient/chat')
-        }
+        // Pass the destination as a query param — no localStorage needed
+        const destination = formData.role === 'doctor' ? '/doctor/dashboard' : '/patient/chat'
+        router.push(`/disclaimer?redirect=${encodeURIComponent(destination)}`)
       }
     } catch (error) {
       console.error('Signup error:', error)
