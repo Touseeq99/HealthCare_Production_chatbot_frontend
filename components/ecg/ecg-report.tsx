@@ -229,6 +229,28 @@ export function ECGReport() {
         )
     }
 
+    if (!reportData.structured_data) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] p-8 text-center space-y-6">
+                <AlertTriangle className="w-16 h-16 text-rose-500 mx-auto" />
+                <h2 className="text-2xl font-black text-rose-950">Incomplete Analysis</h2>
+                <p className="text-slate-500 max-w-md mx-auto">
+                    The AI was unable to extract structured metrics from the provided image. Please ensure the image is a clear, standard 12-lead ECG.
+                </p>
+                <div className="text-sm text-slate-400 bg-slate-100 p-4 rounded-lg w-full max-w-md overflow-auto text-left">
+                    <p className="font-bold mb-2">Raw Clinical Summary:</p>
+                    {reportData.clinical_summary || "No summary available."}
+                </div>
+                <Button
+                    onClick={() => { setReportData(null); setPreviewImage(null); }}
+                    className="bg-rose-500 hover:bg-rose-600 text-white font-bold px-8 py-2 rounded-xl"
+                >
+                    Try Another Image
+                </Button>
+            </div>
+        )
+    }
+
     // Map API Data to UI structure
     const structured = reportData.structured_data
     const metrics: ECGMetric[] = [
