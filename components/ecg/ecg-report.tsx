@@ -77,8 +77,34 @@ export function ECGReport() {
     const [isUploading, setIsUploading] = useState(false)
     const [reportData, setReportData] = useState<ECGData | null>(null)
     const [previewImage, setPreviewImage] = useState<string | null>(null)
+    const [isConfirmed, setIsConfirmed] = useState(false)
+    const [showNotes, setShowNotes] = useState(false)
+    const [notes, setNotes] = useState("")
     const fileInputRef = useRef<HTMLInputElement>(null)
     const { toast } = useToast()
+
+    const handleConfirm = () => {
+        setIsConfirmed(true)
+        toast({
+            title: "Report Signed",
+            description: "The ECG interpretation has been confirmed and signed.",
+        })
+    }
+
+    const handleExport = () => {
+        if (!reportData) return;
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(reportData, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "ecg-report-" + new Date().getTime() + ".json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+        toast({
+            title: "Export Successful",
+            description: "The ECG report has been downloaded.",
+        });
+    }
 
     const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -274,6 +300,12 @@ export function ECGReport() {
         }
     ]
 
+    const formatAxis = (val: string) => {
+        if (!val) return "N/A";
+        const match = val.match(/([+-]?\d+)/);
+        return match ? `${match[1]}°` : val;
+    }
+
     const features: ECGFeature[] = [
         {
             label: "P Wave",
@@ -295,7 +327,7 @@ export function ECGReport() {
         },
         {
             label: "QRS Axis",
-            value: `${structured.qrs_complex.axis_degrees}°`,
+            value: formatAxis(structured.qrs_complex.axis_degrees),
             status: getStatusFromInterpretation(structured.qrs_complex.interpretation),
             note: "Axis"
         },
@@ -320,9 +352,9 @@ export function ECGReport() {
     ]
 
     const axes = [
-        { label: "P Axis", value: `${structured.p_wave.axis_degrees}°`, status: getStatusFromInterpretation(structured.p_wave.interpretation) },
-        { label: "QRS Axis", value: `${structured.qrs_complex.axis_degrees}°`, status: getStatusFromInterpretation(structured.qrs_complex.interpretation) },
-        { label: "T Axis", value: `${structured.t_wave.axis_degrees}°`, status: getStatusFromInterpretation(structured.t_wave.interpretation) }
+        { label: "P Axis", value: formatAxis(structured.p_wave.axis_degrees), status: getStatusFromInterpretation(structured.p_wave.interpretation) },
+        { label: "QRS Axis", value: formatAxis(structured.qrs_complex.axis_degrees), status: getStatusFromInterpretation(structured.qrs_complex.interpretation) },
+        { label: "T Axis", value: formatAxis(structured.t_wave.axis_degrees), status: getStatusFromInterpretation(structured.t_wave.interpretation) }
     ]
 
     const criticalFlags = [
@@ -419,23 +451,63 @@ export function ECGReport() {
             </AnimatePresence>
 
             {/* Actions */}
-            <div className="flex flex-wrap items-center gap-3">
-                <Button className="bg-[#00D4AA] hover:bg-[#00B894] text-white font-black uppercase tracking-tight rounded-xl px-6 shadow-lg shadow-emerald-500/20">
-                    <BadgeCheck className="w-4 h-4 mr-2" />
-                    Confirm & Sign
-                </Button>
-                <Button variant="outline" className="border-slate-200 text-slate-700 font-bold rounded-xl px-6 bg-white hover:bg-slate-50">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Notes
-                </Button>
-                <Button variant="outline" className="border-slate-200 text-slate-700 font-bold rounded-xl px-6 bg-white hover:bg-slate-50">
-                    <Download className="w-4 h-4 mr-2" />
-                    Export
-                </Button>
-                <Button variant="outline" className="border-slate-200 text-slate-700 font-bold rounded-xl px-6 bg-white hover:bg-slate-50">
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Refer
-                </Button>
+            <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center gap-3 print:hidden">
+                    <Button
+                        onClick={handleConfirm}
+                        disabled={isConfirmed}
+                        className={cn(
+                            "text-white font-black uppercase tracking-tight rounded-xl px-6 shadow-lg",
+                            isConfirmed ? "bg-slate-400" : "bg-[#00D4AA] hover:bg-[#00B894] shadow-emerald-500/20"
+                        )}
+                    >
+                        <BadgeCheck className="w-4 h-4 mr-2" />
+                        {isConfirmed ? "Confirmed & Signed" : "Confirm & Sign"}
+                    </Button>
+                    <Button
+                        onClick={() => setShowNotes(!showNotes)}
+                        variant="outline"
+                        className={cn(
+                            "border-slate-200 text-slate-700 font-bold rounded-xl px-6 bg-white hover:bg-slate-50",
+                            showNotes && "bg-slate-100 border-slate-300"
+                        )}
+                    >
+                        <Plus className={cn("w-4 h-4 mr-2 transition-transform", showNotes && "rotate-45")} />
+                        {showNotes ? "Hide Notes" : "Add Notes"}
+                    </Button>
+                    <Button onClick={handleExport} variant="outline" className="border-slate-200 text-slate-700 font-bold rounded-xl px-6 bg-white hover:bg-slate-50">
+                        <Download className="w-4 h-4 mr-2" />
+                        Export
+                    </Button>
+                </div>
+
+                <AnimatePresence>
+                    {(showNotes || notes.trim()) && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="w-full print:block"
+                        >
+                            <Card className="border-slate-200 shadow-sm bg-white overflow-hidden">
+                                <CardHeader className="p-4 border-b border-slate-50 bg-slate-50/50 flex flex-row items-center justify-between space-y-0">
+                                    <CardTitle className="text-[12px] font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
+                                        <FileText className="w-4 h-4 text-rose-500" />
+                                        Clinical Notes
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-0">
+                                    <textarea
+                                        value={notes}
+                                        onChange={(e) => setNotes(e.target.value)}
+                                        placeholder="Add your clinical observations, differential diagnosis, or treatment plan here..."
+                                        className="w-full min-h-[120px] p-6 text-sm text-slate-700 resize-y focus:outline-none focus:ring-2 focus:ring-rose-500/20 border-0 bg-transparent"
+                                    />
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
