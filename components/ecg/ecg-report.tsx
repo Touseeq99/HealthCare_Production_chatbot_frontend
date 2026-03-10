@@ -126,8 +126,8 @@ export function ECGReport() {
             const labelIdx = sectionText.indexOf(label);
             if (labelIdx === -1) return false;
 
-            // Look for [✓], [x], [X], [*], [v] within 15 chars of the label
-            const searchArea = sectionText.slice(Math.max(0, labelIdx - 15), Math.min(sectionText.length, labelIdx + 5));
+            // Look for [✓], [x], [X], [*], [v] within 25 chars of the label (to catch "Label: [✓] YES")
+            const searchArea = sectionText.slice(Math.max(0, labelIdx - 15), Math.min(sectionText.length, labelIdx + 15));
             return /\[[✓vxX\*]\]/.test(searchArea);
         };
 
@@ -190,11 +190,16 @@ export function ECGReport() {
                     normal_range: ""
                 },
                 pvc_analysis: {
-                    present: isChecked("[3]", "YES"),
+                    present: isChecked("[3]", "PVCs Present"),
                     morphology: isChecked("[3]", "LBBB") ? "LBBB-type" : isChecked("[3]", "RBBB") ? "RBBB-type" : "Other",
                     axis: isChecked("[3]", "Inferior") ? "Inferior" : isChecked("[3]", "Superior") ? "Superior" : "Normal",
-                    rvot_likely: isChecked("[3]", "RVOT Origin Likely: [✓] YES"),
-                    evidence: ["Extracted from text"],
+                    rvot_likely: isChecked("[3]", "RVOT Origin Likely"),
+                    evidence: [
+                        isChecked("[3]", "Tall R in II") ? "Tall R in Inferior Leads" : "",
+                        isChecked("[3]", "LBBB morphology in V1") ? "LBBB in V1" : "",
+                        isChecked("[3]", "precordial transition") ? "Late transition" : "",
+                        isChecked("[3]", "Monophasic R") ? "Monophasic R" : ""
+                    ].filter(Boolean),
                     compensatory_pause: isChecked("[3]", "Compensatory Pause"),
                     p_wave_before: isChecked("[3]", "P wave before PVC"),
                     qrs_width: getField(/QRS width of PVC:\s*~?([^\n\[]+)/)
@@ -741,7 +746,37 @@ export function ECGReport() {
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-[10px] font-black text-slate-600 uppercase">Likely Origin</p>
-                                    <p className="text-sm font-black text-rose-600 font-bold">{structured.pvc_analysis.rvot_likely ? "RVOT Likely" : "Unknown"}</p>
+                                    <p className={cn("text-sm font-black font-bold", structured.pvc_analysis.rvot_likely ? "text-rose-600" : "text-slate-400")}>
+                                        {structured.pvc_analysis.rvot_likely ? "RVOT Likely" : "Unknown / Not Detected"}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                        {structured.pvc_analysis?.rvot_likely && structured.pvc_analysis.evidence?.length > 0 && (
+                            <div className="bg-rose-50/50 p-3 rounded-xl border border-rose-100/50 space-y-2">
+                                <p className="text-[9px] font-black text-rose-500 uppercase tracking-wider">RVOT Evidence</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {structured.pvc_analysis.evidence.map((ev: string, i: number) => (
+                                        <Badge key={i} variant="outline" className="bg-white text-[8px] border-rose-200 text-rose-700 py-0 font-bold">
+                                            {ev}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {structured.pvc_analysis?.present && (
+                            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-50">
+                                <div className="text-center">
+                                    <p className="text-[8px] font-black text-slate-400 uppercase">Width</p>
+                                    <p className="text-[10px] font-bold text-slate-700">{structured.pvc_analysis.qrs_width}</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-[8px] font-black text-slate-400 uppercase">Comp. Pause</p>
+                                    <p className="text-[10px] font-bold text-slate-700">{structured.pvc_analysis.compensatory_pause ? "YES" : "NO"}</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-[8px] font-black text-slate-400 uppercase">P Before</p>
+                                    <p className="text-[10px] font-bold text-slate-700">{structured.pvc_analysis.p_wave_before ? "YES" : "NO"}</p>
                                 </div>
                             </div>
                         )}
