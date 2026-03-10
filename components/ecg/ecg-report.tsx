@@ -105,7 +105,128 @@ export function ECGReport() {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const { toast } = useToast()
 
+    const parseECGReportText = (text: string): ECGData['structured_data'] | null => {
+        if (!text || !text.includes("ECG ANALYSIS REPORT")) return null;
+
+        const getField = (regex: RegExp) => {
+            const match = text.match(regex);
+            return (match && match[1]) ? match[1].trim().replace(/_{2,}/g, '') : "N/A";
+        };
+
+        const isChecked = (sectionMarker: string, label: string) => {
+            const startIdx = text.indexOf(sectionMarker);
+            if (startIdx === -1) return false;
+
+            const markerNum = parseInt(sectionMarker.replace(/[\[\]]/g, ''));
+            const nextMarker = `[${markerNum + 1}]`;
+            let endIdx = text.indexOf(nextMarker, startIdx);
+            if (endIdx === -1) endIdx = text.length;
+
+            const sectionText = text.slice(startIdx, endIdx);
+            const labelIdx = sectionText.indexOf(label);
+            if (labelIdx === -1) return false;
+
+            // Look for [✓], [x], [X], [*], [v] within 15 chars of the label
+            const searchArea = sectionText.slice(Math.max(0, labelIdx - 15), Math.min(sectionText.length, labelIdx + 5));
+            return /\[[✓vxX\*]\]/.test(searchArea);
+        };
+
+        try {
+            return {
+                rate: {
+                    value: getField(/Rate:\s*~?(\d+)/),
+                    interpretation: isChecked("[1]", "Tachycardia") ? "Tachycardia" : isChecked("[1]", "Bradycardia") ? "Bradycardia" : "Normal",
+                    normal_range: "60-100 bpm"
+                },
+                rhythm: {
+                    value: getField(/Rhythm:\s*([^\n\[]+)/),
+                    interpretation: isChecked("[2]", "Normal Sinus") ? "Normal Sinus Rhythm" : getField(/Rhythm:\s*([^\n\[]+)/),
+                    notes: "",
+                    type: isChecked("[2]", "Atrial Fibrillation") ? "Afib" : "Sinus"
+                },
+                p_wave: {
+                    present: isChecked("[6]", "Normal") ? "Yes" : "Absent",
+                    axis_degrees: "N/A",
+                    morphology: isChecked("[6]", "Normal") ? "Normal" : "Abnormal",
+                    interpretation: isChecked("[6]", "Normal") ? "Normal" : "Abnormal",
+                    notes: ""
+                },
+                pr_interval: {
+                    value: getField(/PR Interval:\s*~?([^\n\[\|]+)/),
+                    interpretation: isChecked("[4]", "Normal") ? "Normal" : "Abnormal",
+                    normal_range: "120-200 ms"
+                },
+                qrs_complex: {
+                    duration: getField(/QRS Duration:\s*~?([^\n\[\|]+)/),
+                    axis_degrees: getField(/QRS Axis:\s*~?([+-]?\d+)/),
+                    morphology: isChecked("[6]", "Narrow") ? "Narrow" : "Wide",
+                    interpretation: isChecked("[6]", "Narrow") ? "Narrow" : "Wide",
+                    notes: ""
+                },
+                st_segment: {
+                    changes: isChecked("[6]", "Normal") ? "Normal" : "Changes Detected",
+                    leads_affected: getField(/Elevated in:\s*([^_\|\[]+)/),
+                    interpretation: isChecked("[6]", "Normal") ? "Normal" : "Abnormal"
+                },
+                t_wave: {
+                    axis_degrees: "N/A",
+                    morphology: isChecked("[6]", "Normal") ? "Normal" : "Abnormal",
+                    leads_affected: "",
+                    interpretation: isChecked("[6]", "Normal") ? "Normal" : "Abnormal"
+                },
+                q_wave: {
+                    present: isChecked("[6]", "None") ? "None" : "Pathological",
+                    leads_affected: getField(/Pathological in:\s*([^_\|\[]+)/),
+                    interpretation: isChecked("[6]", "None") ? "Normal" : "Pathological"
+                },
+                qtc_interval: {
+                    value: getField(/QTc:\s*~?([^\n\[\|]+)/),
+                    interpretation: isChecked("[4]", "Normal") ? "Normal" : "Prolonged",
+                    normal_range: "<450 ms"
+                },
+                qt_interval: {
+                    value: getField(/QT Interval:\s*~?([^\n\[\|]+)/),
+                    interpretation: "Normal",
+                    normal_range: ""
+                },
+                pvc_analysis: {
+                    present: isChecked("[3]", "YES"),
+                    morphology: isChecked("[3]", "LBBB") ? "LBBB-type" : isChecked("[3]", "RBBB") ? "RBBB-type" : "Other",
+                    axis: isChecked("[3]", "Inferior") ? "Inferior" : isChecked("[3]", "Superior") ? "Superior" : "Normal",
+                    rvot_likely: isChecked("[3]", "RVOT Origin Likely: [✓] YES"),
+                    evidence: ["Extracted from text"],
+                    compensatory_pause: isChecked("[3]", "Compensatory Pause"),
+                    p_wave_before: isChecked("[3]", "P wave before PVC"),
+                    qrs_width: getField(/QRS width of PVC:\s*~?([^\n\[]+)/)
+                },
+                special_patterns: [
+                    isChecked("[7]", "LVH") ? "LVH" : "",
+                    isChecked("[7]", "RVH") ? "RVH" : "",
+                    isChecked("[7]", "STEMI") ? "STEMI" : "",
+                    isChecked("[7]", "WPW") ? "WPW" : "",
+                    isChecked("[7]", "Brugada") ? "Brugada" : "",
+                ].filter(Boolean),
+                final_impression: {
+                    primary_diagnosis: getField(/Primary Diagnosis:\s*([^\n]+)/),
+                    secondary_findings: getField(/Secondary Findings:\s*([^\n]+)/),
+                    urgency_level: isChecked("[8]", "URGENT") ? "URGENT" : isChecked("[8]", "Soon") ? "Soon" : "Routine",
+                    recommended_action: getField(/Recommended Action:\s*([^\n]+)/)
+                },
+                machine_diagnosis: {
+                    printed_label: getField(/Primary Diagnosis:\s*([^\n]+)/),
+                    confirmed: "AI Text Extraction"
+                },
+                overall_classification: isChecked("[8]", "URGENT") ? "Abnormal" : "Normal",
+                flags: []
+            } as any;
+        } catch (e) {
+            console.error("Manual parse failed:", e);
+            return null;
+        }
+    };
+
     const handleConfirm = () => {
+
         setIsConfirmed(true)
         toast({
             title: "Report Signed",
@@ -145,8 +266,16 @@ export function ECGReport() {
             })
 
             if (!response.ok) throw new Error("Failed to interpret ECG")
-
             const data = await response.json()
+
+            // If API didn't return structured data but has a clinical summary, try to parse it
+            if (!data.structured_data && data.clinical_summary) {
+                const parsed = parseECGReportText(data.clinical_summary);
+                if (parsed) {
+                    data.structured_data = parsed;
+                }
+            }
+
             setReportData(data)
             toast({
                 title: "Interpretation Complete",
