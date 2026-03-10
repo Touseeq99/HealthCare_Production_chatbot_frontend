@@ -549,11 +549,11 @@ export function ECGReport() {
                             { label: "AI Confidence", value: "High (0.94)", icon: Brain },
                         ].map((field, i) => (
                             <div key={i} className="p-4 lg:p-6 space-y-1">
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                                    <field.icon className="w-3 h-3 text-rose-400" />
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                    <field.icon className="w-3 h-3 text-rose-500" />
                                     {field.label}
                                 </p>
-                                <p className="text-sm font-black text-slate-800 tracking-tight">{field.value}</p>
+                                <p className="text-sm font-black text-slate-900 tracking-tight">{field.value}</p>
                             </div>
                         ))}
                     </div>
@@ -674,9 +674,9 @@ export function ECGReport() {
                                 return (
                                     <div key={cat} className={cn(
                                         "flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-black uppercase transition-all",
-                                        isActive ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20" : "bg-slate-50 border-slate-100 text-slate-400 opacity-50"
+                                        isActive ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20" : "bg-slate-50 border-slate-100 text-slate-600 opacity-70"
                                     )}>
-                                        <div className={cn("w-2 h-2 rounded-full", isActive ? "bg-white" : "bg-slate-300")} />
+                                        <div className={cn("w-2 h-2 rounded-full", isActive ? "bg-white" : "bg-slate-400")} />
                                         {cat}
                                     </div>
                                 );
@@ -708,8 +708,8 @@ export function ECGReport() {
                                 <div key={rit} className={cn(
                                     "flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase transition-all",
                                     structured.rhythm.value.toLowerCase().includes(rit.toLowerCase())
-                                        ? "bg-emerald-50 border-emerald-200 text-emerald-600"
-                                        : "bg-slate-50 border-slate-100 text-slate-400 opacity-40"
+                                        ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                                        : "bg-slate-50 border-slate-100 text-slate-600 opacity-60"
                                 )}>
                                     {structured.rhythm.value.toLowerCase().includes(rit.toLowerCase()) ? <CheckCircle2 className="w-3 h-3" /> : <div className="w-3 h-3 border rounded-sm" />}
                                     {rit}
@@ -736,12 +736,12 @@ export function ECGReport() {
                         {structured.pvc_analysis?.present && (
                             <div className="grid grid-cols-2 gap-4 pt-2">
                                 <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase">Morphology</p>
-                                    <p className="text-sm font-black text-slate-800">{structured.pvc_analysis.morphology}</p>
+                                    <p className="text-[10px] font-black text-slate-600 uppercase">Morphology</p>
+                                    <p className="text-sm font-black text-slate-900">{structured.pvc_analysis.morphology}</p>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase">Likely Origin</p>
-                                    <p className="text-sm font-black text-rose-600">{structured.pvc_analysis.rvot_likely ? "RVOT Likely" : "Unknown"}</p>
+                                    <p className="text-[10px] font-black text-slate-600 uppercase">Likely Origin</p>
+                                    <p className="text-sm font-black text-rose-600 font-bold">{structured.pvc_analysis.rvot_likely ? "RVOT Likely" : "Unknown"}</p>
                                 </div>
                             </div>
                         )}
@@ -764,9 +764,9 @@ export function ECGReport() {
                                 { label: "QTc", value: structured.qtc_interval.value, status: structured.qtc_interval.interpretation },
                             ].map((interval) => (
                                 <div key={interval.label} className="text-center p-3 rounded-xl bg-slate-50 border border-slate-100">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-1">{interval.label}</p>
-                                    <p className="text-lg font-black text-slate-800 tracking-tight">{interval.value}</p>
-                                    <p className="text-[8px] font-black text-rose-500 uppercase mt-1">{interval.status}</p>
+                                    <p className="text-[10px] font-black text-slate-600 uppercase mb-1">{interval.label}</p>
+                                    <p className="text-lg font-black text-slate-900 tracking-tight">{interval.value}</p>
+                                    <p className="text-[8px] font-black text-rose-600 uppercase mt-1">{interval.status}</p>
                                 </div>
                             ))}
                         </div>
@@ -850,7 +850,7 @@ export function ECGReport() {
                                 return (
                                     <div key={pat} className={cn(
                                         "px-4 py-2 rounded-xl border text-xs font-black uppercase transition-all",
-                                        isPresent ? "bg-amber-500 border-amber-600 text-white shadow-lg shadow-amber-500/20" : "bg-slate-50 border-slate-100 text-slate-300 opacity-40"
+                                        isPresent ? "bg-amber-500 border-amber-600 text-white shadow-lg shadow-amber-500/20" : "bg-slate-50 border-slate-100 text-slate-500 opacity-60"
                                     )}>
                                         {isPresent ? <AlertCircle className="w-3 h-3 inline mr-1" /> : null}
                                         {pat}
@@ -911,8 +911,8 @@ export function ECGReport() {
                                     </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Secondary Findings</p>
-                                    <p className="text-sm font-medium text-slate-600">{structured.final_impression?.secondary_findings || "None significant."}</p>
+                                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Secondary Findings</p>
+                                    <p className="text-sm font-bold text-slate-800">{structured.final_impression?.secondary_findings || "None significant."}</p>
                                 </div>
                             </div>
                         </div>
@@ -941,7 +941,7 @@ export function ECGReport() {
                         <p className="text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
                             ⚠️ DISCLAIMER: For clinical reference only.
                         </p>
-                        <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-4xl">
+                        <p className="text-xs text-slate-300 font-medium leading-relaxed max-w-4xl">
                             Final interpretation must be confirmed by a licensed physician before any treatment. This AI analysis follows a systematic electrophysiology workflow but cannot replace human clinical judgment. The manufacturer is not liable for clinical actions taken based on this output.
                         </p>
                     </div>
