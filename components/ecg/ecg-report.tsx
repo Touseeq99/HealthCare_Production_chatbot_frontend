@@ -23,7 +23,9 @@ import {
     Scale,
     Upload,
     Loader2,
-    ImageIcon
+    ImageIcon,
+    ShieldAlert,
+    Clock
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -58,19 +60,39 @@ interface ECGFeature {
 interface ECGData {
     structured_data: {
         rate: { value: string; interpretation: string; normal_range: string }
-        rhythm: { value: string; interpretation: string; notes: string }
+        rhythm: { value: string; interpretation: string; notes: string; type: string }
         p_wave: { present: string; axis_degrees: string; morphology: string; interpretation: string; notes: string }
         pr_interval: { value: string; interpretation: string; normal_range: string }
         qrs_complex: { duration: string; axis_degrees: string; morphology: string; interpretation: string; notes: string }
         st_segment: { changes: string; leads_affected: string; interpretation: string }
         t_wave: { axis_degrees: string; morphology: string; leads_affected: string; interpretation: string }
+        q_wave: { present: string; leads_affected: string; interpretation: string }
         qtc_interval: { value: string; interpretation: string; normal_range: string }
+        qt_interval?: { value: string; interpretation: string; normal_range: string }
+        pvc_analysis?: {
+            present: boolean
+            morphology: string
+            axis: string
+            rvot_likely: boolean
+            evidence: string[]
+            compensatory_pause: boolean
+            p_wave_before: boolean
+            qrs_width: string
+        }
+        special_patterns?: string[]
+        final_impression?: {
+            primary_diagnosis: string
+            secondary_findings: string
+            urgency_level: "Routine" | "Soon" | "URGENT"
+            recommended_action: string
+        }
         machine_diagnosis: { printed_label: string; confirmed: string }
         overall_classification: string
         flags: string[]
     }
     clinical_summary: string
 }
+
 
 export function ECGReport() {
     const [isDismissed, setIsDismissed] = useState(false)
@@ -344,27 +366,15 @@ export function ECGReport() {
             note: structured.t_wave.interpretation
         },
         {
-            label: "QTc",
-            value: structured.qtc_interval.value,
-            status: getStatusFromInterpretation(structured.qtc_interval.interpretation),
-            note: "Correction"
+            label: "Q Waves",
+            value: structured.q_wave?.present || "None",
+            status: getStatusFromInterpretation(structured.q_wave?.interpretation || "normal"),
+            note: structured.q_wave?.interpretation || "Normal"
         }
     ]
 
-    const axes = [
-        { label: "P Axis", value: formatAxis(structured.p_wave.axis_degrees), status: getStatusFromInterpretation(structured.p_wave.interpretation) },
-        { label: "QRS Axis", value: formatAxis(structured.qrs_complex.axis_degrees), status: getStatusFromInterpretation(structured.qrs_complex.interpretation) },
-        { label: "T Axis", value: formatAxis(structured.t_wave.axis_degrees), status: getStatusFromInterpretation(structured.t_wave.interpretation) }
-    ]
-
-    const criticalFlags = [
-        { label: "STEMI", present: structured.flags.some(f => f.includes("STEMI")) },
-        { label: "VT / VF", present: structured.flags.some(f => f.includes("VT") || f.includes("VF")) },
-        { label: "Heart Block", present: structured.flags.some(f => f.includes("Block")) },
-        { label: "QTc Prolongation", present: getStatusFromInterpretation(structured.qtc_interval.interpretation) === "abnormal" }
-    ]
-
     return (
+
         <div className="flex flex-col gap-6 p-4 lg:p-8 max-w-7xl mx-auto bg-[#F8FAFC]">
 
             {/* Header Section */}
@@ -510,221 +520,300 @@ export function ECGReport() {
                 </AnimatePresence>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* 8-Section Systematic Analysis */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                {/* Left Column */}
-                <div className="lg:col-span-2 space-y-6">
+                {/* [1] HEART RATE */}
+                <Card className="border-slate-100 shadow-sm overflow-hidden bg-white">
+                    <CardHeader className="p-4 border-b border-slate-50 bg-slate-50/30">
+                        <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Activity className="w-3.5 h-3.5" /> [1] HEART RATE
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 flex items-center justify-between">
+                        <div>
+                            <p className="text-3xl font-black text-slate-900">{structured.rate.value} <span className="text-sm font-bold text-slate-400">bpm</span></p>
+                            <p className="text-xs font-bold text-slate-500 mt-1">{structured.rate.interpretation}</p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            {["Bradycardia <60", "Normal 60-100", "Tachycardia >100"].map((cat) => {
+                                const rate = parseInt(structured.rate.value);
+                                const isBrady = rate < 60 && cat.includes("Brady");
+                                const isNormal = rate >= 60 && rate <= 100 && cat.includes("Normal");
+                                const isTachy = rate > 100 && cat.includes("Tachy");
+                                const isActive = isBrady || isNormal || isTachy;
+                                return (
+                                    <div key={cat} className={cn(
+                                        "flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-black uppercase transition-all",
+                                        isActive ? "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20" : "bg-slate-50 border-slate-100 text-slate-400 opacity-50"
+                                    )}>
+                                        <div className={cn("w-2 h-2 rounded-full", isActive ? "bg-white" : "bg-slate-300")} />
+                                        {cat}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </CardContent>
+                </Card>
 
-                    {/* ECG Tracing Preview */}
-                    <Card className="overflow-hidden border-slate-100 shadow-sm bg-white">
-                        <CardHeader className="p-4 border-b border-slate-50 bg-slate-50/30">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-widest">ECG Tracing Analysis</CardTitle>
-                                <div className="flex items-center gap-4 text-[10px] font-black text-slate-500">
-                                    <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5" /> 25 mm/sec</span>
-                                    <span className="flex items-center gap-1.5"><Scale className="w-3.5 h-3.5" /> 10 mm/mV</span>
+                {/* [2] PRIMARY RHYTHM */}
+                <Card className="border-slate-100 shadow-sm overflow-hidden bg-white">
+                    <CardHeader className="p-4 border-b border-slate-50 bg-slate-50/30">
+                        <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Activity className="w-3.5 h-3.5" /> [2] PRIMARY RHYTHM
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                        <div className="mb-4">
+                            <p className="text-xl font-black text-slate-900 underline decoration-rose-500/20 decoration-4 underline-offset-4">{structured.rhythm.value}</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            {[
+                                "Normal Sinus Rhythm",
+                                "Sinus Tachycardia",
+                                "Sinus Bradycardia",
+                                "Ventricular Bigeminy",
+                                "Ventricular Trigeminy",
+                                "Atrial Fibrillation"
+                            ].map((rit) => (
+                                <div key={rit} className={cn(
+                                    "flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase transition-all",
+                                    structured.rhythm.value.toLowerCase().includes(rit.toLowerCase())
+                                        ? "bg-emerald-50 border-emerald-200 text-emerald-600"
+                                        : "bg-slate-50 border-slate-100 text-slate-400 opacity-40"
+                                )}>
+                                    {structured.rhythm.value.toLowerCase().includes(rit.toLowerCase()) ? <CheckCircle2 className="w-3 h-3" /> : <div className="w-3 h-3 border rounded-sm" />}
+                                    {rit}
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* [3] PVC ANALYSIS */}
+                <Card className="border-slate-100 shadow-sm overflow-hidden bg-white">
+                    <CardHeader className="p-4 border-b border-slate-50 bg-slate-50/30">
+                        <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Activity className="w-3.5 h-3.5" /> [3] PVC ANALYSIS
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-slate-500 uppercase">PVCs Present</span>
+                            <Badge className={cn("font-black", structured.pvc_analysis?.present ? "bg-amber-500" : "bg-emerald-500")}>
+                                {structured.pvc_analysis?.present ? "YES" : "NO"}
+                            </Badge>
+                        </div>
+                        {structured.pvc_analysis?.present && (
+                            <div className="grid grid-cols-2 gap-4 pt-2">
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase">Morphology</p>
+                                    <p className="text-sm font-black text-slate-800">{structured.pvc_analysis.morphology}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase">Likely Origin</p>
+                                    <p className="text-sm font-black text-rose-600">{structured.pvc_analysis.rvot_likely ? "RVOT Likely" : "Unknown"}</p>
                                 </div>
                             </div>
-                        </CardHeader>
-                        <CardContent className="p-0 relative group">
-                            <div className="bg-slate-900 aspect-[21/9] flex items-center justify-center relative overflow-hidden">
-                                {previewImage ? (
-                                    <img
-                                        src={previewImage}
-                                        alt="ECG Tracing"
-                                        className="w-full h-full object-contain opacity-90 brightness-110"
-                                    />
-                                ) : (
-                                    <Activity className="w-12 h-12 text-slate-700 animate-pulse" />
-                                )}
-                                <div className="absolute inset-0 bg-grid-white/[0.05] pointer-events-none" />
-                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/40 backdrop-blur-[2px]">
-                                    <Button variant="secondary" className="bg-white font-black uppercase text-[10px] tracking-widest rounded-full text-slate-950 shadow-2xl">
-                                        <Maximize2 className="w-4 h-4 mr-2" />
-                                        Optical Zoom
-                                    </Button>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* [4] INTERVALS */}
+                <Card className="border-slate-100 shadow-sm overflow-hidden bg-white">
+                    <CardHeader className="p-4 border-b border-slate-50 bg-slate-50/30">
+                        <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Activity className="w-3.5 h-3.5" /> [4] INTERVALS
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {[
+                                { label: "PR", value: structured.pr_interval.value, status: structured.pr_interval.interpretation },
+                                { label: "QRS", value: structured.qrs_complex.duration, status: structured.qrs_complex.interpretation },
+                                { label: "QT", value: structured.qt_interval?.value || "N/A", status: "Normal" },
+                                { label: "QTc", value: structured.qtc_interval.value, status: structured.qtc_interval.interpretation },
+                            ].map((interval) => (
+                                <div key={interval.label} className="text-center p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-1">{interval.label}</p>
+                                    <p className="text-lg font-black text-slate-800 tracking-tight">{interval.value}</p>
+                                    <p className="text-[8px] font-black text-rose-500 uppercase mt-1">{interval.status}</p>
                                 </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* [5] CARDIAC AXIS */}
+                <Card className="border-slate-100 shadow-sm overflow-hidden bg-white">
+                    <CardHeader className="p-4 border-b border-slate-50 bg-slate-50/30">
+                        <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Activity className="w-3.5 h-3.5" /> [5] CARDIAC AXIS
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                        <div className="flex items-center gap-8">
+                            <div className="w-20 h-20 rounded-full border-4 border-slate-100 flex items-center justify-center relative">
+                                <div
+                                    className="absolute w-1 h-10 bg-rose-500 rounded-full origin-bottom"
+                                    style={{ transform: `rotate(${parseInt(structured.qrs_complex.axis_degrees) || 0}deg) translateY(-20px)` }}
+                                />
+                                <span className="text-xl font-black text-slate-800 z-10">{formatAxis(structured.qrs_complex.axis_degrees)}</span>
                             </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Metrics */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {metrics.map((metric, i) => (
-                            <Card key={i} className="overflow-hidden shadow-sm hover:shadow-md transition-all border-slate-100 group hover:border-rose-200">
-                                <CardContent className="p-6 space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{metric.label}</p>
-                                        <Activity className="w-4 h-4 text-rose-500 opacity-50" />
+                            <div className="space-y-2">
+                                {[
+                                    { label: "Normal (-30 to +90)", active: (parseInt(structured.qrs_complex.axis_degrees) >= -30 && parseInt(structured.qrs_complex.axis_degrees) <= 90) },
+                                    { label: "Left Axis Deviation", active: parseInt(structured.qrs_complex.axis_degrees) < -30 },
+                                    { label: "Right Axis Deviation", active: parseInt(structured.qrs_complex.axis_degrees) > 90 },
+                                ].map((ax) => (
+                                    <div key={ax.label} className={cn(
+                                        "text-[10px] font-bold px-3 py-1 rounded-full border",
+                                        ax.active ? "bg-rose-500 border-rose-500 text-white" : "bg-slate-50 border-slate-100 text-slate-400 opacity-50"
+                                    )}>
+                                        {ax.label}
                                     </div>
-                                    <div>
-                                        <h3 className="text-2xl font-black text-slate-950 tracking-tight">{metric.value}</h3>
-                                        <div className="mt-2 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5" style={{ color: getStatusColor(metric.status) }}>
-                                            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: getStatusColor(metric.status) }} />
-                                            {metric.note}
-                                        </div>
-                                    </div>
-                                </CardContent>
-                                <div className="h-1.5 w-full opacity-30" style={{ backgroundColor: getStatusColor(metric.status) }} />
-                            </Card>
-                        ))}
-                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
 
-                    {/* Table */}
-                    <Card className="border-slate-100 shadow-sm overflow-hidden bg-white">
-                        <CardHeader className="p-6 border-b border-slate-50">
-                            <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em]">Detailed Breakdown</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                            <Table>
-                                <TableHeader className="bg-slate-50/50">
-                                    <TableRow>
-                                        <TableHead className="text-[10px] font-black text-slate-500 uppercase px-6">Feature</TableHead>
-                                        <TableHead className="text-[10px] font-black text-slate-500 uppercase px-6">Value</TableHead>
-                                        <TableHead className="text-[10px] font-black text-slate-500 uppercase px-6">Analysis</TableHead>
-                                        <TableHead className="text-[10px] font-black text-slate-500 uppercase px-6 text-right">Note</TableHead>
+                {/* [6] WAVEFORM FINDINGS */}
+                <Card className="lg:col-span-1 border-slate-100 shadow-sm overflow-hidden bg-white">
+                    <CardHeader className="p-4 border-b border-slate-50 bg-slate-50/30">
+                        <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Activity className="w-3.5 h-3.5" /> [6] WAVEFORM FINDINGS
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <Table>
+                            <TableBody>
+                                {[
+                                    { label: "P Waves", val: structured.p_wave.morphology },
+                                    { label: "QRS Complex", val: structured.qrs_complex.morphology },
+                                    { label: "ST Segment", val: structured.st_segment.changes },
+                                    { label: "T Waves", val: structured.t_wave.interpretation },
+                                    { label: "Q Waves", val: structured.q_wave?.present || "None" },
+                                ].map((wave) => (
+                                    <TableRow key={wave.label} className="border-slate-50 hover:bg-slate-50/50">
+                                        <TableCell className="text-[10px] font-black text-slate-500 uppercase px-6 py-3">{wave.label}</TableCell>
+                                        <TableCell className="text-xs font-bold text-slate-800 px-6 py-3">{wave.val}</TableCell>
                                     </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {features.map((feature, i) => (
-                                        <TableRow key={i} className="hover:bg-rose-50/30 transition-colors border-slate-50">
-                                            <TableCell className="px-6 py-4 font-black text-slate-900 text-xs tracking-tight uppercase">{feature.label}</TableCell>
-                                            <TableCell className="px-6 py-4 text-slate-600 text-sm font-medium">{feature.value}</TableCell>
-                                            <TableCell className="px-6 py-4">{getStatusPill(feature.status)}</TableCell>
-                                            <TableCell className="px-6 py-4 text-right text-[10px] font-black text-slate-400 uppercase tracking-wider">{feature.note}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Right Column */}
-                <div className="space-y-6">
-
-                    {/* Electrical Axes */}
-                    <Card className="border-slate-100 shadow-sm overflow-hidden bg-white">
-                        <CardHeader className="p-6 border-b border-slate-50 bg-slate-50/30">
-                            <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-2">
-                                <Activity className="w-3.5 h-3.5" />
-                                Electrical Vectors
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-6">
-                            <div className="grid grid-cols-3 gap-4">
-                                {axes.map((axis, i) => (
-                                    <div key={i} className="flex flex-col items-center text-center space-y-2">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-tight">{axis.label}</p>
-                                        <div className="text-xl font-black tracking-tighter" style={{ color: getStatusColor(axis.status) }}>
-                                            {axis.value}
-                                        </div>
-                                    </div>
                                 ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
 
-                    {/* Leads Assessed */}
-                    <Card className="border-slate-100 shadow-sm overflow-hidden bg-white">
-                        <CardHeader className="p-6 border-b border-slate-50 bg-slate-50/30">
-                            <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-2">
-                                <BadgeCheck className="w-3.5 h-3.5" />
-                                Leads Assessed
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-6 space-y-6">
-                            <div className="space-y-3">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Limb leads</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {["I", "II", "III", "aVR", "aVL", "aVF"].map((lead, i) => (
-                                        <Badge key={i} variant="secondary" className="bg-slate-100 text-slate-800 border-0 font-black px-2.5 py-1 rounded-lg text-[10px]">
-                                            {lead}
-                                        </Badge>
-                                    ))}
+                {/* [7] SPECIAL PATTERNS */}
+                <Card className="border-slate-100 shadow-sm overflow-hidden bg-white">
+                    <CardHeader className="p-4 border-b border-slate-50 bg-slate-50/30">
+                        <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Activity className="w-3.5 h-3.5" /> [7] SPECIAL PATTERNS
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                        <div className="flex flex-wrap gap-2">
+                            {[
+                                "LVH", "RVH", "LBBB", "RBBB", "WPW", "Brugada", "Early Repol", "STEMI"
+                            ].map((pat) => {
+                                const isPresent = structured.special_patterns?.includes(pat) || structured.flags.some(f => f.includes(pat));
+                                return (
+                                    <div key={pat} className={cn(
+                                        "px-4 py-2 rounded-xl border text-xs font-black uppercase transition-all",
+                                        isPresent ? "bg-amber-500 border-amber-600 text-white shadow-lg shadow-amber-500/20" : "bg-slate-50 border-slate-100 text-slate-300 opacity-40"
+                                    )}>
+                                        {isPresent ? <AlertCircle className="w-3 h-3 inline mr-1" /> : null}
+                                        {pat}
+                                    </div>
+                                );
+                            })}
+                            {(!structured.special_patterns?.length && !structured.flags.length) && (
+                                <div className="text-slate-400 text-xs font-bold italic">No special patterns identified</div>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* [8] FINAL IMPRESSION */}
+                <Card className="lg:col-span-2 border-slate-200 border-2 shadow-xl overflow-hidden bg-white relative">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-rose-500" />
+                    <CardHeader className="p-6 border-b border-slate-100 bg-rose-50/30">
+                        <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <Brain className="w-5 h-5" /> [8] FINAL IMPRESSION
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-8 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-4">
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Primary Diagnosis</p>
+                                    <p className="text-2xl font-black text-slate-900 tracking-tight leading-tight underline decoration-rose-500/20 decoration-8 underline-offset-4">
+                                        {structured.final_impression?.primary_diagnosis || structured.machine_diagnosis.printed_label}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Recommended Action</p>
+                                    <p className="text-sm font-bold text-slate-700 leading-relaxed italic border-l-4 border-rose-200 pl-4 bg-rose-50/30 py-4 rounded-r-xl">
+                                        {structured.final_impression?.recommended_action || "Continue monitoring and correlate with clinical symptoms."}
+                                    </p>
                                 </div>
                             </div>
-                            <div className="space-y-3">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Precordial leads</p>
-                                <div className="flex flex-wrap gap-1.5">
-                                    {["V1", "V2", "V3", "V4", "V5", "V6"].map((lead, i) => (
-                                        <Badge key={i} variant="secondary" className="bg-slate-100 text-slate-800 border-0 font-black px-2.5 py-1 rounded-lg text-[10px]">
-                                            {lead}
-                                        </Badge>
-                                    ))}
+                            <div className="space-y-6">
+                                <div className="p-6 rounded-2xl bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 p-4 opacity-10 scale-150 group-hover:scale-110 transition-transform">
+                                        <AlertTriangle className="w-20 h-20" />
+                                    </div>
+                                    <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mb-4">Urgency Level</p>
+                                    <div className="flex items-center gap-4">
+                                        {["Routine", "Soon", "URGENT"].map((level) => {
+                                            const active = structured.final_impression?.urgency_level === level ||
+                                                (level === "URGENT" && structured.overall_classification === "Abnormal");
+                                            return (
+                                                <div key={level} className={cn(
+                                                    "flex flex-col items-center gap-2 flex-1 pt-2 pb-4 rounded-xl transition-all border",
+                                                    active ? "bg-rose-500 border-rose-400 scale-110 shadow-2xl z-10" : "bg-slate-800 border-slate-700 opacity-40 grayscale"
+                                                )}>
+                                                    {level === "URGENT" ? <AlertCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+                                                    <span className="text-[10px] font-black uppercase tracking-tighter">{level}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Secondary Findings</p>
+                                    <p className="text-sm font-medium text-slate-600">{structured.final_impression?.secondary_findings || "None significant."}</p>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
 
-                    {/* Critical Flags */}
-                    <Card className="border-slate-100 shadow-sm overflow-hidden bg-white">
-                        <CardHeader className="p-6 border-b border-slate-50 bg-slate-50/30">
-                            <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-2">
-                                <AlertTriangle className="w-3.5 h-3.5" />
-                                Critical Flags
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                            <div className="divide-y divide-slate-50">
-                                {criticalFlags.map((flag, i) => (
-                                    <div key={i} className="flex items-center justify-between p-4 px-6 hover:bg-slate-50/50 transition-colors">
-                                        <span className="text-[11px] font-black text-slate-700 uppercase tracking-tight">{flag.label}</span>
-                                        <div className="flex items-center">
-                                            {flag.present === true ? (
-                                                <div className="p-1 rounded-full bg-red-50 text-red-500 border border-red-100 shadow-sm animate-pulse">
-                                                    <AlertCircle className="w-4 h-4" />
-                                                </div>
-                                            ) : (
-                                                <div className="p-1 rounded-full bg-emerald-50 text-emerald-500 border border-emerald-100 opacity-50">
-                                                    <CheckCircle2 className="w-4 h-4" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+                        <div className="pt-8 border-t border-slate-100">
+                            <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-2 mb-4">
+                                <FileText className="w-4 h-4" /> Full Clinical Narrative
+                            </p>
+                            <p className="text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap bg-slate-50 p-6 rounded-2xl border border-slate-100 font-mono">
+                                {reportData.clinical_summary}
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
 
-                </div>
             </div>
 
-            {/* Summary Box */}
-            <Card className="border-slate-200 shadow-xl overflow-hidden bg-white mt-2 relative">
-                <div className="absolute top-0 left-0 w-1 h-full bg-rose-500" />
-                <CardHeader className="p-6 border-b border-slate-100 bg-rose-50/30">
-                    <CardTitle className="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                        <Brain className="w-4 h-4" />
-                        Clinical Summary — Neural Engine Interpretation
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="p-8">
-                    <p className="text-xl text-slate-800 leading-relaxed font-bold tracking-tight">
-                        {reportData.clinical_summary}
-                    </p>
-                    <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
-                        <div className="flex items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                            <div className="w-2 h-2 rounded-full bg-rose-500 mr-2 shadow-sm shadow-rose-500/50" />
-                            Requires clinician review & signature
-                        </div>
-                        <div className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">
-                            Model: GPT-5 (Medical Finetuned)
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
             {/* Disclaimer */}
-            <div className="mt-8 p-6 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl">
-                <div className="flex gap-4">
-                    <div className="p-2 bg-rose-500/10 rounded-lg shrink-0">
-                        <AlertCircle className="w-5 h-5 text-rose-500" />
+            <div className="mt-8 p-8 bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/5 rounded-full blur-3xl -mr-32 -mt-32" />
+                <div className="flex gap-6 relative z-10">
+                    <div className="p-3 bg-rose-500/10 rounded-2xl shrink-0 flex items-center justify-center h-12 w-12 border border-rose-500/20">
+                        <ShieldAlert className="w-6 h-6 text-rose-500" />
                     </div>
-                    <div className="space-y-1">
-                        <p className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Medical-Legal Disclaimer</p>
-                        <p className="text-[11px] text-slate-400 font-medium leading-relaxed">
-                            This interpretation is generated by an artificial intelligence algorithm and is intended for use by qualified healthcare professionals only. It should not be used as the sole basis for diagnosis or treatment. Final clinical decisions must be made by a licensed physician after reviewing all patient data. The manufacturer is not liable for clinical actions taken based on this AI-generated output.
+                    <div className="space-y-2">
+                        <p className="text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                            ⚠️ DISCLAIMER: For clinical reference only.
+                        </p>
+                        <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-4xl">
+                            Final interpretation must be confirmed by a licensed physician before any treatment. This AI analysis follows a systematic electrophysiology workflow but cannot replace human clinical judgment. The manufacturer is not liable for clinical actions taken based on this output.
                         </p>
                     </div>
                 </div>
