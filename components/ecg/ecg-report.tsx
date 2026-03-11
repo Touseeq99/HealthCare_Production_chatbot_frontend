@@ -59,38 +59,37 @@ interface ECGFeature {
 
 interface ECGData {
     structured_data: {
-        rate: { value: string; interpretation: string; normal_range: string }
-        rhythm: { value: string; interpretation: string; notes: string; type: string }
-        p_wave: { present: string; axis_degrees: string; morphology: string; interpretation: string; notes: string }
-        pr_interval: { value: string; interpretation: string; normal_range: string }
-        qrs_complex: { duration: string; axis_degrees: string; morphology: string; interpretation: string; notes: string }
-        st_segment: { changes: string; leads_affected: string; interpretation: string }
-        t_wave: { axis_degrees: string; morphology: string; leads_affected: string; interpretation: string }
-        q_wave: { present: string; leads_affected: string; interpretation: string }
-        qtc_interval: { value: string; interpretation: string; normal_range: string }
-        qt_interval?: { value: string; interpretation: string; normal_range: string }
-        pvc_analysis?: {
-            present: boolean
-            morphology: string
-            axis: string
-            rvot_likely: boolean
-            evidence: string[]
-            compensatory_pause: boolean
-            p_wave_before: boolean
-            qrs_width: string
+        technical_quality: string
+        rate: {
+            ventricular_bpm: string
+            atrial_bpm: string
         }
-        special_patterns?: string[]
-        final_impression?: {
-            primary_diagnosis: string
-            secondary_findings: string
-            urgency_level: "Routine" | "Soon" | "URGENT"
-            recommended_action: string
+        rhythm: string
+        axis: {
+            qrs_degrees: string
+            classification: string // normal | LAD | RAD | extreme
         }
-        machine_diagnosis: { printed_label: string; confirmed: string }
-        overall_classification: string
-        flags: string[]
+        intervals: {
+            pr_ms: string
+            qrs_ms: string
+            qt_ms: string
+            qtc_ms: string
+            qtc_formula: string
+        }
+        p_wave: string
+        qrs_morphology: string
+        st_segments: string
+        t_waves: string
+        u_waves: string
+        specific_patterns: string[]
+        final_interpretation: string
+        differential: string[]
+        urgency: "routine" | "urgent" | "critical"
+        confidence: "low" | "medium" | "high"
+        caveats: string | null
     }
     clinical_summary: string
+    raw_content?: string
 }
 
 
@@ -132,92 +131,46 @@ export function ECGReport() {
         };
 
         try {
+            const getNumericValue = (regex: RegExp) => {
+                const match = text.match(regex);
+                return match ? match[1].trim() : "N/A";
+            };
+
             return {
+                technical_quality: "Extracted from text",
                 rate: {
-                    value: getField(/Rate:\s*~?(\d+)/),
-                    interpretation: isChecked("[1]", "Tachycardia") ? "Tachycardia" : isChecked("[1]", "Bradycardia") ? "Bradycardia" : "Normal",
-                    normal_range: "60-100 bpm"
+                    ventricular_bpm: getNumericValue(/Rate:\s*~?(\d+)/),
+                    atrial_bpm: getNumericValue(/Rate:\s*~?(\d+)/)
                 },
-                rhythm: {
-                    value: getField(/Rhythm:\s*([^\n\[]+)/),
-                    interpretation: isChecked("[2]", "Normal Sinus") ? "Normal Sinus Rhythm" : getField(/Rhythm:\s*([^\n\[]+)/),
-                    notes: "",
-                    type: isChecked("[2]", "Atrial Fibrillation") ? "Afib" : "Sinus"
+                rhythm: getField(/Rhythm:\s*([^\n\[]+)/),
+                axis: {
+                    qrs_degrees: getField(/QRS Axis:\s*~?([+-]?\d+)/),
+                    classification: isChecked("[5]", "Normal") ? "normal" : "LAD"
                 },
-                p_wave: {
-                    present: isChecked("[6]", "Normal") ? "Yes" : "Absent",
-                    axis_degrees: "N/A",
-                    morphology: isChecked("[6]", "Normal") ? "Normal" : "Abnormal",
-                    interpretation: isChecked("[6]", "Normal") ? "Normal" : "Abnormal",
-                    notes: ""
+                intervals: {
+                    pr_ms: getField(/PR Interval:\s*~?([^\n\[\|]+)/),
+                    qrs_ms: getField(/QRS Duration:\s*~?([^\n\[\|]+)/),
+                    qt_ms: getField(/QT Interval:\s*~?([^\n\[\|]+)/),
+                    qtc_ms: getField(/QTc:\s*~?([^\n\[\|]+)/),
+                    qtc_formula: "Bazett"
                 },
-                pr_interval: {
-                    value: getField(/PR Interval:\s*~?([^\n\[\|]+)/),
-                    interpretation: isChecked("[4]", "Normal") ? "Normal" : "Abnormal",
-                    normal_range: "120-200 ms"
-                },
-                qrs_complex: {
-                    duration: getField(/QRS Duration:\s*~?([^\n\[\|]+)/),
-                    axis_degrees: getField(/QRS Axis:\s*~?([+-]?\d+)/),
-                    morphology: isChecked("[6]", "Narrow") ? "Narrow" : "Wide",
-                    interpretation: isChecked("[6]", "Narrow") ? "Narrow" : "Wide",
-                    notes: ""
-                },
-                st_segment: {
-                    changes: isChecked("[6]", "Normal") ? "Normal" : "Changes Detected",
-                    leads_affected: getField(/Elevated in:\s*([^_\|\[]+)/),
-                    interpretation: isChecked("[6]", "Normal") ? "Normal" : "Abnormal"
-                },
-                t_wave: {
-                    axis_degrees: "N/A",
-                    morphology: isChecked("[6]", "Normal") ? "Normal" : "Abnormal",
-                    leads_affected: "",
-                    interpretation: isChecked("[6]", "Normal") ? "Normal" : "Abnormal"
-                },
-                q_wave: {
-                    present: isChecked("[6]", "None") ? "None" : "Pathological",
-                    leads_affected: getField(/Pathological in:\s*([^_\|\[]+)/),
-                    interpretation: isChecked("[6]", "None") ? "Normal" : "Pathological"
-                },
-                qtc_interval: {
-                    value: getField(/QTc:\s*~?([^\n\[\|]+)/),
-                    interpretation: isChecked("[4]", "Normal") ? "Normal" : "Prolonged",
-                    normal_range: "<450 ms"
-                },
-                qt_interval: {
-                    value: getField(/QT Interval:\s*~?([^\n\[\|]+)/),
-                    interpretation: "Normal",
-                    normal_range: ""
-                },
-                pvc_analysis: {
-                    present: isChecked("[3]", "YES"),
-                    morphology: isChecked("[3]", "LBBB") ? "LBBB-type" : isChecked("[3]", "RBBB") ? "RBBB-type" : "Other",
-                    axis: isChecked("[3]", "Inferior") ? "Inferior" : isChecked("[3]", "Superior") ? "Superior" : "Normal",
-                    rvot_likely: isChecked("[3]", "RVOT Origin Likely: [✓] YES"),
-                    evidence: ["Extracted from text"],
-                    compensatory_pause: isChecked("[3]", "Compensatory Pause"),
-                    p_wave_before: isChecked("[3]", "P wave before PVC"),
-                    qrs_width: getField(/QRS width of PVC:\s*~?([^\n\[]+)/)
-                },
-                special_patterns: [
+                p_wave: isChecked("[6]", "Normal") ? "Normal" : "Abnormal",
+                qrs_morphology: isChecked("[6]", "Narrow") ? "Narrow" : "Wide",
+                st_segments: isChecked("[6]", "Normal") ? "Normal" : "Changes Detected",
+                t_waves: isChecked("[6]", "Normal") ? "Normal" : "Abnormal",
+                u_waves: "None",
+                specific_patterns: [
                     isChecked("[7]", "LVH") ? "LVH" : "",
                     isChecked("[7]", "RVH") ? "RVH" : "",
                     isChecked("[7]", "STEMI") ? "STEMI" : "",
                     isChecked("[7]", "WPW") ? "WPW" : "",
                     isChecked("[7]", "Brugada") ? "Brugada" : "",
                 ].filter(Boolean),
-                final_impression: {
-                    primary_diagnosis: getField(/Primary Diagnosis:\s*([^\n]+)/),
-                    secondary_findings: getField(/Secondary Findings:\s*([^\n]+)/),
-                    urgency_level: isChecked("[8]", "URGENT") ? "URGENT" : isChecked("[8]", "Soon") ? "Soon" : "Routine",
-                    recommended_action: getField(/Recommended Action:\s*([^\n]+)/)
-                },
-                machine_diagnosis: {
-                    printed_label: getField(/Primary Diagnosis:\s*([^\n]+)/),
-                    confirmed: "AI Text Extraction"
-                },
-                overall_classification: isChecked("[8]", "URGENT") ? "Abnormal" : "Normal",
-                flags: []
+                final_interpretation: getField(/Primary Diagnosis:\s*([^\n]+)/),
+                differential: [getField(/Secondary Findings:\s*([^\n]+)/)].filter(Boolean),
+                urgency: isChecked("[8]", "URGENT") ? "critical" : isChecked("[8]", "Soon") ? "urgent" : "routine",
+                confidence: "medium",
+                caveats: null
             } as any;
         } catch (e) {
             console.error("Manual parse failed:", e);
@@ -432,27 +385,27 @@ export function ECGReport() {
     const structured = reportData.structured_data
     const metrics: ECGMetric[] = [
         {
-            label: "Heart Rate",
-            value: structured.rate.value,
-            status: getStatusFromInterpretation(structured.rate.interpretation),
-            note: structured.rate.interpretation
+            label: "Ventricular Rate",
+            value: structured.rate.ventricular_bpm,
+            status: getStatusFromInterpretation(structured.final_interpretation),
+            note: `Atrial: ${structured.rate.atrial_bpm} bpm`
         },
         {
             label: "Rhythm",
-            value: structured.rhythm.value,
-            status: getStatusFromInterpretation(structured.rhythm.interpretation),
-            note: structured.rhythm.interpretation
+            value: structured.rhythm,
+            status: getStatusFromInterpretation(structured.rhythm),
+            note: structured.rhythm
         },
         {
             label: "QTc Interval",
-            value: structured.qtc_interval.value,
-            status: getStatusFromInterpretation(structured.qtc_interval.interpretation),
-            note: structured.qtc_interval.interpretation
+            value: structured.intervals.qtc_ms,
+            status: getStatusFromInterpretation(structured.intervals.qtc_ms > "450" ? "prolonged" : "normal"),
+            note: `Formula: ${structured.intervals.qtc_formula}`
         }
     ]
 
     const formatAxis = (val: string) => {
-        if (!val) return "N/A";
+        if (!val || val === "N/A") return "N/A";
         const match = val.match(/([+-]?\d+)/);
         return match ? `${match[1]}°` : val;
     }
@@ -460,45 +413,45 @@ export function ECGReport() {
     const features: ECGFeature[] = [
         {
             label: "P Wave",
-            value: structured.p_wave.morphology,
-            status: getStatusFromInterpretation(structured.p_wave.interpretation),
-            note: structured.p_wave.interpretation
+            value: structured.p_wave,
+            status: getStatusFromInterpretation(structured.p_wave),
+            note: structured.p_wave
         },
         {
             label: "PR Interval",
-            value: structured.pr_interval.value,
-            status: getStatusFromInterpretation(structured.pr_interval.interpretation),
-            note: structured.pr_interval.interpretation
+            value: structured.intervals.pr_ms,
+            status: getStatusFromInterpretation(parseInt(structured.intervals.pr_ms) > 200 ? "prolonged" : "normal"),
+            note: structured.intervals.pr_ms + " ms"
         },
         {
             label: "QRS Duration",
-            value: structured.qrs_complex.duration,
-            status: getStatusFromInterpretation(structured.qrs_complex.interpretation),
-            note: structured.qrs_complex.interpretation
+            value: structured.intervals.qrs_ms,
+            status: getStatusFromInterpretation(parseInt(structured.intervals.qrs_ms) > 120 ? "wide" : "normal"),
+            note: structured.intervals.qrs_ms + " ms"
         },
         {
             label: "QRS Axis",
-            value: formatAxis(structured.qrs_complex.axis_degrees),
-            status: getStatusFromInterpretation(structured.qrs_complex.interpretation),
-            note: "Axis"
+            value: formatAxis(structured.axis.qrs_degrees),
+            status: getStatusFromInterpretation(structured.axis.classification),
+            note: structured.axis.classification
         },
         {
             label: "ST Segment",
-            value: structured.st_segment.changes,
-            status: getStatusFromInterpretation(structured.st_segment.interpretation),
-            note: structured.st_segment.interpretation
+            value: structured.st_segments,
+            status: getStatusFromInterpretation(structured.st_segments),
+            note: structured.st_segments
         },
         {
             label: "T Waves",
-            value: structured.t_wave.morphology,
-            status: getStatusFromInterpretation(structured.t_wave.interpretation),
-            note: structured.t_wave.interpretation
+            value: structured.t_waves,
+            status: getStatusFromInterpretation(structured.t_waves),
+            note: structured.t_waves
         },
         {
-            label: "Q Waves",
-            value: structured.q_wave?.present || "None",
-            status: getStatusFromInterpretation(structured.q_wave?.interpretation || "normal"),
-            note: structured.q_wave?.interpretation || "Normal"
+            label: "U Waves",
+            value: structured.u_waves,
+            status: "info",
+            note: structured.u_waves
         }
     ]
 
@@ -513,18 +466,18 @@ export function ECGReport() {
                     <div className="flex flex-wrap items-center gap-3">
                         <Badge className={cn(
                             "text-white border-0 py-1 font-bold",
-                            structured.overall_classification === "Normal" ? "bg-[#00D4AA]" : "bg-[#F5A623]"
+                            structured.urgency === "critical" ? "bg-[#FF4D4D]" : structured.urgency === "urgent" ? "bg-[#F5A623]" : "bg-[#00D4AA]"
                         )}>
                             <AlertTriangle className="w-3.5 h-3.5 mr-1.5" />
-                            ⚠ {structured.machine_diagnosis.printed_label}
+                            {structured.urgency.toUpperCase()}
                         </Badge>
                         <span className="flex items-center text-xs text-slate-500 font-bold bg-slate-100 px-3 py-1 rounded-full">
                             <History className="w-3.5 h-3.5 mr-1.5 text-rose-500" />
                             {new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </span>
                         <span className="flex items-center text-xs text-rose-500 font-bold bg-rose-50 px-2.5 py-1 rounded-full border border-rose-100 uppercase tracking-wider">
-                            <AlertCircle className="w-3.5 h-3.5 mr-1.5" />
-                            {structured.machine_diagnosis.confirmed}
+                            <Brain className="w-3.5 h-3.5 mr-1.5" />
+                            AI Confidence: {structured.confidence}
                         </span>
                     </div>
                 </div>
@@ -543,10 +496,10 @@ export function ECGReport() {
                 <CardContent className="p-0">
                     <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-100">
                         {[
-                            { label: "Case ID", value: "CASE-" + Math.random().toString(36).substr(2, 6).toUpperCase(), icon: User },
-                            { label: "Interpretation Mode", value: "AI-Autonomous", icon: Stethoscope },
-                            { label: "ECG Standard", value: "12-Lead Digital", icon: Activity },
-                            { label: "AI Confidence", value: "High (0.94)", icon: Brain },
+                            { label: "Case ID", value: "CASE-" + (Math.random().toString(36).substr(2, 6).toUpperCase()), icon: User },
+                            { label: "Quality", value: structured.technical_quality, icon: Stethoscope },
+                            { label: "Confidence", value: structured.confidence.toUpperCase(), icon: Brain },
+                            { label: "Formula", value: structured.intervals.qtc_formula, icon: Activity },
                         ].map((field, i) => (
                             <div key={i} className="p-4 lg:p-6 space-y-1">
                                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
@@ -661,12 +614,12 @@ export function ECGReport() {
                     </CardHeader>
                     <CardContent className="p-6 flex items-center justify-between">
                         <div>
-                            <p className="text-3xl font-black text-slate-900">{structured.rate.value} <span className="text-sm font-bold text-slate-400">bpm</span></p>
-                            <p className="text-xs font-bold text-slate-500 mt-1">{structured.rate.interpretation}</p>
+                            <p className="text-3xl font-black text-slate-900">{structured.rate.ventricular_bpm} <span className="text-sm font-bold text-slate-400">bpm</span></p>
+                            <p className="text-xs font-bold text-slate-500 mt-1">Atrial Rate: {structured.rate.atrial_bpm} bpm</p>
                         </div>
                         <div className="flex flex-col gap-2">
                             {["Bradycardia <60", "Normal 60-100", "Tachycardia >100"].map((cat) => {
-                                const rate = parseInt(structured.rate.value);
+                                const rate = parseInt(structured.rate.ventricular_bpm);
                                 const isBrady = rate < 60 && cat.includes("Brady");
                                 const isNormal = rate >= 60 && rate <= 100 && cat.includes("Normal");
                                 const isTachy = rate > 100 && cat.includes("Tachy");
@@ -694,7 +647,7 @@ export function ECGReport() {
                     </CardHeader>
                     <CardContent className="p-6">
                         <div className="mb-4">
-                            <p className="text-xl font-black text-slate-900 underline decoration-rose-500/20 decoration-4 underline-offset-4">{structured.rhythm.value}</p>
+                            <p className="text-xl font-black text-slate-900 underline decoration-rose-500/20 decoration-4 underline-offset-4">{structured.rhythm}</p>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                             {[
@@ -707,11 +660,11 @@ export function ECGReport() {
                             ].map((rit) => (
                                 <div key={rit} className={cn(
                                     "flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase transition-all",
-                                    structured.rhythm.value.toLowerCase().includes(rit.toLowerCase())
+                                    structured.rhythm.toLowerCase().includes(rit.toLowerCase())
                                         ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                                         : "bg-slate-50 border-slate-100 text-slate-600 opacity-60"
                                 )}>
-                                    {structured.rhythm.value.toLowerCase().includes(rit.toLowerCase()) ? <CheckCircle2 className="w-3 h-3" /> : <div className="w-3 h-3 border rounded-sm" />}
+                                    {structured.rhythm.toLowerCase().includes(rit.toLowerCase()) ? <CheckCircle2 className="w-3 h-3" /> : <div className="w-3 h-3 border rounded-sm" />}
                                     {rit}
                                 </div>
                             ))}
@@ -727,22 +680,20 @@ export function ECGReport() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="p-6 space-y-4">
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs font-black text-slate-500 uppercase">PVCs Present</span>
-                            <Badge className={cn("font-black", structured.pvc_analysis?.present ? "bg-amber-500" : "bg-emerald-500")}>
-                                {structured.pvc_analysis?.present ? "YES" : "NO"}
-                            </Badge>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">
+                            Differential Diagnoses:
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            {structured.differential.map((diff, i) => (
+                                <Badge key={i} variant="secondary" className="bg-slate-100 text-slate-700 border-0 font-bold px-3 py-1">
+                                    {diff}
+                                </Badge>
+                            ))}
                         </div>
-                        {structured.pvc_analysis?.present && (
-                            <div className="grid grid-cols-2 gap-4 pt-2">
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-slate-600 uppercase">Morphology</p>
-                                    <p className="text-sm font-black text-slate-900">{structured.pvc_analysis.morphology}</p>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-slate-600 uppercase">Likely Origin</p>
-                                    <p className="text-sm font-black text-rose-600 font-bold">{structured.pvc_analysis.rvot_likely ? "RVOT Likely" : "Unknown"}</p>
-                                </div>
+                        {structured.caveats && (
+                            <div className="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-100">
+                                <p className="text-[10px] font-black text-amber-600 uppercase mb-1">Caveats</p>
+                                <p className="text-xs font-bold text-amber-700">{structured.caveats}</p>
                             </div>
                         )}
                     </CardContent>
@@ -758,15 +709,14 @@ export function ECGReport() {
                     <CardContent className="p-6">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             {[
-                                { label: "PR", value: structured.pr_interval.value, status: structured.pr_interval.interpretation },
-                                { label: "QRS", value: structured.qrs_complex.duration, status: structured.qrs_complex.interpretation },
-                                { label: "QT", value: structured.qt_interval?.value || "N/A", status: "Normal" },
-                                { label: "QTc", value: structured.qtc_interval.value, status: structured.qtc_interval.interpretation },
+                                { label: "PR", value: structured.intervals.pr_ms, unit: "ms" },
+                                { label: "QRS", value: structured.intervals.qrs_ms, unit: "ms" },
+                                { label: "QT", value: structured.intervals.qt_ms, unit: "ms" },
+                                { label: "QTc", value: structured.intervals.qtc_ms, unit: "ms" },
                             ].map((interval) => (
                                 <div key={interval.label} className="text-center p-3 rounded-xl bg-slate-50 border border-slate-100">
                                     <p className="text-[10px] font-black text-slate-600 uppercase mb-1">{interval.label}</p>
-                                    <p className="text-lg font-black text-slate-900 tracking-tight">{interval.value}</p>
-                                    <p className="text-[8px] font-black text-rose-600 uppercase mt-1">{interval.status}</p>
+                                    <p className="text-lg font-black text-slate-900 tracking-tight">{interval.value} <span className="text-[10px] text-slate-400">{interval.unit}</span></p>
                                 </div>
                             ))}
                         </div>
@@ -785,19 +735,20 @@ export function ECGReport() {
                             <div className="w-20 h-20 rounded-full border-4 border-slate-100 flex items-center justify-center relative">
                                 <div
                                     className="absolute w-1 h-10 bg-rose-500 rounded-full origin-bottom"
-                                    style={{ transform: `rotate(${parseInt(structured.qrs_complex.axis_degrees) || 0}deg) translateY(-20px)` }}
+                                    style={{ transform: `rotate(${parseInt(structured.axis.qrs_degrees) || 0}deg) translateY(-20px)` }}
                                 />
-                                <span className="text-xl font-black text-slate-800 z-10">{formatAxis(structured.qrs_complex.axis_degrees)}</span>
+                                <span className="text-xl font-black text-slate-800 z-10">{formatAxis(structured.axis.qrs_degrees)}</span>
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1">
                                 {[
-                                    { label: "Normal (-30 to +90)", active: (parseInt(structured.qrs_complex.axis_degrees) >= -30 && parseInt(structured.qrs_complex.axis_degrees) <= 90) },
-                                    { label: "Left Axis Deviation", active: parseInt(structured.qrs_complex.axis_degrees) < -30 },
-                                    { label: "Right Axis Deviation", active: parseInt(structured.qrs_complex.axis_degrees) > 90 },
+                                    { label: "Normal (-30 to +90)", id: "normal" },
+                                    { label: "Left Axis Deviation", id: "LAD" },
+                                    { label: "Right Axis Deviation", id: "RAD" },
+                                    { label: "Extreme Axis", id: "extreme" },
                                 ].map((ax) => (
-                                    <div key={ax.label} className={cn(
-                                        "text-[10px] font-bold px-3 py-1 rounded-full border",
-                                        ax.active ? "bg-rose-500 border-rose-500 text-white" : "bg-slate-50 border-slate-100 text-slate-400 opacity-50"
+                                    <div key={ax.id} className={cn(
+                                        "text-[10px] font-bold px-3 py-1 rounded-full border mb-1",
+                                        structured.axis.classification === ax.id ? "bg-rose-500 border-rose-500 text-white" : "bg-slate-50 border-slate-100 text-slate-400 opacity-50"
                                     )}>
                                         {ax.label}
                                     </div>
@@ -818,11 +769,11 @@ export function ECGReport() {
                         <Table>
                             <TableBody>
                                 {[
-                                    { label: "P Waves", val: structured.p_wave.morphology },
-                                    { label: "QRS Complex", val: structured.qrs_complex.morphology },
-                                    { label: "ST Segment", val: structured.st_segment.changes },
-                                    { label: "T Waves", val: structured.t_wave.interpretation },
-                                    { label: "Q Waves", val: structured.q_wave?.present || "None" },
+                                    { label: "P Waves", val: structured.p_wave },
+                                    { label: "QRS Complex", val: structured.qrs_morphology },
+                                    { label: "ST Segment", val: structured.st_segments },
+                                    { label: "T Waves", val: structured.t_waves },
+                                    { label: "U Waves", val: structured.u_waves },
                                 ].map((wave) => (
                                     <TableRow key={wave.label} className="border-slate-50 hover:bg-slate-50/50">
                                         <TableCell className="text-[10px] font-black text-slate-500 uppercase px-6 py-3">{wave.label}</TableCell>
@@ -844,9 +795,9 @@ export function ECGReport() {
                     <CardContent className="p-6">
                         <div className="flex flex-wrap gap-2">
                             {[
-                                "LVH", "RVH", "LBBB", "RBBB", "WPW", "Brugada", "Early Repol", "STEMI"
+                                "LVH", "RVH", "LBBB", "RBBB", "WPW", "Brugada", "Early Repol", "STEMI", "Infarction", "Ischemia"
                             ].map((pat) => {
-                                const isPresent = structured.special_patterns?.includes(pat) || structured.flags.some(f => f.includes(pat));
+                                const isPresent = structured.specific_patterns?.some(p => p.toUpperCase().includes(pat.toUpperCase()));
                                 return (
                                     <div key={pat} className={cn(
                                         "px-4 py-2 rounded-xl border text-xs font-black uppercase transition-all",
@@ -857,7 +808,7 @@ export function ECGReport() {
                                     </div>
                                 );
                             })}
-                            {(!structured.special_patterns?.length && !structured.flags.length) && (
+                            {(!structured.specific_patterns?.length) && (
                                 <div className="text-slate-400 text-xs font-bold italic">No special patterns identified</div>
                             )}
                         </div>
@@ -878,14 +829,18 @@ export function ECGReport() {
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Primary Diagnosis</p>
                                     <p className="text-2xl font-black text-slate-900 tracking-tight leading-tight underline decoration-rose-500/20 decoration-8 underline-offset-4">
-                                        {structured.final_impression?.primary_diagnosis || structured.machine_diagnosis.printed_label}
+                                        {structured.final_interpretation}
                                     </p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Recommended Action</p>
-                                    <p className="text-sm font-bold text-slate-700 leading-relaxed italic border-l-4 border-rose-200 pl-4 bg-rose-50/30 py-4 rounded-r-xl">
-                                        {structured.final_impression?.recommended_action || "Continue monitoring and correlate with clinical symptoms."}
-                                    </p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">AI Differential Diagnoses</p>
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {structured.differential.map((diff, i) => (
+                                            <Badge key={i} variant="outline" className="border-rose-200 text-rose-700 bg-rose-50/50">
+                                                {diff}
+                                            </Badge>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                             <div className="space-y-6">
@@ -895,25 +850,30 @@ export function ECGReport() {
                                     </div>
                                     <p className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em] mb-4">Urgency Level</p>
                                     <div className="flex items-center gap-4">
-                                        {["Routine", "Soon", "URGENT"].map((level) => {
-                                            const active = structured.final_impression?.urgency_level === level ||
-                                                (level === "URGENT" && structured.overall_classification === "Abnormal");
+                                        {[
+                                            { label: "Routine", id: "routine" },
+                                            { label: "Urgent", id: "urgent" },
+                                            { label: "Critical", id: "critical" }
+                                        ].map((level) => {
+                                            const active = structured.urgency === level.id;
                                             return (
-                                                <div key={level} className={cn(
+                                                <div key={level.id} className={cn(
                                                     "flex flex-col items-center gap-2 flex-1 pt-2 pb-4 rounded-xl transition-all border",
                                                     active ? "bg-rose-500 border-rose-400 scale-110 shadow-2xl z-10" : "bg-slate-800 border-slate-700 opacity-40 grayscale"
                                                 )}>
-                                                    {level === "URGENT" ? <AlertCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
-                                                    <span className="text-[10px] font-black uppercase tracking-tighter">{level}</span>
+                                                    {level.id === "critical" ? <AlertCircle className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+                                                    <span className="text-[10px] font-black uppercase tracking-tighter">{level.label}</span>
                                                 </div>
                                             );
                                         })}
                                     </div>
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Secondary Findings</p>
-                                    <p className="text-sm font-bold text-slate-800">{structured.final_impression?.secondary_findings || "None significant."}</p>
-                                </div>
+                                {structured.caveats && (
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Caveats & Notes</p>
+                                        <p className="text-xs font-bold text-amber-800 bg-amber-50 p-3 rounded-lg border border-amber-100">{structured.caveats}</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
