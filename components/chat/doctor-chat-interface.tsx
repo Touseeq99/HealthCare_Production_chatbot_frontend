@@ -538,31 +538,46 @@ export function DoctorChatInterface() {
                       </div>
                     </motion.div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                      {[
-                        { icon: MessageSquare, title: "Clinical Chat", desc: "Evidence-based clinical dialogue", action: () => setInputMessage("Clinical Chat") },
-                        { icon: Shield, title: "Evidence Review", desc: "Guidelines & research protocols", action: () => setInputMessage("Evidence Review") },
-                        { icon: Microscope, title: "Differential Dx", desc: "Decision support & DDx ranking", action: () => setActiveTab("diff-dx") },
-                        { icon: ClipboardList, title: "Clinical Notes", desc: "Generate professional documentation", action: () => setActiveTab("note") },
-                      ].map((item, i) => (
-                        <motion.button
-                          key={i}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.2 + (i * 0.1) }}
-                          onClick={item.action}
-                          className="flex items-start gap-4 p-5 rounded-2xl bg-white border border-rose-100/50 hover:border-rose-500/50 hover:shadow-xl hover:shadow-rose-500/5 transition-all group text-left shadow-sm"
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="max-w-2xl mx-auto w-full"
+                    >
+                      <div className="relative flex items-end gap-3 bg-white rounded-2xl p-2 border border-rose-100 focus-within:ring-4 focus-within:ring-rose-500/10 focus-within:border-rose-300 transition-all shadow-xl shadow-rose-500/5">
+                        <Textarea
+                          ref={textareaRef}
+                          value={inputMessage}
+                          onChange={(e) => setInputMessage(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault()
+                              handleSendMessage()
+                            }
+                          }}
+                          placeholder="How can I help you today, Doctor?"
+                          className="w-full min-h-[56px] max-h-[200px] bg-transparent border-0 focus-visible:ring-0 px-4 py-4 resize-none text-base text-slate-800 placeholder:text-slate-400 font-medium"
+                          disabled={isLoading}
+                          rows={1}
+                        />
+                        <Button
+                          size="icon"
+                          disabled={!inputMessage.trim() || isLoading}
+                          onClick={() => handleSendMessage()}
+                          className={cn(
+                            "h-12 w-12 rounded-xl mb-1 mr-1 transition-all duration-300",
+                            inputMessage.trim()
+                              ? "bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/20 scale-100 hover:scale-105 active:scale-95"
+                              : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                          )}
                         >
-                          <div className="p-2.5 rounded-xl bg-rose-50/50 group-hover:bg-rose-500 text-rose-500 group-hover:text-white transition-all">
-                            <item.icon className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <span className="block font-black text-slate-800 group-hover:text-rose-950 tracking-tight">{item.title}</span>
-                            <span className="text-xs text-slate-500 group-hover:text-slate-600 font-medium">{item.desc}</span>
-                          </div>
-                        </motion.button>
-                      ))}
-                    </div>
+                          {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                        </Button>
+                      </div>
+                      <p className="text-[10px] text-slate-400 text-center mt-4 font-black uppercase tracking-[0.2em]">
+                        AI-generated clinical support tool. Verify all results with standard medical protocols.
+                      </p>
+                    </motion.div>
                   </div>
                 </motion.div>
               ) : (
@@ -594,44 +609,50 @@ export function DoctorChatInterface() {
               )}
             </AnimatePresence>
 
-            {/* Input Area */}
-            <div className="border-t border-rose-100 bg-white/90 backdrop-blur-md p-4 lg:px-8 z-20">
-              <div className="max-w-4xl mx-auto">
-                <div className="relative flex items-end gap-3 bg-rose-50/30 rounded-2xl p-2 border border-rose-100 focus-within:ring-4 focus-within:ring-rose-500/10 focus-within:border-rose-300 transition-all shadow-sm">
-                  <Textarea
-                    ref={textareaRef}
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault()
-                        handleSendMessage()
-                      }
-                    }}
-                    placeholder="Enter clinical query or patient details..."
-                    className="w-full min-h-[48px] max-h-[200px] bg-transparent border-0 focus-visible:ring-0 px-4 py-3 resize-none text-base text-slate-800 placeholder:text-slate-400 font-medium"
-                    disabled={isLoading}
-                    rows={1}
-                  />
-                  <Button
-                    size="icon"
-                    disabled={!inputMessage.trim() || isLoading}
-                    onClick={() => handleSendMessage()}
-                    className={cn(
-                      "h-10 w-10 rounded-xl mb-1 mr-1 transition-all duration-300",
-                      inputMessage.trim()
-                        ? "bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/20 scale-100 hover:scale-105 active:scale-95"
-                        : "bg-slate-100 text-slate-400 cursor-not-allowed"
-                    )}
-                  >
-                    {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-                  </Button>
+            {/* Input Area (shows at bottom when chat has messages) */}
+            {messages.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="border-t border-rose-100 bg-white/90 backdrop-blur-md p-4 lg:px-8 z-20"
+              >
+                <div className="max-w-4xl mx-auto">
+                  <div className="relative flex items-end gap-3 bg-rose-50/30 rounded-2xl p-2 border border-rose-100 focus-within:ring-4 focus-within:ring-rose-500/10 focus-within:border-rose-300 transition-all shadow-sm">
+                    <Textarea
+                      ref={textareaRef}
+                      value={inputMessage}
+                      onChange={(e) => setInputMessage(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault()
+                          handleSendMessage()
+                        }
+                      }}
+                      placeholder="Enter clinical query or patient details..."
+                      className="w-full min-h-[48px] max-h-[200px] bg-transparent border-0 focus-visible:ring-0 px-4 py-3 resize-none text-base text-slate-800 placeholder:text-slate-400 font-medium"
+                      disabled={isLoading}
+                      rows={1}
+                    />
+                    <Button
+                      size="icon"
+                      disabled={!inputMessage.trim() || isLoading}
+                      onClick={() => handleSendMessage()}
+                      className={cn(
+                        "h-10 w-10 rounded-xl mb-1 mr-1 transition-all duration-300",
+                        inputMessage.trim()
+                          ? "bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-500/20 scale-100 hover:scale-105 active:scale-95"
+                          : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                      )}
+                    >
+                      {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                    </Button>
+                  </div>
+                  <p className="text-[10px] text-slate-400 text-center mt-3 font-black uppercase tracking-[0.2em]">
+                    AI-generated clinical support tool. Verify all results with standard medical protocols.
+                  </p>
                 </div>
-                <p className="text-[10px] text-slate-400 text-center mt-3 font-black uppercase tracking-[0.2em]">
-                  AI-generated clinical support tool. Verify all results with standard medical protocols.
-                </p>
-              </div>
-            </div>
+              </motion.div>
+            )}
           </TabsContent>
 
           <TabsContent value="evidence" className="h-full overflow-hidden m-0 bg-slate-50">
