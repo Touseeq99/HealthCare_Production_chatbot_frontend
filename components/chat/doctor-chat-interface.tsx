@@ -227,11 +227,14 @@ export function DoctorChatInterface() {
 
     const statusTimeout = setInterval(() => {
       setStatusMessage(prev => {
-        if (prev === "Query sent") return "Searching Database"
-        if (prev === "Searching Database") return "Making answer"
+        if (prev === "Query sent") return "Creating Response"
+        if (prev === "Creating Response") return "Weighted Evidence"
+        if (prev === "Weighted Evidence") return "Weighted Evidence Based on Expert Opinion"
+        if (prev === "Weighted Evidence Based on Expert Opinion") return "Weighted Evidence Based on Patient Opinion"
+
         return prev
       })
-    }, 2500)
+    }, 3000)
 
     try {
       const response = await fetch(`/api/proxy/doctor/stream`, {
@@ -555,7 +558,7 @@ export function DoctorChatInterface() {
                               handleSendMessage()
                             }
                           }}
-                          placeholder="How can I help you today, Doctor?"
+                          placeholder="Please Enter Your Clinical Query"
                           className="w-full min-h-[56px] max-h-[200px] bg-transparent border-0 focus-visible:ring-0 px-4 py-4 resize-none text-base text-slate-800 placeholder:text-slate-400 font-medium"
                           disabled={isLoading}
                           rows={1}
