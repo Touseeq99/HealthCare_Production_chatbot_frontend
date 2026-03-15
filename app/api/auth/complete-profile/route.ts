@@ -15,7 +15,31 @@ export async function POST(request: Request) {
         }
 
         const cookieStore = await cookies()
-        const token = cookieStore.get('userToken')?.value
+        let token = cookieStore.get('userToken')?.value
+
+        // If no application-specific token, try to get Supabase session token
+        if (!token) {
+            const { createServerClient } = await import('@supabase/ssr')
+            const supabase = createServerClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+                {
+                    cookies: {
+                        get(name: string) {
+                            return cookieStore.get(name)?.value
+                        },
+                        set(name: string, value: string, options: any) {
+                            cookieStore.set({ name, value, ...options })
+                        },
+                        remove(name: string, options: any) {
+                            cookieStore.set({ name, value: '', ...options })
+                        },
+                    },
+                }
+            )
+            const { data: { session } } = await supabase.auth.getSession()
+            token = session?.access_token
+        }
 
         if (!token) {
             return NextResponse.json(
