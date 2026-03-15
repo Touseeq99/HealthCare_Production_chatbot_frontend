@@ -239,12 +239,35 @@ export function PatientFormWizard({ form, onChange, missingFields, renderSubmitA
     const labs = form.key_investigations.laboratory_tests
     const payload: Record<string, string | number | undefined> = {}
 
-    if (labs.egfr) { payload.egfr = parseFloat(labs.egfr); payload.egfr_unit = "mL/min/1.73m²" }
-    if (labs.troponin) { payload.troponin = parseFloat(labs.troponin); payload.troponin_unit = "ng/mL" }
-    if (labs.troponin_upper_limit) { payload.troponin_upper_limit = parseFloat(labs.troponin_upper_limit) }
-    if (labs.crp) { payload.crp = parseFloat(labs.crp); payload.crp_unit = "mg/L" }
-    if (labs.d_dimer) { payload.d_dimer = parseFloat(labs.d_dimer); payload.d_dimer_unit = "mg/L FEU" }
-    if (form.patient_identification.age) payload.patient_age = form.patient_identification.age
+    const extractNum = (val: string | undefined): number | undefined => {
+      if (!val) return undefined;
+      // Strip out non-numeric leading characters (e.g. '<0.01' -> '0.01', '>100' -> '100')
+      const cleaned = val.replace(/^[^\d.-]+/, '');
+      const num = parseFloat(cleaned);
+      return isNaN(num) ? undefined : num;
+    };
+
+    const egfrVal = extractNum(labs.egfr);
+    if (egfrVal !== undefined) { payload.egfr = egfrVal; payload.egfr_unit = "mL/min/1.73m²" }
+
+    const tropVal = extractNum(labs.troponin);
+    if (tropVal !== undefined) { payload.troponin = tropVal; payload.troponin_unit = "ng/mL" }
+
+    const tropLimit = extractNum(labs.troponin_upper_limit);
+    if (tropLimit !== undefined) { 
+      payload.troponin_upper_limit = tropLimit; 
+      payload.troponin_url = tropLimit; 
+    }
+
+    const crpVal = extractNum(labs.crp);
+    if (crpVal !== undefined) { payload.crp = crpVal; payload.crp_unit = "mg/L" }
+
+    const ddimerVal = extractNum(labs.d_dimer);
+    if (ddimerVal !== undefined) { payload.d_dimer = ddimerVal; payload.d_dimer_unit = "mg/L FEU" }
+
+    if (form.patient_identification.age) {
+      payload.patient_age = form.patient_identification.age
+    }
 
     try {
       const res = await apiClient.post("/proxy/clinical-note/interpret-labs", payload)
