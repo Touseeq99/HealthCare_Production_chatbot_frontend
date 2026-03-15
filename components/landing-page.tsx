@@ -30,6 +30,21 @@ import {
 } from "lucide-react";
 import { AuthHashHandler } from "@/components/auth/auth-hash-handler";
 
+const ROTATING_QUOTES = [
+  {
+    text: "MetaMedMD brings structured clinical reasoning into the digital era. It integrates evidence, guidelines, and clinical context in a way that genuinely supports how physicians think.",
+    author: "Senior Cardiologist",
+  },
+  {
+    text: "What stands out about MetaMedMD is its emphasis on transparent, evidence-based reasoning rather than black-box AI. It mirrors the analytical approach clinicians use in real-world practice.",
+    author: "Senior Cardiologist",
+  },
+  {
+    text: "MetaMedMD has the potential to become an invaluable tool for clinicians navigating increasingly complex cardiovascular care. Its structured reasoning framework reflects how expert clinicians approach decision-making.",
+    author: "Senior Cardiologist",
+  },
+];
+
 // Animation variants for smooth section transitions
 const sectionVariants = {
   hidden: { opacity: 0, y: 30 },
@@ -44,6 +59,7 @@ export default function LandingPage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState<'clinicians' | 'teams' | 'innovators'>('clinicians');
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
 
   const rotatingTexts = [
     "For Healthcare Workers: CLARA analyzes symptoms to provide rapid, evidence-based diagnostic pathways and generates precise clinical notes instantly.",
@@ -61,9 +77,14 @@ export default function LandingPage() {
       setCurrentTextIndex((prev) => (prev + 1) % rotatingTexts.length);
     }, 25000); // Changes every 25 seconds as requested
 
+    const quoteInterval = setInterval(() => {
+      setCurrentQuoteIndex((prev) => (prev + 1) % ROTATING_QUOTES.length);
+    }, 5000);
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
       clearInterval(interval);
+      clearInterval(quoteInterval);
     };
   }, []);
 
@@ -475,8 +496,23 @@ export default function LandingPage() {
             <p className="text-lg text-slate-400 mb-10 leading-relaxed font-medium font-secondary">
               CLARA is built with safety as the primary directive. We ensure that AI remains a tool in the clinician's hand, providing clarity without replacing professional judgment.
             </p>
-            <div className="pl-6 border-l-4 border-rose-500 italic text-white/80 text-xl font-medium">
-              "A calm, brilliant colleague — clear-thinking, evidence-driven, and always explainable."
+            <div className="h-[240px] flex flex-col justify-center border-l-4 border-rose-500 pl-6">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentQuoteIndex}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.8, ease: "easeInOut" }}
+                >
+                  <p className="italic text-white/90 text-xl font-medium mb-4">
+                    "{ROTATING_QUOTES[currentQuoteIndex].text}"
+                  </p>
+                  <p className="text-rose-400 font-bold text-sm tracking-widest uppercase">
+                    — {ROTATING_QUOTES[currentQuoteIndex].author}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
 

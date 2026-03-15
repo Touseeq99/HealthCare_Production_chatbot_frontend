@@ -7,13 +7,36 @@ import { SignupForm } from "./signup-form"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 
+const ROTATING_QUOTES = [
+  {
+    text: "MetaMedMD brings structured clinical reasoning into the digital era. It integrates evidence, guidelines, and clinical context in a way that genuinely supports how physicians think.",
+    author: "Senior Cardiologist",
+  },
+  {
+    text: "What stands out about MetaMedMD is its emphasis on transparent, evidence-based reasoning rather than black-box AI. It mirrors the analytical approach clinicians use in real-world practice.",
+    author: "Senior Cardiologist",
+  },
+  {
+    text: "MetaMedMD has the potential to become an invaluable tool for clinicians navigating increasingly complex cardiovascular care. Its structured reasoning framework reflects how expert clinicians approach decision-making.",
+    author: "Senior Cardiologist",
+  },
+]
+
 interface SlidingAuthProps {
     initialMode?: "signin" | "signup"
 }
 
 export function SlidingAuth({ initialMode = "signin" }: SlidingAuthProps) {
     const [isSignUp, setIsSignUp] = useState(initialMode === "signup")
+    const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0)
     const searchParams = useSearchParams()
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentQuoteIndex((prev) => (prev + 1) % ROTATING_QUOTES.length)
+        }, 5000)
+        return () => clearInterval(interval)
+    }, [])
 
     useEffect(() => {
         setIsSignUp(initialMode === "signup")
@@ -113,8 +136,26 @@ export function SlidingAuth({ initialMode = "signin" }: SlidingAuthProps) {
                                 <div className="w-24 h-24 bg-white rounded-[32px] border border-rose-100 flex items-center justify-center mx-auto mb-10 shadow-xl">
                                     <Image src="/MetamedMDlogo (2).png" alt="Logo" width={48} height={48} className="object-contain" />
                                 </div>
-                                <h2 className="text-3xl font-black text-rose-950 mb-8 leading-tight max-w-sm mx-auto">"A brilliant colleague — always evidence-driven."</h2>
-                                <div className="w-16 h-1 bg-rose-500/20 mx-auto rounded-full" />
+                                <div className="h-[200px] flex flex-col justify-center">
+                                    <AnimatePresence mode="wait">
+                                        <motion.div
+                                            key={currentQuoteIndex}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -20 }}
+                                            transition={{ duration: 0.8, ease: "easeInOut" }}
+                                            className="space-y-4"
+                                        >
+                                            <h2 className="text-2xl font-black text-rose-950 leading-tight max-w-sm mx-auto italic">
+                                                "{ROTATING_QUOTES[currentQuoteIndex].text}"
+                                            </h2>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-500">
+                                                — {ROTATING_QUOTES[currentQuoteIndex].author}
+                                            </p>
+                                        </motion.div>
+                                    </AnimatePresence>
+                                </div>
+                                <div className="w-16 h-1 bg-rose-500/20 mx-auto rounded-full mt-8" />
                             </div>
                         </div>
                     </div>

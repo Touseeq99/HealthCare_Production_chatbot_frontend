@@ -27,7 +27,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { StructuredResponse } from "./structured-response"
 import { memo } from "react"
 import { ChatSessionsSidebar } from "./chat-sessions-sidebar"
-import { AIClinicalNote } from "@/components/ai-clinical-note/ai-clinical-note"
+import { ClinicalNotes } from "@/components/clinical-notes/clinical-notes"
 import { DifferentialDiagnosis } from "@/components/differential-diagnosis/differential-diagnosis"
 import { ECGReport } from "@/components/ecg/ecg-report"
 
@@ -405,7 +405,7 @@ export function DoctorChatInterface() {
                       {[
                         { id: 'chat', label: 'Clinical Chat', icon: MessageSquare },
                         { id: 'evidence', label: 'Evidence Base', icon: Shield },
-                        { id: 'note', label: 'Clinical Note', icon: ClipboardList },
+                        { id: 'note', label: 'Cardiology Notes', icon: ClipboardList },
                         { id: 'diff-dx', label: 'Differential Dx', icon: Microscope },
                         { id: 'ecg-report', label: 'ECG Report', icon: Activity },
                       ].map((item) => (
@@ -498,7 +498,7 @@ export function DoctorChatInterface() {
                 <h2 className="text-sm font-black text-rose-950 uppercase tracking-tight">
                   {activeTab === 'chat' && 'Clinical Chat'}
                   {activeTab === 'evidence' && 'Evidence Base'}
-                  {activeTab === 'note' && 'Clinical Note'}
+                  {activeTab === 'note' && 'Cardiology Notes'}
                   {activeTab === 'diff-dx' && 'Differential Dx'}
                   {activeTab === 'ecg-report' && 'ECG Interpretation Report'}
                 </h2>
@@ -673,8 +673,8 @@ export function DoctorChatInterface() {
           </TabsContent>
 
           <TabsContent value="note" className="h-full overflow-hidden m-0 bg-slate-50">
-            <div className="h-full overflow-y-auto">
-              <AIClinicalNote />
+            <div className="h-full overflow-hidden">
+              <ClinicalNotes />
             </div>
           </TabsContent>
 
