@@ -28,12 +28,36 @@ export interface PatientClinicalData {
     other_complaint?: string
     duration?: string
   }
-  associated_symptoms: {
-    nausea: boolean
-    diaphoresis: boolean
-    presyncope: boolean
+  symptoms: {
+    chest_pain_pressure: boolean
+    chest_tightness_heaviness: boolean
+    chest_pain_radiating: boolean
+    shortness_of_breath: boolean
+    breathlessness_on_exertion: boolean
+    breathlessness_at_rest: boolean
     orthopnoea: boolean
+    paroxysmal_nocturnal_dyspnoea: boolean
+    rapid_irregular_heartbeat: boolean
+    skipped_heartbeats: boolean
+    syncope: boolean
+    presyncope: boolean
+    dizziness_lightheadedness: boolean
+    fatigue: boolean
+    reduced_exercise_tolerance: boolean
     peripheral_oedema: boolean
+    abdominal_swelling: boolean
+    sudden_weight_gain: boolean
+    nausea_vomiting: boolean
+    diaphoresis: boolean
+    unexplained_weakness: boolean
+    exertional_chest_pain: boolean
+    exertional_syncope: boolean
+    exertional_dyspnoea: boolean
+    confusion_altered_state: boolean
+    cold_clammy_extremities: boolean
+    reduced_urine_output: boolean
+    stroke_tia_symptoms: boolean
+    sudden_vision_speech_disturbance: boolean
   }
   relevant_medical_history: {
     coronary_artery_disease: boolean
@@ -95,11 +119,13 @@ export interface PatientClinicalData {
   key_investigations: {
     laboratory_tests: {
       troponin?: string
+      troponin_upper_limit?: string
       bnp_nt_probnp?: string
       creatinine?: string
       egfr?: string
       haemoglobin?: string
-      electrolytes?: string
+      sodium?: string
+      potassium?: string
       crp?: string
       d_dimer?: string
     }
@@ -166,6 +192,11 @@ export interface LabInterpretation {
   flag: "NORMAL" | "BORDERLINE" | "ELEVATED" | "ABNORMAL" | "HIGH" | string
 }
 
+export interface MissingField {
+  label: string
+  step: number
+}
+
 export interface LabInterpretResponse {
   interpretations: {
     eGFR?: LabInterpretation
@@ -186,9 +217,18 @@ export const defaultPatientData = (): PatientClinicalData => ({
       stroke_embolic_event: false, other: false,
     },
   },
-  associated_symptoms: {
-    nausea: false, diaphoresis: false, presyncope: false,
-    orthopnoea: false, peripheral_oedema: false,
+  symptoms: {
+    chest_pain_pressure: false, chest_tightness_heaviness: false, chest_pain_radiating: false,
+    shortness_of_breath: false, breathlessness_on_exertion: false, breathlessness_at_rest: false,
+    orthopnoea: false, paroxysmal_nocturnal_dyspnoea: false,
+    rapid_irregular_heartbeat: false, skipped_heartbeats: false,
+    syncope: false, presyncope: false, dizziness_lightheadedness: false,
+    fatigue: false, reduced_exercise_tolerance: false, peripheral_oedema: false,
+    abdominal_swelling: false, sudden_weight_gain: false,
+    nausea_vomiting: false, diaphoresis: false, unexplained_weakness: false,
+    exertional_chest_pain: false, exertional_syncope: false, exertional_dyspnoea: false,
+    confusion_altered_state: false, cold_clammy_extremities: false, reduced_urine_output: false,
+    stroke_tia_symptoms: false, sudden_vision_speech_disturbance: false,
   },
   relevant_medical_history: {
     coronary_artery_disease: false, atrial_fibrillation: false, heart_failure: false,

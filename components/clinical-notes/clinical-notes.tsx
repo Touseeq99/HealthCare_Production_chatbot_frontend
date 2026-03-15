@@ -22,6 +22,7 @@ import {
 
 type ToastType = "success" | "error" | "info"
 interface Toast { id: number; message: string; type: ToastType }
+interface MissingField { label: string; step: number }
 
 function useToasts() {
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -72,7 +73,25 @@ export function ClinicalNotes() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generateDropdownOpen, setGenerateDropdownOpen] = useState(false)
   const [noteResult, setNoteResult] = useState<GenerateResponse | null>(null)
+  const [showValidationConfirm, setShowValidationConfirm] = useState<{ type: OutputType } | null>(null)
   const { toasts, show: toast } = useToasts()
+
+  // ── Validation ──────────────────────────────────────────────────────────
+  const getMissingFields = (data: PatientClinicalData): MissingField[] => {
+    const missing: MissingField[] = []
+    if (!data.patient_identification.initials?.trim()) missing.push({ label: "Patient Initials", step: 1 })
+    if (!data.patient_identification.mrn?.trim()) missing.push({ label: "MRN", step: 1 })
+    if (!data.patient_identification.date_of_admission) missing.push({ label: "Date of Admission", step: 1 })
+    if (!data.symptoms || Object.values(data.symptoms).every(v => v === false)) missing.push({ label: "At least one Symptom", step: 3 })
+    if (!data.key_investigations.laboratory_tests.troponin?.trim()) missing.push({ label: "Troponin", step: 5 })
+    if (!data.key_investigations.laboratory_tests.egfr?.trim()) missing.push({ label: "eGFR", step: 5 })
+    if (!data.key_investigations.laboratory_tests.sodium?.trim()) missing.push({ label: "Sodium", step: 5 })
+    if (!data.key_investigations.laboratory_tests.potassium?.trim()) missing.push({ label: "Potassium", step: 5 })
+    if (!data.primary_diagnosis?.trim()) missing.push({ label: "Primary Diagnosis", step: 6 })
+    return missing
+  }
+
+  const missingFields = getMissingFields(form)
 
   // ── Load patient list ────────────────────────────────────────────────────
   const fetchPatients = useCallback(async () => {
@@ -137,8 +156,15 @@ export function ClinicalNotes() {
   }
 
   // ── Generate Document ────────────────────────────────────────────────────
-  const handleGenerate = async (outputType: OutputType) => {
+  const handleGenerate = async (outputType: OutputType, force = false) => {
     setGenerateDropdownOpen(false)
+    
+    if (!force && missingFields.length > 0) {
+      setShowValidationConfirm({ type: outputType })
+      return
+    }
+
+    setShowValidationConfirm(null)
     setIsGenerating(true)
     setNoteResult(null)
     try {
@@ -210,6 +236,14 @@ export function ClinicalNotes() {
                 </p>
               )}
             </div>
+            {missingFields.length > 0 && (
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 rounded-full animate-pulse">
+                <AlertTriangle className="w-3 h-3 text-amber-500" />
+                <span className="text-[9px] font-black text-amber-700 uppercase tracking-tighter">
+                  {missingFields.length} Required Fields Remaining
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -261,8 +295,13 @@ export function ClinicalNotes() {
                         onClick={() => handleGenerate(type)}
                         className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-700 transition-all text-left border-b border-slate-100 last:border-0"
                       >
-                        <span className="text-base">{icon}</span>
-                        {label}
+                        <div className="flex-1 flex items-center gap-3">
+                          <span className="text-base">{icon}</span>
+                          {label}
+                        </div>
+                        {missingFields.length > 0 && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                        )}
                       </button>
                     ))}
                   </motion.div>
@@ -282,7 +321,7 @@ export function ClinicalNotes() {
 
         {/* Form Wizard */}
         <div className="flex-1 overflow-hidden">
-          <PatientFormWizard form={form} onChange={setForm} />
+          <PatientFormWizard form={form} onChange={setForm} missingFields={missingFields} />
         </div>
       </div>
 
@@ -290,6 +329,66 @@ export function ClinicalNotes() {
       <AnimatePresence>
         {noteResult && (
           <NoteViewer result={noteResult} onClose={() => setNoteResult(null)} />
+        )}
+      </AnimatePresence>
+
+      {/* ── Validation Confirmation Modal ────────────────────────────────────── */}
+      <AnimatePresence>
+        {showValidationConfirm && (
+          <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+            >
+              <div className="px-6 py-4 border-b border-rose-100 bg-rose-50/50 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                  <AlertTriangle className="w-4 h-4 text-amber-600" />
+                </div>
+                <div>
+                  <h2 className="font-black text-rose-950 text-xs uppercase tracking-widest">
+                    Missing Information
+                  </h2>
+                  <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mt-0.5">
+                    {missingFields.length} required fields are empty
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <p className="text-xs text-slate-600 font-medium">
+                  The following required fields are still missing. You can generate the document now, but it may be incomplete.
+                </p>
+                
+                <div className="space-y-1 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                  {missingFields.map((field, i) => (
+                    <div key={i} className="flex items-center justify-between py-2 px-3 border border-slate-100 rounded-lg text-xs font-bold text-slate-700 bg-slate-50">
+                      <span>{field.label}</span>
+                      <span className="bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full text-[9px] uppercase tracking-tighter">
+                        Step {field.step}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => setShowValidationConfirm(null)}
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-black uppercase tracking-wider text-slate-700 hover:bg-slate-50 transition-all"
+                  >
+                    Go Back
+                  </button>
+                  <button
+                    onClick={() => handleGenerate(showValidationConfirm.type, true)}
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-black uppercase tracking-wider transition-all shadow-lg shadow-rose-500/20"
+                  >
+                    Generate Anyway
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 

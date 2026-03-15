@@ -9,7 +9,7 @@ import {
   ChevronRight, Upload, X, Loader2, AlertTriangle, CheckCircle, Info
 } from "lucide-react"
 import {
-  PatientClinicalData, ThreeWay, LabInterpretResponse, LabInterpretation, defaultPatientData
+  PatientClinicalData, ThreeWay, LabInterpretResponse, LabInterpretation, defaultPatientData, MissingField
 } from "./types"
 import apiClient from "@/lib/api-client"
 
@@ -210,9 +210,10 @@ const STEPS = [
 interface PatientFormWizardProps {
   form: PatientClinicalData
   onChange: (form: PatientClinicalData) => void
+  missingFields: MissingField[]
 }
 
-export function PatientFormWizard({ form, onChange }: PatientFormWizardProps) {
+export function PatientFormWizard({ form, onChange, missingFields }: PatientFormWizardProps) {
   const [step, setStep] = useState(1)
   const [labResult, setLabResult] = useState<LabInterpretResponse | null>(null)
   const [isInterpretingLabs, setIsInterpretingLabs] = useState(false)
@@ -239,6 +240,7 @@ export function PatientFormWizard({ form, onChange }: PatientFormWizardProps) {
 
     if (labs.egfr) { payload.egfr = parseFloat(labs.egfr); payload.egfr_unit = "mL/min/1.73m²" }
     if (labs.troponin) { payload.troponin = parseFloat(labs.troponin); payload.troponin_unit = "ng/mL" }
+    if (labs.troponin_upper_limit) { payload.troponin_upper_limit = parseFloat(labs.troponin_upper_limit) }
     if (labs.crp) { payload.crp = parseFloat(labs.crp); payload.crp_unit = "mg/L" }
     if (labs.d_dimer) { payload.d_dimer = parseFloat(labs.d_dimer); payload.d_dimer_unit = "mg/L FEU" }
     if (form.patient_identification.age) payload.patient_age = form.patient_identification.age
@@ -269,7 +271,7 @@ export function PatientFormWizard({ form, onChange }: PatientFormWizardProps) {
                 <TextInput value={pi.initials} onChange={(v) => upd("initials", v)} placeholder="J.D." />
               </div>
               <div>
-                <FieldLabel>MRN</FieldLabel>
+                <FieldLabel>MRN *</FieldLabel>
                 <TextInput value={pi.mrn} onChange={(v) => upd("mrn", v)} placeholder="MRN-001" />
               </div>
               <div>
@@ -298,7 +300,7 @@ export function PatientFormWizard({ form, onChange }: PatientFormWizardProps) {
                 <TextInput value={pi.location} onChange={(v) => upd("location", v)} placeholder="Cardiology Ward 3" />
               </div>
               <div>
-                <FieldLabel>Date of Admission</FieldLabel>
+                <FieldLabel>Date of Admission *</FieldLabel>
                 <DateInput value={pi.date_of_admission} onChange={(v) => upd("date_of_admission", v)} />
               </div>
               <div>
@@ -367,15 +369,87 @@ export function PatientFormWizard({ form, onChange }: PatientFormWizardProps) {
 
       // ─── Step 3: Symptoms & History ──────────────────────────────────────
       case 3: {
-        const as_ = form.associated_symptoms
+        const symptoms = form.symptoms
         const rmh = form.relevant_medical_history
         const cvrf = form.cardiovascular_risk_factors
 
-        const AS_ITEMS = [
-          { key: "nausea", label: "Nausea" }, { key: "diaphoresis", label: "Diaphoresis" },
-          { key: "presyncope", label: "Presyncope" }, { key: "orthopnoea", label: "Orthopnoea" },
-          { key: "peripheral_oedema", label: "Peripheral Oedema" },
+        const SYMPTOM_GROUPS = [
+          {
+            title: "Chest Pain / Pressure",
+            items: [
+              { key: "chest_pain_pressure", label: "Chest pain or pressure" },
+              { key: "chest_tightness_heaviness", label: "Chest tightness or heaviness" },
+              { key: "chest_pain_radiating", label: "Chest pain radiating to arm, jaw, or back" },
+            ]
+          },
+          {
+            title: "Breathlessness",
+            items: [
+              { key: "shortness_of_breath", label: "Shortness of breath" },
+              { key: "breathlessness_on_exertion", label: "Breathlessness on exertion" },
+              { key: "breathlessness_at_rest", label: "Breathlessness at rest" },
+              { key: "orthopnoea", label: "Orthopnoea (breathlessness when lying flat)" },
+              { key: "paroxysmal_nocturnal_dyspnoea", label: "Paroxysmal nocturnal dyspnoea" },
+            ]
+          },
+          {
+            title: "Palpitations",
+            items: [
+              { key: "rapid_irregular_heartbeat", label: "Rapid or irregular heartbeat" },
+              { key: "skipped_heartbeats", label: "Sensation of skipped heartbeats" },
+            ]
+          },
+          {
+            title: "Syncope / Cerebral Hypoperfusion",
+            items: [
+              { key: "syncope", label: "Syncope (fainting)" },
+              { key: "presyncope", label: "Presyncope / near fainting" },
+              { key: "dizziness_lightheadedness", label: "Dizziness or lightheadedness" },
+            ]
+          },
+          {
+            title: "Heart Failure Symptoms",
+            items: [
+              { key: "fatigue", label: "Fatigue" },
+              { key: "reduced_exercise_tolerance", label: "Reduced exercise tolerance" },
+              { key: "peripheral_oedema", label: "Peripheral oedema (leg or ankle swelling)" },
+              { key: "abdominal_swelling", label: "Abdominal swelling or fluid retention" },
+              { key: "sudden_weight_gain", label: "Sudden weight gain from fluid retention" },
+            ]
+          },
+          {
+            title: "Ischaemic / ACS Associated Symptoms",
+            items: [
+              { key: "nausea_vomiting", label: "Nausea or vomiting" },
+              { key: "diaphoresis", label: "Diaphoresis (sweating)" },
+              { key: "unexplained_weakness", label: "Unexplained weakness" },
+            ]
+          },
+          {
+            title: "Structural / Valvular Disease Symptoms",
+            items: [
+              { key: "exertional_chest_pain", label: "Exertional chest pain" },
+              { key: "exertional_syncope", label: "Exertional syncope" },
+              { key: "exertional_dyspnoea", label: "Exertional dyspnoea" },
+            ]
+          },
+          {
+            title: "Cardiogenic Shock / Low Output",
+            items: [
+              { key: "confusion_altered_state", label: "Confusion or altered mental state" },
+              { key: "cold_clammy_extremities", label: "Cold or clammy extremities" },
+              { key: "reduced_urine_output", label: "Reduced urine output" },
+            ]
+          },
+          {
+            title: "Embolic or Neurological Symptoms",
+            items: [
+              { key: "stroke_tia_symptoms", label: "Stroke or TIA symptoms" },
+              { key: "sudden_vision_speech_disturbance", label: "Sudden vision or speech disturbance" },
+            ]
+          }
         ]
+
         const RMH_ITEMS = [
           { key: "coronary_artery_disease", label: "Coronary Artery Disease" },
           { key: "atrial_fibrillation", label: "Atrial Fibrillation" },
@@ -400,10 +474,15 @@ export function PatientFormWizard({ form, onChange }: PatientFormWizardProps) {
         ]
         return (
           <div className="space-y-6">
-            <div>
-              <SectionTitle>Associated Symptoms</SectionTitle>
-              <CheckGroup items={AS_ITEMS} values={as_ as unknown as Record<string, boolean>}
-                onChange={(k, v) => setNested("associated_symptoms", { [k]: v })} />
+            <div className="space-y-4">
+              <SectionTitle>Symptoms</SectionTitle>
+              {SYMPTOM_GROUPS.map((group, idx) => (
+                <div key={idx} className="space-y-2">
+                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter ml-1">{group.title}</h4>
+                  <CheckGroup items={group.items} values={symptoms as unknown as Record<string, boolean>}
+                    onChange={(k, v) => setNested("symptoms", { [k]: v })} />
+                </div>
+              ))}
             </div>
             <div>
               <SectionTitle>Relevant Medical History</SectionTitle>
@@ -588,12 +667,14 @@ export function PatientFormWizard({ form, onChange }: PatientFormWizardProps) {
               <SectionTitle>Laboratory Tests</SectionTitle>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { key: "troponin", label: "Troponin", placeholder: "0.04 ng/mL" },
+                  { key: "troponin", label: "Troponin *", placeholder: "0.04 ng/mL" },
+                  { key: "troponin_upper_limit", label: "Troponin URL", placeholder: "0.014" },
                   { key: "bnp_nt_probnp", label: "BNP/NT-proBNP", placeholder: "500 pg/mL" },
                   { key: "creatinine", label: "Creatinine", placeholder: "110 μmol/L" },
-                  { key: "egfr", label: "eGFR", placeholder: "65 ml/min/1.73m²" },
+                  { key: "egfr", label: "eGFR *", placeholder: "65 ml/min/1.73m²" },
                   { key: "haemoglobin", label: "Haemoglobin", placeholder: "130 g/L" },
-                  { key: "electrolytes", label: "Electrolytes", placeholder: "Na 140, K 4.1" },
+                  { key: "sodium", label: "Sodium *", placeholder: "140 mmol/L" },
+                  { key: "potassium", label: "Potassium *", placeholder: "4.1 mmol/L" },
                   { key: "crp", label: "CRP", placeholder: "8 mg/L" },
                   { key: "d_dimer", label: "D-Dimer", placeholder: "0.5 mg/L FEU" },
                 ].map(({ key, label, placeholder }) => (
@@ -677,7 +758,7 @@ export function PatientFormWizard({ form, onChange }: PatientFormWizardProps) {
         return (
           <div className="space-y-6">
             <div>
-              <FieldLabel>Primary Diagnosis</FieldLabel>
+              <FieldLabel>Primary Diagnosis *</FieldLabel>
               <TextInput
                 value={form.primary_diagnosis}
                 onChange={(v) => set("primary_diagnosis", v)}
@@ -798,13 +879,15 @@ export function PatientFormWizard({ form, onChange }: PatientFormWizardProps) {
             const Icon = s.icon
             const isActive = step === s.id
             const isDone = step > s.id
+            const isInvalid = missingFields.some(f => f.step === s.id)
+            
             return (
               <React.Fragment key={s.id}>
                 <button
                   type="button"
                   onClick={() => setStep(s.id)}
                   className={cn(
-                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide transition-all whitespace-nowrap",
+                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide transition-all whitespace-nowrap relative",
                     isActive
                       ? "bg-rose-500 text-white shadow-md shadow-rose-500/20"
                       : isDone
@@ -819,6 +902,9 @@ export function PatientFormWizard({ form, onChange }: PatientFormWizardProps) {
                   )}
                   <span className="hidden sm:inline">{s.label}</span>
                   <span className="sm:hidden">{s.id}</span>
+                  {!isActive && isInvalid && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400 border border-white shadow-sm" />
+                  )}
                 </button>
                 {i < STEPS.length - 1 && (
                   <ChevronRight className="w-3 h-3 text-slate-300 shrink-0" />
