@@ -211,9 +211,10 @@ interface PatientFormWizardProps {
   form: PatientClinicalData
   onChange: (form: PatientClinicalData) => void
   missingFields: MissingField[]
+  renderSubmitActions?: () => React.ReactNode
 }
 
-export function PatientFormWizard({ form, onChange, missingFields }: PatientFormWizardProps) {
+export function PatientFormWizard({ form, onChange, missingFields, renderSubmitActions }: PatientFormWizardProps) {
   const [step, setStep] = useState(1)
   const [labResult, setLabResult] = useState<LabInterpretResponse | null>(null)
   const [isInterpretingLabs, setIsInterpretingLabs] = useState(false)
@@ -947,14 +948,18 @@ export function PatientFormWizard({ form, onChange, missingFields }: PatientForm
         <span className="text-xs font-bold text-slate-400">
           {step} / {STEPS.length}
         </span>
-        <button
-          type="button"
-          onClick={() => setStep((s) => Math.min(STEPS.length, s + 1))}
-          disabled={step === STEPS.length}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500 text-white text-xs font-black uppercase tracking-wider hover:bg-rose-600 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-rose-500/20"
-        >
-          Next <ChevronRight className="w-3.5 h-3.5" />
-        </button>
+        {step === STEPS.length && renderSubmitActions ? (
+          renderSubmitActions()
+        ) : (
+          <button
+            type="button"
+            onClick={() => setStep((s) => Math.min(STEPS.length, s + 1))}
+            disabled={step === STEPS.length}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500 text-white text-xs font-black uppercase tracking-wider hover:bg-rose-600 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-rose-500/20"
+          >
+            Next <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
     </div>
   )

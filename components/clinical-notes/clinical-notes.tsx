@@ -255,82 +255,88 @@ export function ClinicalNotes() {
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Save Button */}
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-xs font-black uppercase tracking-wider text-slate-700 hover:border-rose-300 hover:text-rose-600 hover:bg-rose-50 transition-all disabled:opacity-50"
-            >
-              {isSaving ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Save className="w-3.5 h-3.5" />
-              )}
-              {isSaving ? "Saving…" : "Save Patient"}
-            </button>
-
-            {/* Generate Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setGenerateDropdownOpen((o) => !o)}
-                disabled={isGenerating}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-black uppercase tracking-wider transition-all shadow-lg shadow-rose-500/20 hover:shadow-rose-500/30 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60"
-              >
-                {isGenerating ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <FileText className="w-3.5 h-3.5" />
-                )}
-                {isGenerating ? "Generating…" : "Generate"}
-                {!isGenerating && <ChevronDown className="w-3 h-3" />}
-              </button>
-
-              <AnimatePresence>
-                {generateDropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                    className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-rose-100 overflow-hidden z-50"
-                  >
-                    {[
-                      { type: "CLINICAL_NOTE" as OutputType, icon: "📄", label: "Clinical Note" },
-                      { type: "HANDOVER_NOTE" as OutputType, icon: "🔄", label: "Handover Note" },
-                      { type: "DISCHARGE_LETTER" as OutputType, icon: "📧", label: "Discharge Letter" },
-                    ].map(({ type, icon, label }) => (
-                      <button
-                        key={type}
-                        onClick={() => handleGenerate(type)}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-700 transition-all text-left border-b border-slate-100 last:border-0"
-                      >
-                        <div className="flex-1 flex items-center gap-3">
-                          <span className="text-base">{icon}</span>
-                          {label}
-                        </div>
-                        {missingFields.length > 0 && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                        )}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Click-away overlay */}
-              {generateDropdownOpen && (
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setGenerateDropdownOpen(false)}
-                />
-              )}
-            </div>
-          </div>
         </div>
 
         {/* Form Wizard */}
         <div className="flex-1 overflow-hidden">
-          <PatientFormWizard form={form} onChange={setForm} missingFields={missingFields} />
+          <PatientFormWizard 
+            form={form} 
+            onChange={setForm} 
+            missingFields={missingFields} 
+            renderSubmitActions={() => (
+              <div className="flex items-center gap-2">
+                {/* Save Button */}
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-xs font-black uppercase tracking-wider text-slate-700 hover:border-rose-300 hover:text-rose-600 hover:bg-rose-50 transition-all disabled:opacity-50"
+                >
+                  {isSaving ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Save className="w-3.5 h-3.5" />
+                  )}
+                  {isSaving ? "Saving…" : "Save Patient"}
+                </button>
+
+                {/* Generate Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setGenerateDropdownOpen((o) => !o)}
+                    disabled={isGenerating}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-black uppercase tracking-wider transition-all shadow-lg shadow-rose-500/20 hover:shadow-rose-500/30 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60"
+                  >
+                    {isGenerating ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <FileText className="w-3.5 h-3.5" />
+                    )}
+                    {isGenerating ? "Generating…" : "Generate"}
+                    {!isGenerating && <ChevronDown className="w-3 h-3" />}
+                  </button>
+
+                  <AnimatePresence>
+                    {generateDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 4 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 4 }}
+                        className="absolute right-0 bottom-full mb-2 w-52 bg-white rounded-xl shadow-xl border border-rose-100 overflow-hidden z-50"
+                      >
+                        {[
+                          { type: "CLINICAL_NOTE" as OutputType, icon: "📄", label: "Clinical Note" },
+                          { type: "HANDOVER_NOTE" as OutputType, icon: "🔄", label: "Handover Note" },
+                          { type: "DISCHARGE_LETTER" as OutputType, icon: "📧", label: "Discharge Letter" },
+                        ].map(({ type, icon, label }) => (
+                          <button
+                            key={type}
+                            onClick={() => handleGenerate(type)}
+                            className="w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-700 transition-all text-left border-b border-slate-100 last:border-0"
+                          >
+                            <div className="flex-1 flex items-center gap-3">
+                              <span className="text-base">{icon}</span>
+                              {label}
+                            </div>
+                            {missingFields.length > 0 && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                            )}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Click-away overlay */}
+                  {generateDropdownOpen && (
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setGenerateDropdownOpen(false)}
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+          />
         </div>
       </div>
 
