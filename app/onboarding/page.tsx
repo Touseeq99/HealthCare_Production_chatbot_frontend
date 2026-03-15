@@ -145,10 +145,7 @@ export default function OnboardingPage() {
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-rose-200/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-rose-200/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/4" />
 
-            <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
+            <div
                 className="max-w-xl w-full bg-white rounded-[2.5rem] shadow-[0_30px_100px_rgba(244,63,94,0.1)] border border-rose-100 overflow-hidden relative z-10"
             >
                 <div className="p-10 md:p-14">
@@ -283,7 +280,7 @@ export default function OnboardingPage() {
                         </div>
                     </form>
                 </div>
-            </motion.div>
+            </div>
         </div>
     )
 }

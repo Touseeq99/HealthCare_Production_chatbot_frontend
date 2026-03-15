@@ -32,12 +32,17 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Verify token cryptographically and load user (Updates session if expired)
-  const { data: { user } } = await supabase.auth.getUser()
-
   const { pathname } = request.nextUrl
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
+
+  if (!isProtectedRoute && !isAuthRoute) {
+    return response
+  }
+
+  // Verify token cryptographically and load user (Updates session if expired)
+  // ONLY for protected or auth routes to save TTFB on landing page
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (isProtectedRoute && !user) {
     // Redirect to login if trying to access protected route without verified authentication

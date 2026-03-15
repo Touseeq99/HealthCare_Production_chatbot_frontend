@@ -12,7 +12,6 @@ export default function Loading() {
 
       <div className="relative flex flex-col items-center">
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
           className="relative w-24 h-24 mb-10"
@@ -51,13 +50,13 @@ export default function Loading() {
                 alt="CLARA Loader"
                 fill
                 className="object-contain"
+                priority
               />
             </div>
           </div>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="flex flex-col items-center gap-4 text-center"

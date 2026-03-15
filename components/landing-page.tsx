@@ -197,11 +197,7 @@ export default function LandingPage() {
         </div>
 
         <div className="container mx-auto px-6 relative z-10 grid lg:grid-cols-2 gap-12 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-          >
+          <div>
             <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold text-[#3D3D3D] leading-tight mb-6">
               Precision Clinical Reasoning <br />
               <span className="text-rose-500">for Modern Physicians and Patients</span>
@@ -211,7 +207,6 @@ export default function LandingPage() {
               <AnimatePresence mode="wait">
                 <motion.p
                   key={currentTextIndex}
-                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.5 }}
@@ -237,7 +232,7 @@ export default function LandingPage() {
                 </Button>
               </Link>
             </div>
-          </motion.div>
+          </div>
 
           {/* Hero Visual - Auto-playing Video */}
           <motion.div
@@ -258,6 +253,8 @@ export default function LandingPage() {
                 loop
                 muted
                 playsInline
+                preload="auto"
+                poster="/hero-poster.png"
                 className="absolute inset-0 w-full h-full object-cover z-0"
               >
                 {/* Dynamically loads the video from the Supabase public 'herovideo' bucket */}

@@ -105,7 +105,7 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body
-        className="min-h-screen bg-background text-foreground transition-colors duration-200"
+        className="min-h-screen bg-background text-foreground"
         suppressHydrationWarning
       >
         <ErrorBoundary>
@@ -113,9 +113,7 @@ export default function RootLayout({
             <div className="min-h-screen flex flex-col">
               <main className="flex-grow">
                 <ClientProvider>
-                  <div className="animate-fade-in">
-                    {children}
-                  </div>
+                  {children}
                 </ClientProvider>
               </main>
               <Footer />
