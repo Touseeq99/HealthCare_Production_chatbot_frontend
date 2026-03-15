@@ -21,6 +21,7 @@ export default function OnboardingPage() {
     const [isLoading, setIsLoading] = useState(false)
     const [isVerifying, setIsVerifying] = useState(true)
     const [userId, setUserId] = useState<string | null>(null)
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         const checkUser = async () => {
@@ -98,7 +99,7 @@ export default function OnboardingPage() {
             }
         } catch (error: any) {
             console.error("Onboarding error:", error)
-            alert(`We couldn't save your profile: ${error.message || "Unknown error"}. Please check your connection and try again.`)
+            setError(error.message || "Failed to save profile. Please try again.")
         } finally {
             setIsLoading(false)
         }
@@ -158,6 +159,17 @@ export default function OnboardingPage() {
                         <h1 className="text-4xl font-black text-rose-950 mb-3 tracking-tighter uppercase">Identity <span className="text-rose-500 italic font-serif lowercase tracking-normal font-medium">Verification</span></h1>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Clinical Onboarding Protocol · Step 01</p>
                     </div>
+
+                    {error && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-8 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 text-sm font-medium"
+                        >
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                            {error}
+                        </motion.div>
+                    )}
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="grid grid-cols-2 gap-5">
