@@ -50,7 +50,7 @@ const MessageBubble = memo(({ message, isAi }: { message: Message; isAi: boolean
     >
       <div
         className={cn(
-          "flex gap-3 max-w-[85%] sm:max-w-[75%]",
+          "flex gap-3 max-w-[95%] sm:max-w-[90%]",
           isAi ? "flex-row" : "flex-row-reverse"
         )}
       >
@@ -524,7 +524,7 @@ export function DoctorChatInterface() {
                   transition={{ duration: 0.3 }}
                   className="flex-1 flex flex-col items-center justify-center px-4 relative z-10"
                 >
-                  <div className="w-full max-w-3xl text-center space-y-10">
+                  <div className="w-full max-w-5xl text-center space-y-10">
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -545,7 +545,7 @@ export function DoctorChatInterface() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 }}
-                      className="max-w-2xl mx-auto w-full"
+                      className="max-w-4xl mx-auto w-full"
                     >
                       <div className="relative flex items-end gap-3 bg-white rounded-2xl p-2 border border-rose-100 focus-within:ring-4 focus-within:ring-rose-500/10 focus-within:border-rose-300 transition-all shadow-xl shadow-rose-500/5">
                         <Textarea
@@ -595,7 +595,7 @@ export function DoctorChatInterface() {
                     ref={messagesContainerRef}
                     className="flex-1 overflow-y-auto px-4 lg:px-8 py-6 scroll-smooth"
                   >
-                    <div className="max-w-4xl mx-auto space-y-6">
+                    <div className="max-w-6xl mx-auto space-y-6">
                       <AnimatePresence initial={false}>
                         {displayMessages.map((msg) => (
                           <MessageBubble key={msg.id} message={msg} isAi={msg.sender === "ai"} />
@@ -619,7 +619,7 @@ export function DoctorChatInterface() {
                 animate={{ opacity: 1, y: 0 }}
                 className="border-t border-rose-100 bg-white/90 backdrop-blur-md p-4 lg:px-8 z-20"
               >
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-6xl mx-auto">
                   <div className="relative flex items-end gap-3 bg-rose-50/30 rounded-2xl p-2 border border-rose-100 focus-within:ring-4 focus-within:ring-rose-500/10 focus-within:border-rose-300 transition-all shadow-sm">
                     <Textarea
                       ref={textareaRef}
