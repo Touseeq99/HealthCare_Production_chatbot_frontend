@@ -261,7 +261,7 @@ export function PatientFormWizard({ form, onChange, missingFields }: PatientForm
     switch (step) {
       // ─── Step 1: Patient Identification ─────────────────────────────────
       case 1: {
-        const pi = form.patient_identification
+        const pi = form.patient_identification || {}
         const upd = (k: keyof typeof pi, v: any) => setNested("patient_identification", { [k]: v })
         return (
           <div className="space-y-4">
@@ -318,8 +318,8 @@ export function PatientFormWizard({ form, onChange, missingFields }: PatientForm
 
       // ─── Step 2: Presenting Complaint ────────────────────────────────────
       case 2: {
-        const pc = form.presenting_complaint
-        const complaints = pc.complaints
+        const pc = form.presenting_complaint || { complaints: {} }
+        const complaints = pc.complaints || {}
         const COMPLAINT_ITEMS = [
           { key: "chest_pain", label: "Chest Pain" },
           { key: "dyspnoea", label: "Dyspnoea" },
@@ -369,9 +369,9 @@ export function PatientFormWizard({ form, onChange, missingFields }: PatientForm
 
       // ─── Step 3: Symptoms & History ──────────────────────────────────────
       case 3: {
-        const symptoms = form.symptoms
-        const rmh = form.relevant_medical_history
-        const cvrf = form.cardiovascular_risk_factors
+        const symptoms = form.symptoms || {}
+        const rmh = form.relevant_medical_history || {}
+        const cvrf = form.cardiovascular_risk_factors || {}
 
         const SYMPTOM_GROUPS = [
           {
@@ -500,10 +500,10 @@ export function PatientFormWizard({ form, onChange, missingFields }: PatientForm
 
       // ─── Step 4: Examination & ECG ───────────────────────────────────────
       case 4: {
-        const ef = form.examination_findings
-        const vitals = ef.vitals
-        const cf = ef.clinical_findings
-        const ecg = form.ecg
+        const ef = form.examination_findings || { vitals: {}, clinical_findings: {} }
+        const vitals = ef.vitals || {}
+        const cf = ef.clinical_findings || {}
+        const ecg = form.ecg || {}
 
         const CF_ITEMS = [
           { key: "signs_of_heart_failure", label: "Signs of Heart Failure" },
@@ -614,9 +614,9 @@ export function PatientFormWizard({ form, onChange, missingFields }: PatientForm
 
       // ─── Step 5: Investigations & Labs ───────────────────────────────────
       case 5: {
-        const echo = form.cardiac_imaging.echocardiography
-        const labs = form.key_investigations.laboratory_tests
-        const otherInv = form.key_investigations.other_investigations
+        const echo = form.cardiac_imaging?.echocardiography || {}
+        const labs = form.key_investigations?.laboratory_tests || {}
+        const otherInv = form.key_investigations?.other_investigations || {}
 
         const updateEcho = (k: keyof typeof echo, v: any) =>
           set("cardiac_imaging", { echocardiography: { ...echo, [k]: v } })
@@ -738,8 +738,8 @@ export function PatientFormWizard({ form, onChange, missingFields }: PatientForm
 
       // ─── Step 6: Diagnosis & Treatment ──────────────────────────────────
       case 6: {
-        const tx = form.treatment_during_admission
-        const meds = form.medication_list_at_discharge
+        const tx = form.treatment_during_admission || {}
+        const meds = form.medication_list_at_discharge || []
 
         const TX_ITEMS = [
           { key: "pci", label: "PCI" },
@@ -798,9 +798,9 @@ export function PatientFormWizard({ form, onChange, missingFields }: PatientForm
 
       // ─── Step 7: Clinical Course & Discharge ─────────────────────────────
       case 7: {
-        const cc = form.clinical_course
-        const dp = form.discharge_plan
-        const la = form.lifestyle_advice
+        const cc = form.clinical_course || {}
+        const dp = form.discharge_plan || {}
+        const la = form.lifestyle_advice || {}
 
         const DP_ITEMS = [
           { key: "follow_up_clinic", label: "Follow-up Clinic" },

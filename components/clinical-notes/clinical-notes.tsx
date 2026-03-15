@@ -79,14 +79,18 @@ export function ClinicalNotes() {
   // ── Validation ──────────────────────────────────────────────────────────
   const getMissingFields = (data: PatientClinicalData): MissingField[] => {
     const missing: MissingField[] = []
-    if (!data.patient_identification.initials?.trim()) missing.push({ label: "Patient Initials", step: 1 })
-    if (!data.patient_identification.mrn?.trim()) missing.push({ label: "MRN", step: 1 })
-    if (!data.patient_identification.date_of_admission) missing.push({ label: "Date of Admission", step: 1 })
-    if (!data.symptoms || Object.values(data.symptoms).every(v => v === false)) missing.push({ label: "At least one Symptom", step: 3 })
-    if (!data.key_investigations.laboratory_tests.troponin?.trim()) missing.push({ label: "Troponin", step: 5 })
-    if (!data.key_investigations.laboratory_tests.egfr?.trim()) missing.push({ label: "eGFR", step: 5 })
-    if (!data.key_investigations.laboratory_tests.sodium?.trim()) missing.push({ label: "Sodium", step: 5 })
-    if (!data.key_investigations.laboratory_tests.potassium?.trim()) missing.push({ label: "Potassium", step: 5 })
+    const pi = data.patient_identification || {}
+    const symptoms = data.symptoms || {}
+    const labs = data.key_investigations?.laboratory_tests || {}
+
+    if (!pi.initials?.trim()) missing.push({ label: "Patient Initials", step: 1 })
+    if (!pi.mrn?.trim()) missing.push({ label: "MRN", step: 1 })
+    if (!pi.date_of_admission) missing.push({ label: "Date of Admission", step: 1 })
+    if (Object.values(symptoms).every(v => v === false)) missing.push({ label: "At least one Symptom", step: 3 })
+    if (!labs.troponin?.trim()) missing.push({ label: "Troponin", step: 5 })
+    if (!labs.egfr?.trim()) missing.push({ label: "eGFR", step: 5 })
+    if (!labs.sodium?.trim()) missing.push({ label: "Sodium", step: 5 })
+    if (!labs.potassium?.trim()) missing.push({ label: "Potassium", step: 5 })
     if (!data.primary_diagnosis?.trim()) missing.push({ label: "Primary Diagnosis", step: 6 })
     return missing
   }
@@ -117,7 +121,9 @@ export function ClinicalNotes() {
       const res = await apiClient.get(`/proxy/clinical-note/patients/${id}`)
       const record = res.data
       setRecordId(record.id ?? id)
-      setForm(record.patient_data ?? defaultPatientData())
+      // Merge with defaults to ensure all fields exist
+      const loadedData = record.patient_data || {}
+      setForm({ ...defaultPatientData(), ...loadedData })
     } catch {
       toast("Failed to load patient record.", "error")
     }
@@ -193,7 +199,10 @@ export function ClinicalNotes() {
     const key = "cn-draft-new"
     try {
       const saved = localStorage.getItem(key)
-      if (saved) setForm(JSON.parse(saved))
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        setForm({ ...defaultPatientData(), ...parsed })
+      }
     } catch { /* ignore */ }
   }, []) // eslint-disable-line
 
