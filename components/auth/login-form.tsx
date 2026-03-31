@@ -17,34 +17,38 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
 
-  const checkRoleAndRedirect = async (userId: string, sessionTokens: { access_token: string; refresh_token: string }) => {
-    const { data: profile, error } = await supabase
+  const checkRoleAndRedirect = async (user: any, sessionTokens: { access_token: string; refresh_token: string }) => {
+    const { data: profile } = await supabase
       .from('users')
       .select('role, name, surname')
-      .eq('id', userId)
+      .eq('id', user.id)
       .single()
 
-    if (error || !profile) {
-      setError("User profile not found. Please contact support.")
+    const dbRole = profile?.role
+    const metaRole = user.user_metadata?.role
+    const role = (dbRole && dbRole !== 'unassigned') ? dbRole : (metaRole || 'unassigned')
+
+    if (role === 'unassigned') {
+      router.push('/onboarding')
       return
     }
 
-    // Set the non-httpOnly clientRole directly in the browser so UI components know what to show
-    document.cookie = `clientRole=${profile.role}; path=/; max-age=${60 * 60 * 24 * 7}`;
+    document.cookie = `clientRole=${role}; path=/; max-age=${60 * 60 * 24 * 7}`;
 
-    localStorage.setItem("userName", profile.name || "")
-    if (profile.surname) {
-      localStorage.setItem("userSurname", profile.surname)
-      localStorage.setItem("userFullName", `${profile.name} ${profile.surname}`)
+    const userName = profile?.name || user.user_metadata?.name || ""
+    const userSurname = profile?.surname || user.user_metadata?.surname || ""
+
+    localStorage.setItem("userName", userName)
+    if (userSurname) {
+      localStorage.setItem("userSurname", userSurname)
+      localStorage.setItem("userFullName", `${userName} ${userSurname}`)
     }
 
-    if (profile.role === 'unassigned') {
-      router.push('/onboarding')
-    } else if (profile.role === 'doctor') {
+    if (role === 'doctor') {
       router.push('/doctor/dashboard')
-    } else if (profile.role === 'patient') {
+    } else if (role === 'patient') {
       router.push('/patient/chat')
-    } else if (profile.role === 'admin') {
+    } else if (role === 'admin') {
       router.push('/admin/dashboard')
     } else {
       router.push('/consent')
@@ -86,7 +90,7 @@ export function LoginForm() {
       }
 
       if (data.user && data.session) {
-        await checkRoleAndRedirect(data.user.id, {
+        await checkRoleAndRedirect(data.user, {
           access_token: data.session.access_token,
           refresh_token: data.session.refresh_token
         })

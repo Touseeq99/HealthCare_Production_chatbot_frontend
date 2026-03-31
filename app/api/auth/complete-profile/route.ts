@@ -18,28 +18,28 @@ export async function POST(request: Request) {
         let token = cookieStore.get('userToken')?.value
 
         // If no application-specific token, try to get Supabase session token
-        if (!token) {
-            const { createServerClient } = await import('@supabase/ssr')
-            const supabase = createServerClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-                {
-                    cookies: {
-                        get(name: string) {
-                            return cookieStore.get(name)?.value
-                        },
-                        set(name: string, value: string, options: any) {
-                            cookieStore.set({ name, value, ...options })
-                        },
-                        remove(name: string, options: any) {
-                            cookieStore.set({ name, value: '', ...options })
-                        },
+        const { createServerClient } = await import('@supabase/ssr')
+        const supabase = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                cookies: {
+                    get(name: string) {
+                        return cookieStore.get(name)?.value
                     },
-                }
-            )
-            const { data: { session } } = await supabase.auth.getSession()
-            token = session?.access_token
-        }
+                    set(name: string, value: string, options: any) {
+                        cookieStore.set({ name, value, ...options })
+                    },
+                    remove(name: string, options: any) {
+                        cookieStore.set({ name, value: '', ...options })
+                    },
+                },
+            }
+        )
+
+        const { data: { session } } = await supabase.auth.getSession()
+        token = session?.access_token
+        const user = session?.user
 
         if (!token) {
             return NextResponse.json(
@@ -77,6 +77,25 @@ export async function POST(request: Request) {
                 { success: false, message: data.message || 'Failed to update profile' },
                 { status: response.status }
             )
+        }
+
+        // Successfully updated backend, now sync with Supabase
+        if (user) {
+            // 1. Update user metadata so fallback works even if DB insert fails
+            await supabase.auth.updateUser({
+                data: { role, name, surname }
+            })
+
+            // 2. Update/Insert record in users table
+            await supabase
+                .from('users')
+                .upsert({
+                    id: user.id,
+                    role: role,
+                    name: name,
+                    surname: surname,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'id' })
         }
 
         // Update cookies to reflect the new role

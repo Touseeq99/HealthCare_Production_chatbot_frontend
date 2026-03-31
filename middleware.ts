@@ -57,14 +57,16 @@ export async function middleware(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    const role = profile?.role || user.user_metadata?.role || 'unassigned'
+    const dbRole = profile?.role
+    const metaRole = user.user_metadata?.role
+    const role = (dbRole && dbRole !== 'unassigned') ? dbRole : (metaRole || 'unassigned')
 
     if (role === 'doctor') {
       return NextResponse.redirect(new URL('/doctor/dashboard', request.url))
     } else if (role === 'admin') {
       return NextResponse.redirect(new URL('/admin/dashboard', request.url))
     } else if (role === 'patient') {
-      return NextResponse.redirect(new URL('/patient/dashboard', request.url))
+      return NextResponse.redirect(new URL('/patient/chat', request.url))
     } else {
       return NextResponse.redirect(new URL('/onboarding', request.url))
     }
