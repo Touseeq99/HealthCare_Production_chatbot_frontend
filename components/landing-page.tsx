@@ -121,9 +121,19 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-rose-100 selection:text-rose-900">
       <AuthHashHandler />
+
+      {/* Experimental Disclaimer Banner */}
+      <div className="fixed top-0 left-0 right-0 z-[100] bg-rose-600 text-white py-2.5 text-center text-[10px] md:text-xs font-black tracking-[0.2em] uppercase shadow-lg">
+        <div className="flex items-center justify-center gap-3 px-4">
+          <AlertTriangle className="h-3 w-3 md:h-4 md:h-4 animate-pulse" />
+          <span>NOT FOR CLINICAL USE — STILL EXPERIMENTAL</span>
+          <AlertTriangle className="h-3 w-3 md:h-4 md:h-4 animate-pulse" />
+        </div>
+      </div>
+
       {/* Navigation */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+        className={`fixed top-10 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
           ? "bg-white/90 backdrop-blur-md shadow-sm py-4 border-b border-rose-100"
           : "bg-transparent py-6"
           }`}
@@ -184,7 +194,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen bg-white flex items-center pt-20 overflow-hidden">
+      <section className="relative min-h-screen bg-white flex items-center pt-32 overflow-hidden">
         {/* Soft Pink Wavy Backgrounds */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           <div className="absolute top-[-10%] right-[-10%] w-[80%] h-[120%] bg-gradient-to-br from-rose-50 via-rose-100/30 to-transparent rounded-[100%] blur-3xl opacity-60" />

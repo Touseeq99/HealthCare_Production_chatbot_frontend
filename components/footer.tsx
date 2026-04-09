@@ -63,8 +63,8 @@ export function Footer() {
           <div>
             © {currentYear} CLARA by MetamedMD. All rights reserved.
           </div>
-          <div className="text-slate-400">
-            For clinical professionals. Not intended for direct patient use.
+          <div className="text-slate-400 uppercase tracking-wider font-bold">
+            NOT FOR CLINICAL USE — STILL EXPERIMENTAL.
           </div>
         </div>
       </div>
